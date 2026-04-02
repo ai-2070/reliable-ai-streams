@@ -22,6 +22,7 @@ import { openai } from "@ai-sdk/openai";
 // Create a test agent (requires OpenAI key since Mastra uses it under the hood)
 const createTestAgent = () =>
   new Agent({
+    id: "test-agent",
     name: "test-agent",
     instructions: "You are a helpful assistant. Keep responses brief.",
     model: openai("gpt-5-nano"),
@@ -249,6 +250,7 @@ describeIf(hasOpenAI)("Mastra AI Integration", () => {
 
         // Create agent with tools
         const agentWithTools = new Agent({
+          id: "tool-agent",
           name: "tool-agent",
           instructions: "You are a helpful assistant with access to tools.",
           model: openai("gpt-5-nano"),
@@ -302,6 +304,7 @@ describeIf(hasOpenAI)("Mastra AI Integration", () => {
         const toolCalls: Array<{ name: string; id: string }> = [];
 
         const agentWithTools = new Agent({
+          id: "multi-tool-agent",
           name: "multi-tool-agent",
           instructions: "You are a helpful assistant with access to tools.",
           model: openai("gpt-5-nano"),
