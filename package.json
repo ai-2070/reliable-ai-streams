@@ -76,6 +76,16 @@
       "import": "./dist/drift.js",
       "default": "./dist/drift.js"
     },
+    "./pipeline": {
+      "types": "./dist/pipeline.d.ts",
+      "import": "./dist/pipeline.js",
+      "default": "./dist/pipeline.js"
+    },
+    "./utils/chunking": {
+      "types": "./dist/utils/chunking.d.ts",
+      "import": "./dist/utils/chunking.js",
+      "default": "./dist/utils/chunking.js"
+    },
     "./zod": {
       "types": "./dist/zod/index.d.ts",
       "import": "./dist/zod/index.js",
