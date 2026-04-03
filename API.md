@@ -78,9 +78,9 @@ const result = await l0({
 
   // Optional: Check intervals, default as follows
   checkIntervals: {
-    guardrails: 5, // Check every N tokens
-    drift: 10,
-    checkpoint: 10,
+    guardrails: 15, // Check every N tokens
+    drift: 25,
+    checkpoint: 20,
   },
 
   // Optional: Abort signal
@@ -2156,9 +2156,9 @@ interface L0Options {
 
   // Check intervals (in tokens)
   checkIntervals?: {
-    guardrails?: number; // Run guardrails every N tokens (default: 5)
-    drift?: number; // Run drift detection every N tokens (default: 10)
-    checkpoint?: number; // Save checkpoint every N tokens (default: 10)
+    guardrails?: number; // Run guardrails every N tokens (default: 15)
+    drift?: number; // Run drift detection every N tokens (default: 25)
+    checkpoint?: number; // Save checkpoint every N tokens (default: 20)
   };
 
   // Abort signal for cancellation

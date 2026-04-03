@@ -180,7 +180,7 @@ const results = await window.processAll((chunk) => ({
   stream: () => streamText({ model: openai("gpt-4o"), prompt: chunk.content }),
   retry: { attempts: 3 },
   fallbackStreams: [
-    () => streamText({ model: openai("gpt-5-nano"), prompt: chunk.content }),
+    () => streamText({ model: openai("gpt-4o-mini"), prompt: chunk.content }),
   ],
 }));
 ```

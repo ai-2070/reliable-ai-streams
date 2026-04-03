@@ -8,10 +8,17 @@ Get started with L0 in 5 minutes.
 npm install @ai2070/l0
 ```
 
-**Peer dependency:** Requires `ai` package (Vercel AI SDK)
+**Optional peer dependencies:** Install the SDK(s) you use:
 
 ```bash
+# For Vercel AI SDK
 npm install ai @ai-sdk/openai
+
+# For OpenAI SDK directly
+npm install openai
+
+# For Mastra AI
+npm install @mastra/core
 ```
 
 ## Bundle Size
@@ -67,6 +74,8 @@ You now have:
 
 ```typescript
 import { structured } from "@ai2070/l0";
+import { streamText } from "ai";
+import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 
 const schema = z.object({
@@ -114,9 +123,9 @@ const result = await l0({
 
 ```typescript
 const result = await l0({
-  stream: () => streamText({ model: openai("gpt-5-mini"), prompt }),
+  stream: () => streamText({ model: openai("gpt-4o"), prompt }),
   fallbackStreams: [
-    () => streamText({ model: openai("gpt-4o"), prompt }),
+    () => streamText({ model: openai("gpt-4o-mini"), prompt }),
     () => streamText({ model: anthropic("claude-3-haiku"), prompt }),
   ],
 });

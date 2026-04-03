@@ -419,7 +419,7 @@ Sequential fallback when primary model fails:
 const result = await l0({
   stream: () => streamText({ model: openai("gpt-4o"), prompt }),
   fallbackStreams: [
-    () => streamText({ model: openai("gpt-5-nano"), prompt }),
+    () => streamText({ model: openai("gpt-4o-mini"), prompt }),
     () => streamText({ model: anthropic("claude-3-haiku"), prompt }),
   ],
 });
@@ -545,7 +545,7 @@ const result = await l0({
       model: openai("gpt-4o"),
       prompt: "Write a detailed analysis of...",
     }),
-  fallbackStreams: [() => streamText({ model: openai("gpt-5-nano"), prompt })],
+  fallbackStreams: [() => streamText({ model: openai("gpt-4o-mini"), prompt })],
   retry: { attempts: 3 },
   continueFromLastKnownGoodToken: true,
   checkIntervals: { checkpoint: 10 }, // Save checkpoint every 10 tokens
@@ -750,7 +750,7 @@ console.log(results.results[0]?.state.content);
 const result = await l0({
   stream: () => streamText({ model: openai("gpt-4o"), prompt }),
   fallbackStreams: [
-    () => streamText({ model: openai("gpt-5-nano"), prompt }),
+    () => streamText({ model: openai("gpt-4o-mini"), prompt }),
     () => streamText({ model: anthropic("claude-3-haiku"), prompt }),
   ],
 });

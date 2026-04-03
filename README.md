@@ -18,7 +18,7 @@
   <a href="https://github.com/ai-2070/l0/actions">
     <img src="https://img.shields.io/github/actions/workflow/status/ai-2070/l0/ci.yml?label=tests" alt="CI status">
   </a>
-  <img src="https://img.shields.io/badge/license-Apache_2.0-green" alt="MIT License">
+  <img src="https://img.shields.io/badge/license-Apache_2.0-green" alt="Apache 2.0 License">
 </p>
 
 > LLMs produce high-value reasoning over a low-integrity transport layer.
@@ -114,6 +114,8 @@ const result = await l0({
 
 // Read the stream
 for await (const event of result.stream) {
+  if (event.type === "token") process.stdout.write(event.value);
+}
 ```
 
 ### Vercel AI SDK: With Reliability
@@ -405,6 +407,7 @@ Schemas are available for all core types: `L0State`, `L0Event`, `L0Telemetry`, `
 | [FORMATTING.md](./FORMATTING.md)                               | Formatting helpers            |
 | [CUSTOM_ADAPTERS.md](./CUSTOM_ADAPTERS.md)                     | Build your own adapters       |
 | [MULTIMODAL.md](./MULTIMODAL.md)                               | Image/audio/video support     |
+| [DETERMINISTIC_LIFECYCLE.md](./DETERMINISTIC_LIFECYCLE.md)     | Lifecycle specification       |
 
 ---
 
