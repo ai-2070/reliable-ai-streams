@@ -31,7 +31,7 @@
 >
 > **The result: production-grade, integrity-preserving, deterministic AI streams you can finally build real systems on.**
 
-It works with **OpenAI**, **Vercel AI SDK** (v5 & v6), **Mastra AI**, and **custom adapters**. Supports **multimodal streams**, tool calls, and provides full deterministic replay.
+It works with **OpenAI**, **Vercel AI SDK**, **Mastra AI**, and **custom adapters**. Supports **multimodal streams**, tool calls, and provides full deterministic replay.
 
 ```bash
 npm install @ai2070/l0
