@@ -81,12 +81,12 @@ const result = await l0({
 
 ## Nvidia Blackwell Ready
 
-Even with full guardrails, drift detection, and checkpointing enabled, L0 sustains **300K+ tokens/s** - well above current LLM inference speeds and ready for Nvidia Blackwell's 1000+ tokens/s streaming.
+Even with full guardrails, drift detection, and checkpointing enabled, L0 sustains **~290K tokens/s** - well above current LLM inference speeds and ready for Nvidia Blackwell's 1000+ tokens/s streaming.
 
 | GPU Generation   | Expected Tokens/s | L0 Headroom |
 | ---------------- | ----------------- | ----------- |
-| Current (H100)   | ~100-200          | 1500-3000x  |
-| Blackwell (B200) | ~1000+            | 300x        |
+| Current (H100)   | ~100-200          | 1400-2900x  |
+| Blackwell (B200) | ~1000+            | 290x        |
 
 ## Running Benchmarks
 
