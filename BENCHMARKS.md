@@ -12,12 +12,12 @@ Performance benchmarks measuring L0 overhead on high-throughput streaming.
 
 | Scenario                 | Tokens/s  | Avg Duration | TTFT    | Overhead |
 | ------------------------ | --------- | ------------ | ------- | -------- |
-| Baseline (raw streaming) | 7,450,842 | 0.27 ms      | 0.00 ms | -        |
-| L0 Core (no features)    | 1,060,625 | 2.00 ms      | 0.03 ms | 647%     |
-| L0 + JSON Guardrail      | 532,412   | 3.81 ms      | 0.06 ms | 1319%    |
-| L0 + All Guardrails      | 376,541   | 5.42 ms      | 0.06 ms | 1920%    |
-| L0 + Drift Detection     | 725,208   | 2.76 ms      | 0.04 ms | 928%     |
-| L0 Full Stack            | 306,968   | 6.52 ms      | 0.06 ms | 2330%    |
+| Baseline (raw streaming) | 7,548,751 | 0.26 ms      | 0.00 ms | -        |
+| L0 Core (no features)    | 1,034,235 | 2.03 ms      | 0.04 ms | 668%     |
+| L0 + JSON Guardrail      | 522,955   | 3.88 ms      | 0.06 ms | 1366%    |
+| L0 + All Guardrails      | 365,505   | 5.56 ms      | 0.05 ms | 1997%    |
+| L0 + Drift Detection     | 685,437   | 2.95 ms      | 0.04 ms | 1012%    |
+| L0 Full Stack            | 316,194   | 6.33 ms      | 0.05 ms | 2290%    |
 
 **Legend:**
 
