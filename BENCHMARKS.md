@@ -5,10 +5,23 @@ Performance benchmarks measuring L0 overhead on high-throughput streaming.
 ## Test Environment
 
 - **CPU**: Apple M1 Max (10 cores)
-- **Runtime**: Node.js 22 with Vitest 4
+- **Runtime**: Node.js 24 LTS (Krypton) with Vitest 4
 - **Methodology**: Mock token streams with zero inter-token delay to measure pure L0 overhead
 
 ## Results
+
+| Scenario                 | Tokens/s  | Avg Duration | TTFT    | Overhead |
+| ------------------------ | --------- | ------------ | ------- | -------- |
+| Baseline (raw streaming) | 3,881,905 | 0.63 ms      | 0.00 ms | -        |
+| L0 Core (no features)    | 1,368,701 | 1.54 ms      | 0.03 ms | 144%     |
+| L0 + JSON Guardrail      | 636,865   | 3.18 ms      | 0.05 ms | 401%     |
+| L0 + All Guardrails      | 364,838   | 5.48 ms      | 0.04 ms | 765%     |
+| L0 + Drift Detection     | 688,476   | 2.93 ms      | 0.04 ms | 362%     |
+| L0 Full Stack            | 288,921   | 6.93 ms      | 0.04 ms | 994%     |
+
+### Node.js 22 Results
+
+For comparison, results on Node.js 22 (previous LTS). The raw async iteration baseline is ~2x faster on Node 22, but L0's absolute throughput for real work (guardrails, drift, etc.) is comparable. The higher overhead percentages reflect the faster baseline, not slower L0 execution.
 
 | Scenario                 | Tokens/s  | Avg Duration | TTFT    | Overhead |
 | ------------------------ | --------- | ------------ | ------- | -------- |
