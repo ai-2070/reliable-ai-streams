@@ -139,6 +139,7 @@ Every transition is observable through lifecycle callbacks:
 | Callback        | Fires when                                          |
 | --------------- | --------------------------------------------------- |
 | `onStart`       | Execution begins (including retries/fallbacks)      |
+| `onToken`       | Each text token arrives                             |
 | `onEvent`       | Any normalized event is emitted                     |
 | `onCheckpoint`  | A checkpoint is saved                               |
 | `onViolation`   | A guardrail violation is detected                   |
@@ -387,7 +388,9 @@ console.log(result.agreements);    // points of agreement
 console.log(result.disagreements); // points of disagreement
 ```
 
-Consensus works with both text and structured (schema-based) output, with field-level agreement analysis for structured data.
+Consensus strategies: `unanimous` (all must agree), `majority` (most common wins), `weighted` (custom weights), `best` (highest quality). Conflict resolution: `vote` (majority vote), `merge` (merge intelligently), `best` (select highest quality), `fail` (fail on conflict).
+
+Consensus works with both text and structured (schema-based) output, with field-level agreement analysis for structured data. Presets: `strict()`, `standard()`, `lenient()`, `best()`.
 
 ### Race
 
@@ -520,6 +523,21 @@ For custom providers, L0 provides an adapter registry and helper functions (`toL
 
 ---
 
+## Tool Call Support
+
+L0 provides first-class support for streaming tool calls (function calling):
+
+- Detects tool call events as they stream and buffers arguments incrementally.
+- Emits tool call events with the tool name, call ID, and accumulated arguments.
+- Reports tool calls via the `onToolCall` lifecycle callback.
+- Tracks all detected tool calls in the execution state.
+- Includes formatting utilities (`formatTool`, `formatTools`) supporting JSON Schema, TypeScript, Natural Language, and XML output styles.
+- Provides `parseFunctionCall()` for parsing function calls from model output.
+
+This enables agent runtimes to react to tool calls in real time while still benefiting from L0's full reliability stack.
+
+---
+
 ## Multimodal Support
 
 L0's event model extends beyond text. The `L0DataPayload` type supports:
@@ -643,7 +661,24 @@ L0 is validated by 3,000+ unit tests and 250+ integration tests covering:
 
 ## Appendix A: Error Taxonomy
 
-L0's error categories map to distinct recovery behavior:
+### Error Codes
+
+| Code | Category | Description |
+|---|---|---|
+| `STREAM_ABORTED` | transient | Stream was aborted unexpectedly |
+| `INITIAL_TOKEN_TIMEOUT` | transient | No first token within deadline |
+| `INTER_TOKEN_TIMEOUT` | transient | Gap between tokens exceeded limit |
+| `ZERO_OUTPUT` | content | Model produced empty/trivial output |
+| `GUARDRAIL_VIOLATION` | content | Output violated a guardrail rule |
+| `FATAL_GUARDRAIL_VIOLATION` | fatal | Output violated a fatal guardrail |
+| `DRIFT_DETECTED` | content | Semantic drift detected |
+| `INVALID_STREAM` | fatal | Stream is not a valid async iterable |
+| `ADAPTER_NOT_FOUND` | fatal | No adapter could handle the stream |
+| `ALL_STREAMS_EXHAUSTED` | fatal | All retries and fallbacks failed |
+| `NETWORK_ERROR` | network | Transport-level failure |
+| `FEATURE_NOT_ENABLED` | fatal | Required feature not enabled |
+
+### Error Categories
 
 | Category    | Recovery Behavior                                | Counts Toward Model Limit? |
 | ----------- | ------------------------------------------------ | -------------------------- |
@@ -657,7 +692,21 @@ L0's error categories map to distinct recovery behavior:
 
 ---
 
-## Appendix B: Guardrail Severity
+## Appendix B: Drift Types
+
+| Type | Detection Method |
+|---|---|
+| `tone_shift` | Register/voice change analysis |
+| `meta_commentary` | AI self-reference pattern matching |
+| `format_collapse` | Structural degradation detection |
+| `markdown_collapse` | Markdown formatting breakdown |
+| `repetition` | Phrase/sentence loop detection |
+| `entropy_spike` | Statistical surprise in token distribution |
+| `hedging` | Excessive qualification language |
+
+---
+
+## Appendix C: Guardrail Severity
 
 Violations carry severity which influences L0's recovery decision:
 
@@ -669,7 +718,7 @@ Violations carry severity which influences L0's recovery decision:
 
 ---
 
-## Appendix C: Feature Opt-In Model
+## Appendix D: Feature Opt-In Model
 
 Heavy features use explicit enablement for tree-shaking:
 
@@ -686,3 +735,11 @@ enableAdapterRegistry(registry);
 ```
 
 This ensures unused features are excluded from production bundles.
+
+---
+
+## Appendix E: Event Sourcing Event Types
+
+`START` · `TOKEN` · `CHECKPOINT` · `GUARDRAIL` · `DRIFT` · `RETRY` · `FALLBACK` · `CONTINUATION` · `COMPLETE` · `ERROR`
+
+Each event is timestamped and carries a type-specific payload sufficient for exact replay.
