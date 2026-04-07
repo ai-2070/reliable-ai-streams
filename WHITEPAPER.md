@@ -549,7 +549,7 @@ These repairs are applied only when explicitly enabled (`autoCorrect: true`) and
 
 L0 is designed to stay far ahead of model inference speeds, even with the full feature stack enabled.
 
-### Benchmark Results (Apple M1 Max, Node.js 24, zero-delay mock streams)
+### Benchmark Results (Apple M1 Max, Node.js 22, zero-delay mock streams)
 
 | Scenario                 | Tokens/s    | Overhead vs Baseline |
 | ------------------------ | ----------- | -------------------- |
