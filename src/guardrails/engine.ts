@@ -64,11 +64,6 @@ export class GuardrailEngine {
       this.config.onPhaseStart(phase, this.rules.length, context.tokenCount);
     }
 
-    // Reusable context object — avoids spreading per rule
-    const ruleContext = Object.assign({}, context, {
-      previousViolations: this.state.violations,
-    });
-
     // Execute each rule
     let ruleIndex = 0;
     for (const rule of this.rules) {
@@ -95,14 +90,17 @@ export class GuardrailEngine {
       }
 
       try {
-        // Keep previousViolations up to date for each rule
-        ruleContext.previousViolations = this.state.violations;
-        const ruleViolations = rule.check(ruleContext);
+        const ruleViolations = rule.check({
+          ...context,
+          previousViolations: this.state.violations,
+        });
 
         // Add timestamp to violations
         for (const violation of ruleViolations) {
-          violation.timestamp = timestamp;
-          violations.push(violation);
+          violations.push({
+            ...violation,
+            timestamp,
+          });
         }
 
         // Track violations by rule
