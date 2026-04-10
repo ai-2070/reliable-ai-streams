@@ -223,7 +223,10 @@ export function mastraStream(
   adapterOptions?: MastraAdapterOptions,
 ): () => Promise<AsyncGenerator<L0Event>> {
   return async () => {
-    const streamResult = await agent.stream(messages as any, streamOptions as any);
+    const streamResult = await agent.stream(
+      messages as any,
+      streamOptions as any,
+    );
     return wrapMastraStream(
       streamResult as unknown as MastraModelOutput<any>,
       adapterOptions,
