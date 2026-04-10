@@ -6,7 +6,22 @@
  * @returns True if token contains meaningful content
  */
 export function isMeaningfulToken(token: string): boolean {
-  return token != null && token.length > 0 && token.trim().length > 0;
+  if (!token || token.length === 0) {
+    return false;
+  }
+
+  // Check if token is only whitespace
+  const trimmed = token.trim();
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  // Check if token is only newlines or similar
+  if (/^[\r\n\t\s]+$/.test(token)) {
+    return false;
+  }
+
+  return true;
 }
 
 /**
@@ -15,7 +30,21 @@ export function isMeaningfulToken(token: string): boolean {
  * @returns True if content has meaningful tokens
  */
 export function hasMeaningfulContent(content: string): boolean {
-  return content != null && content.length > 0 && content.trim().length > 0;
+  if (!content || content.length === 0) {
+    return false;
+  }
+
+  const trimmed = content.trim();
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  // Check if content is only whitespace characters
+  if (/^[\r\n\t\s]+$/.test(content)) {
+    return false;
+  }
+
+  return true;
 }
 
 /**
@@ -370,11 +399,7 @@ export function detectOverlap(
   let bestOverlapLen = 0;
 
   // Scan checkpoint for positions where continuation could align
-  for (
-    let i = searchStart;
-    i <= checkpointForMatch.length - minOverlap;
-    i++
-  ) {
+  for (let i = searchStart; i <= checkpointForMatch.length - minOverlap; i++) {
     if (checkpointForMatch[i] !== firstChar) continue;
 
     // Candidate: suffix starting at i
