@@ -1,0 +1,23 @@
+src/guardrails/engine.ts
+  885baab3bf21e7af 93-96,100-103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "b5a2e264c9fbaac42e60ffae4d3c1eefd83949c4",
+  "prompts": {
+    "885baab3bf21e7af": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d838dd99-138f-448d-a815-2bf6cd4bef5a",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "LZL0",
+      "messages": [],
+      "total_additions": 8,
+      "total_deletions": 10,
+      "accepted_lines": 8,
+      "overriden_lines": 0
+    }
+  }
+}
