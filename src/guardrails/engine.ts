@@ -99,17 +99,20 @@ export class GuardrailEngine {
         for (const violation of ruleViolations) {
           violations.push({
             ...violation,
-            timestamp: timestamp,
+            timestamp,
           });
         }
 
         // Track violations by rule
         if (ruleViolations.length > 0) {
-          const existing = this.state.violationsByRule.get(rule.name) || [];
-          this.state.violationsByRule.set(rule.name, [
-            ...existing,
-            ...ruleViolations,
-          ]);
+          let existing = this.state.violationsByRule.get(rule.name);
+          if (!existing) {
+            existing = [];
+            this.state.violationsByRule.set(rule.name, existing);
+          }
+          for (const v of ruleViolations) {
+            existing.push(v);
+          }
         }
 
         const ruleDurationMs = Date.now() - ruleStartTime;

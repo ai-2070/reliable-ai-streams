@@ -63,34 +63,34 @@ L0 includes 3,000+ tests covering all major reliability features.
 
 ## Features
 
-| Feature                                          | Description                                                                                                                                                                                           |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **🔁 Smart Retries**                             | Model-aware retries with fixed-jitter backoff. Automatic retries for zero-token output, network stalls, SSE disconnects, and provider overloads.                                                      |
-| **🌐 Network Protection**                        | Automatic recovery from dropped streams, slow responses, backgrounding, 429/503 load shedding, DNS errors, and partial chunks.                                                                        |
-| **🔀 Model Fallbacks**                           | Automatically fallback to secondary models (e.g., 4o → 4o-mini → Claude/Gemini) with full retry logic.                                                                                                |
-| **💥 Zero-Token/Stall Protection**               | Detects when model produces nothing or stalls mid-stream. Automatically retries or switches to fallbacks.                                                                                             |
-| 📍 **Last-Known-Good Token Resumption**          | When a stream interrupts, L0 resumes generation from the last structurally valid token (Opt-in).                                                                                                      |
-| **🧠 Drift Detection**                           | Detects tone shifts, duplicated sentences, entropy spikes, markdown collapse, and meta-AI patterns before corruption.                                                                                 |
-| **🧱 Structured Output**                         | Guaranteed-valid JSON with Zod (v3/v4), Effect Schema, or JSON Schema. Auto-corrects missing braces, commas, and markdown fences.                                                                     |
-| **🩹 JSON Auto-Healing + Markdown Fence Repair** | Automatic correction of truncated or malformed JSON (missing braces, brackets, quotes), and repair of broken Markdown code fences. Ensures clean extraction of structured data from noisy LLM output. |
-| **🛡️ Guardrails**                                | JSON, Markdown, LaTeX, and pattern validation with fast/slow path execution. Delta-only checks run sync; full-content scans defer to async to never block streaming.                                  |
-| **⚡ Race: Fastest-Model Wins**                  | Run multiple models or providers in parallel and return the fastest valid stream. Ideal for ultra-low-latency chat and high-availability systems.                                                     |
-| **🌿 Parallel: Fan-Out / Fan-In**                | Start multiple streams simultaneously and collect structured or summarized results. Perfect for agent-style multi-model workflows.                                                                    |
-| **🔗 Pipe: Streaming Pipelines**                 | Compose multiple streaming steps (e.g., summarize → refine → translate) with safe state passing and guardrails between each stage.                                                                    |
-| **🧩 Consensus: Agreement Across Models**        | Combine multiple model outputs using unanimous, weighted, or best-match consensus. Guarantees high-confidence generation for safety-critical tasks.                                                   |
-| **📄 Document Windows**                          | Built-in chunking (token, paragraph, sentence, character). Ideal for long documents, transcripts, or multi-page processing.                                                                           |
-| **🎨 Formatting Helpers**                        | Extract JSON/code from markdown fences, strip thinking tags, normalize whitespace, and clean LLM output for downstream processing.                                                                    |
-| **📊 Monitoring**                                | Built-in integrations with OpenTelemetry and Sentry for metrics, tracing, and error tracking.                                                                                                         |
-| **🔔 Lifecycle Callbacks**                       | `onStart`, `onComplete`, `onError`, `onEvent`, `onViolation`, `onRetry`, `onFallback`, `onToolCall` - full observability into every stream phase.                                                     |
-| **📡 Streaming-First Runtime**                   | Thin, deterministic wrapper over `streamText()` with unified event types (`token`, `error`, `complete`) for easy UIs.                                                                                 |
-| **📼 Atomic Event Logs**                         | Record every token, retry, fallback, and guardrail check as immutable events. Full audit trail for debugging and compliance.                                                                          |
-| **🔄 Byte-for-Byte Replays**                     | Deterministically replay any recorded stream to reproduce exact output. Perfect for testing, and time-travel debugging.                                                                               |
-| **⛔ Safety-First Defaults**                     | Continuation off by default. Structured objects never resumed. No silent corruption. Integrity always preserved.                                                                                      |
-| **⚡ Tiny & Explicit**                           | 21KB gzipped core. Tree-shakeable with subpath exports (`/core`, `/structured`, `/consensus`, `/parallel`, `/window`). No frameworks, no heavy abstractions.                                          |
-| **🔌 Custom Adapters (BYOA)**                    | Bring your own adapter for any LLM provider. Built-in adapters for Vercel AI SDK, OpenAI, and Mastra.                                                                                                 |
-| **🖼️ Multimodal Support**                        | Build adapters for image/audio/video generation (FLUX.2, Stable Diffusion, Veo 3, CSM). Progress tracking, data events, and state management for non-text outputs.                                    |
-| **🚀 Nvidia Blackwell-Ready**                    | Optimized for 1000+ tokens/s streaming. Ready for next-gen GPU inference speeds.                                                                                                                      |
-| **🧪 Battle-Tested**                             | 3,000+ unit tests and 250+ integration tests validating real streaming, retries, and advanced behavior.                                                                                               |
+| Feature                                          | Description                                                                                                                                                                                                                 |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **🔁 Smart Retries**                             | Model-aware retries with fixed-jitter backoff. Automatic retries for zero-token output, network stalls, SSE disconnects, and provider overloads.                                                                            |
+| **🌐 Network Protection**                        | Automatic recovery from dropped streams, slow responses, backgrounding, 429/503 load shedding, DNS errors, and partial chunks.                                                                                              |
+| **🔀 Model Fallbacks**                           | Automatically fallback to secondary models (e.g., 4o → 4o-mini → Claude/Gemini) with full retry logic.                                                                                                                      |
+| **💥 Zero-Token/Stall Protection**               | Detects when model produces nothing or stalls mid-stream. Automatically retries or switches to fallbacks.                                                                                                                   |
+| 📍 **Last-Known-Good Token Resumption**          | When a stream interrupts, L0 resumes generation from the last structurally valid token (Opt-in).                                                                                                                            |
+| **🧠 Drift Detection**                           | Detects tone shifts, duplicated sentences, entropy spikes, markdown collapse, and meta-AI patterns before corruption.                                                                                                       |
+| **🧱 Structured Output**                         | Guaranteed-valid JSON with Zod (v3/v4), Effect Schema, or JSON Schema. Auto-corrects missing braces, commas, and markdown fences.                                                                                           |
+| **🩹 JSON Auto-Healing + Markdown Fence Repair** | Automatic correction of truncated or malformed JSON (missing braces, brackets, quotes), and repair of broken Markdown code fences. Ensures clean extraction of structured data from noisy LLM output.                       |
+| **🛡️ Guardrails**                                | JSON, Markdown, LaTeX, and pattern validation with fast/slow path execution. Delta-only checks run sync; full-content scans defer to async to never block streaming.                                                        |
+| **⚡ Race: Fastest-Model Wins**                  | Run multiple models or providers in parallel and return the fastest valid stream. Ideal for ultra-low-latency chat and high-availability systems.                                                                           |
+| **🌿 Parallel: Fan-Out / Fan-In**                | Start multiple streams simultaneously and collect structured or summarized results. Perfect for agent-style multi-model workflows.                                                                                          |
+| **🔗 Pipe: Streaming Pipelines**                 | Compose multiple streaming steps (e.g., summarize → refine → translate) with safe state passing and guardrails between each stage.                                                                                          |
+| **🧩 Consensus: Agreement Across Models**        | Combine multiple model outputs using unanimous, weighted, or best-match consensus. Guarantees high-confidence generation for safety-critical tasks.                                                                         |
+| **📄 Document Windows**                          | Built-in chunking (token, paragraph, sentence, character). Ideal for long documents, transcripts, or multi-page processing.                                                                                                 |
+| **🎨 Formatting Helpers**                        | Extract JSON/code from markdown fences, strip thinking tags, normalize whitespace, and clean LLM output for downstream processing.                                                                                          |
+| **📊 Monitoring**                                | Built-in integrations with OpenTelemetry and Sentry for metrics, tracing, and error tracking.                                                                                                                               |
+| **🔔 Lifecycle Callbacks**                       | `onStart`, `onToken`, `onEvent`, `onCheckpoint`, `onViolation`, `onDrift`, `onTimeout`, `onRetry`, `onFallback`, `onResume`, `onToolCall`, `onAbort`, `onError`, `onComplete` - full observability into every stream phase. |
+| **📡 Streaming-First Runtime**                   | Thin, deterministic wrapper over `streamText()` with unified event types (`token`, `error`, `complete`) for easy UIs.                                                                                                       |
+| **📼 Atomic Event Logs**                         | Record every token, retry, fallback, and guardrail check as immutable events. Full audit trail for debugging and compliance.                                                                                                |
+| **🔄 Byte-for-Byte Replays**                     | Deterministically replay any recorded stream to reproduce exact output. Perfect for testing, and time-travel debugging.                                                                                                     |
+| **⛔ Safety-First Defaults**                     | Continuation off by default. Structured objects never resumed. No silent corruption. Integrity always preserved.                                                                                                            |
+| **⚡ Tiny & Explicit**                           | 21KB gzipped core. Tree-shakeable with subpath exports (`/core`, `/structured`, `/consensus`, `/parallel`, `/window`). No frameworks, no heavy abstractions.                                                                |
+| **🔌 Custom Adapters (BYOA)**                    | Bring your own adapter for any LLM provider. Built-in adapters for Vercel AI SDK, OpenAI, and Mastra.                                                                                                                       |
+| **🖼️ Multimodal Support**                        | Build adapters for image/audio/video generation (FLUX.2, Stable Diffusion, Veo 3, CSM). Progress tracking, data events, and state management for non-text outputs.                                                          |
+| **🚀 Nvidia Blackwell-Ready**                    | Optimized for 1000+ tokens/s streaming. Ready for next-gen GPU inference speeds.                                                                                                                                            |
+| **🧪 Battle-Tested**                             | 3,000+ unit tests and 250+ integration tests validating real streaming, retries, and advanced behavior.                                                                                                                     |
 
 > **Know what you're doing?** [Skip the tutorial](./ADVANCED.md)
 
@@ -386,6 +386,21 @@ if (result.success) {
 ```
 
 Schemas are available for all core types: `L0State`, `L0Event`, `L0Telemetry`, `RetryOptions`, `GuardrailViolation`, `ConsensusResult`, `PipelineResult`, and more.
+
+## Performance
+
+Benchmarks on Apple M1 Max, Node.js 24, zero-delay mock streams (2000 tokens):
+
+| Scenario                 | Tokens/s    | Avg Duration | TTFT        |
+| ------------------------ | ----------- | ------------ | ----------- |
+| Baseline (raw streaming) | 4,459,021   | 0.45 ms      | 0.00 ms     |
+| L0 Core (no features)    | 1,068,683   | 1.87 ms      | 0.04 ms     |
+| L0 + JSON Guardrail      | 615,031     | 3.28 ms      | 0.20 ms     |
+| L0 + All Guardrails      | 337,174     | 5.93 ms      | 0.08 ms     |
+| L0 + Drift Detection     | 609,546     | 3.37 ms      | 0.07 ms     |
+| **L0 Full Stack**        | **259,478** | **7.73 ms**  | **0.08 ms** |
+
+Full stack = JSON + Markdown + zero-output guardrails + drift detection + checkpointing. See [BENCHMARKS.md](./BENCHMARKS.md) for details.
 
 ## Documentation
 

@@ -900,9 +900,10 @@ export async function l0<TOutput = unknown>(
               }
 
               // Update state - use buffer for O(n) accumulation
+              const tokenNow = Date.now();
               tokenBuffer.push(token);
               state.tokenCount++;
-              state.lastTokenAt = Date.now();
+              state.lastTokenAt = tokenNow;
 
               // Build content string only when needed (for guardrails/drift checks/checkpoints)
               // This is O(n) total instead of O(n²) from repeated concatenation
@@ -1002,7 +1003,7 @@ export async function l0<TOutput = unknown>(
               const l0Event: L0Event = {
                 type: "token",
                 value: token,
-                timestamp: Date.now(),
+                timestamp: tokenNow,
               };
 
               safeInvokeCallback(processedOnEvent, l0Event, monitor, "onEvent");

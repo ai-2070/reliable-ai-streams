@@ -64,7 +64,7 @@ L0 treats a model stream as a noisy transport and upgrades it into a determinist
    Telemetry is built in: timing, throughput, errors, retries, violations, drift, and network diagnostics. OpenTelemetry and Sentry integrations ship out of the box. Every lifecycle phase fires observable callbacks.
 
 5. **Performance headroom**
-   The substrate must stay far ahead of model inference speeds. L0 uses incremental state tracking (O(delta) per token), sliding-window drift detection, and tunable check intervals to sustain ~290K tokens/s with full features enabled -- orders of magnitude above current and next-generation inference speeds.
+   The substrate must stay far ahead of model inference speeds. L0 uses incremental state tracking (O(delta) per token), sliding-window drift detection, and tunable check intervals to sustain ~260K tokens/s with full features enabled -- orders of magnitude above current and next-generation inference speeds.
 
 6. **Safety-first defaults**
    Checkpoint continuation is off by default. Structured objects are never resumed mid-stream. No silent corruption. Every opt-in feature requires explicit enablement.
@@ -101,9 +101,7 @@ import { openai } from "@ai-sdk/openai";
 
 const result = await l0({
   stream: () => streamText({ model: openai("gpt-4o"), prompt }),
-  fallbackStreams: [
-    () => streamText({ model: openai("gpt-4o-mini"), prompt }),
-  ],
+  fallbackStreams: [() => streamText({ model: openai("gpt-4o-mini"), prompt })],
   guardrails: recommendedGuardrails,
   retry: recommendedRetry,
   timeout: { initialToken: 5000, interToken: 10000 },
@@ -118,9 +116,9 @@ for await (const event of result.stream) {
 }
 
 // After stream completes:
-console.log(result.state.tokenCount);    // total tokens received
-console.log(result.state.violations);    // guardrail violations
-console.log(result.telemetry);           // timing, throughput, retries
+console.log(result.state.tokenCount); // total tokens received
+console.log(result.state.violations); // guardrail violations
+console.log(result.telemetry); // timing, throughput, retries
 ```
 
 ---
@@ -136,22 +134,22 @@ start -> stream events -> checkpoint/guardrail/drift/timeout hooks
 
 Every transition is observable through lifecycle callbacks:
 
-| Callback        | Fires when                                          |
-| --------------- | --------------------------------------------------- |
-| `onStart`       | Execution begins (including retries/fallbacks)      |
-| `onToken`       | Each text token arrives                             |
-| `onEvent`       | Any normalized event is emitted                     |
-| `onCheckpoint`  | A checkpoint is saved                               |
-| `onViolation`   | A guardrail violation is detected                   |
-| `onDrift`       | Semantic drift is detected                          |
-| `onTimeout`     | A TTFT or inter-token timeout fires                 |
-| `onRetry`       | A retry is initiated (with attempt count and reason) |
-| `onFallback`    | A fallback model is activated                       |
-| `onResume`      | Resumption from a checkpoint begins                 |
-| `onToolCall`    | A tool call is detected in the stream               |
-| `onAbort`       | The execution is cancelled via AbortSignal          |
-| `onError`       | An error occurs (with willRetry/willFallback flags) |
-| `onComplete`    | Execution finishes (with final state)               |
+| Callback       | Fires when                                           |
+| -------------- | ---------------------------------------------------- |
+| `onStart`      | Execution begins (including retries/fallbacks)       |
+| `onToken`      | Each text token arrives                              |
+| `onEvent`      | Any normalized event is emitted                      |
+| `onCheckpoint` | A checkpoint is saved                                |
+| `onViolation`  | A guardrail violation is detected                    |
+| `onDrift`      | Semantic drift is detected                           |
+| `onTimeout`    | A TTFT or inter-token timeout fires                  |
+| `onRetry`      | A retry is initiated (with attempt count and reason) |
+| `onFallback`   | A fallback model is activated                        |
+| `onResume`     | Resumption from a checkpoint begins                  |
+| `onToolCall`   | A tool call is detected in the stream                |
+| `onAbort`      | The execution is cancelled via AbortSignal           |
+| `onError`      | An error occurs (with willRetry/willFallback flags)  |
+| `onComplete`   | Execution finishes (with final state)                |
 
 The lifecycle is specified precisely enough to be implemented identically across the TypeScript and Python runtimes.
 
@@ -164,13 +162,13 @@ L0 normalizes provider-specific events into a unified `L0Event` stream:
 ```typescript
 interface L0Event {
   type: "token" | "message" | "data" | "progress" | "error" | "complete";
-  value?: string;           // text content (for token events)
-  role?: string;            // message role
-  data?: L0DataPayload;     // multimodal content (image, audio, video, file)
-  progress?: L0Progress;    // progress info for long-running operations
-  error?: Error;            // error details
-  reason?: ErrorCategory;   // error category for recovery decisions
-  timestamp?: number;       // event timestamp
+  value?: string; // text content (for token events)
+  role?: string; // message role
+  data?: L0DataPayload; // multimodal content (image, audio, video, file)
+  progress?: L0Progress; // progress info for long-running operations
+  error?: Error; // error details
+  reason?: ErrorCategory; // error category for recovery decisions
+  timestamp?: number; // event timestamp
   usage?: { input_tokens: number; output_tokens: number; cost?: number };
 }
 ```
@@ -201,10 +199,10 @@ The key distinction: **network errors retry with backoff but do not count toward
 
 ```typescript
 // Retry presets for different risk profiles:
-minimalRetry       // 2 attempts, 4 max, linear backoff
-recommendedRetry   // 3 attempts, 6 max, fixed-jitter (default)
-strictRetry        // 3 attempts, 6 max, full-jitter
-exponentialRetry   // 4 attempts, 8 max, exponential
+minimalRetry; // 2 attempts, 4 max, linear backoff
+recommendedRetry; // 3 attempts, 6 max, fixed-jitter (default)
+strictRetry; // 3 attempts, 6 max, full-jitter
+exponentialRetry; // 4 attempts, 8 max, exponential
 ```
 
 L0 supports five backoff strategies (`exponential`, `linear`, `fixed`, `fixed-jitter`, `full-jitter`), custom delay functions, and per-error-type delay configuration.
@@ -277,11 +275,11 @@ L0 provides streaming-structure validators:
 Guardrails are composable and available as presets:
 
 ```typescript
-minimalGuardrails       // JSON + zero output
-recommendedGuardrails   // JSON, Markdown, patterns, zero output
-strictGuardrails        // JSON, Markdown, LaTeX, patterns, zero output
-jsonOnlyGuardrails      // JSON only
-markdownOnlyGuardrails  // Markdown only
+minimalGuardrails; // JSON + zero output
+recommendedGuardrails; // JSON, Markdown, patterns, zero output
+strictGuardrails; // JSON, Markdown, LaTeX, patterns, zero output
+jsonOnlyGuardrails; // JSON only
+markdownOnlyGuardrails; // Markdown only
 ```
 
 ### Fast/Slow Path Execution
@@ -346,15 +344,16 @@ const result = await structured({
     occupation: z.string(),
   }),
   stream: () => streamText({ model: openai("gpt-4o-mini"), prompt }),
-  autoCorrect: true,  // fix trailing commas, missing braces, markdown fences
+  autoCorrect: true, // fix trailing commas, missing braces, markdown fences
 });
 
-console.log(result.data);  // { name: "Alice", age: 32, occupation: "Engineer" }
+console.log(result.data); // { name: "Alice", age: 32, occupation: "Engineer" }
 ```
 
 Supported schema libraries: **Zod v3**, **Zod v4**, **Effect Schema**, and **JSON Schema**.
 
 Auto-correction handles common truncation issues without rewriting semantics:
+
 - Missing closing braces/brackets/quotes
 - Trailing commas
 - Markdown code fences wrapping JSON
@@ -379,12 +378,12 @@ const result = await consensus({
     () => streamText({ model: anthropic("claude-sonnet-4-20250514"), prompt }),
     () => streamText({ model: openai("gpt-4o-mini"), prompt }),
   ],
-  strategy: "majority",  // or "unanimous", "weighted", "best"
-  conflictResolution: "vote",  // or "merge", "fail", "best"
+  strategy: "majority", // or "unanimous", "weighted", "best"
+  conflictResolution: "vote", // or "merge", "fail", "best"
 });
 
-console.log(result.confidence);    // 0-1 confidence score
-console.log(result.agreements);    // points of agreement
+console.log(result.confidence); // 0-1 confidence score
+console.log(result.agreements); // points of agreement
 console.log(result.disagreements); // points of disagreement
 ```
 
@@ -401,7 +400,11 @@ import { race } from "@ai2070/l0";
 
 const result = await race([
   () => l0({ stream: () => streamText({ model: openai("gpt-4o"), prompt }) }),
-  () => l0({ stream: () => streamText({ model: anthropic("claude-sonnet-4-20250514"), prompt }) }),
+  () =>
+    l0({
+      stream: () =>
+        streamText({ model: anthropic("claude-sonnet-4-20250514"), prompt }),
+    }),
 ]);
 ```
 
@@ -412,11 +415,14 @@ Fan-out multiple streams simultaneously with concurrency control, then collect r
 ```typescript
 import { parallel } from "@ai2070/l0";
 
-const results = await parallel([
-  () => l0({ stream: () => streamText({ model, prompt: prompt1 }) }),
-  () => l0({ stream: () => streamText({ model, prompt: prompt2 }) }),
-  () => l0({ stream: () => streamText({ model, prompt: prompt3 }) }),
-], { concurrency: 2 });
+const results = await parallel(
+  [
+    () => l0({ stream: () => streamText({ model, prompt: prompt1 }) }),
+    () => l0({ stream: () => streamText({ model, prompt: prompt2 }) }),
+    () => l0({ stream: () => streamText({ model, prompt: prompt3 }) }),
+  ],
+  { concurrency: 2 },
+);
 ```
 
 ### Pipe: Streaming Pipelines
@@ -445,8 +451,8 @@ For long documents that exceed model context limits, L0 provides built-in chunki
 import { createWindow } from "@ai2070/l0";
 
 const chunks = createWindow(longDocument, {
-  strategy: "paragraph",  // or "token", "sentence", "character"
-  overlap: 100,           // overlap for context restoration
+  strategy: "paragraph", // or "token", "sentence", "character"
+  overlap: 100, // overlap for context restoration
 });
 ```
 
@@ -460,18 +466,18 @@ Reliability is only half the story. Debugging and audits demand reproducibility.
 
 L0 includes an event sourcing system that records every stream operation as an atomic, immutable event:
 
-| Event Type     | Records                                    |
-| -------------- | ------------------------------------------ |
+| Event Type     | Records                                     |
+| -------------- | ------------------------------------------- |
 | `START`        | Execution initiated (attempt number, flags) |
-| `TOKEN`        | Individual token received                  |
-| `CHECKPOINT`   | Checkpoint saved (content, token count)    |
-| `GUARDRAIL`    | Guardrail check result (pass/violation)    |
-| `DRIFT`        | Drift detection result                     |
+| `TOKEN`        | Individual token received                   |
+| `CHECKPOINT`   | Checkpoint saved (content, token count)     |
+| `GUARDRAIL`    | Guardrail check result (pass/violation)     |
+| `DRIFT`        | Drift detection result                      |
 | `RETRY`        | Retry initiated (attempt, reason, category) |
-| `FALLBACK`     | Fallback activated (index, reason)         |
-| `CONTINUATION` | Checkpoint resumption began                |
-| `COMPLETE`     | Execution finished (final state)           |
-| `ERROR`        | Error occurred (category, message)         |
+| `FALLBACK`     | Fallback activated (index, reason)          |
+| `CONTINUATION` | Checkpoint resumption began                 |
+| `COMPLETE`     | Execution finished (final state)            |
+| `ERROR`        | Error occurred (category, message)          |
 
 Storage backends include in-memory, file-based, localStorage, TTL-based (auto-expiring), and composite stores. Snapshot support enables faster replay of long executions.
 
@@ -512,12 +518,12 @@ Telemetry is returned alongside the result object in `result.telemetry`, enablin
 
 L0 ships with built-in adapters for major LLM SDKs:
 
-| Adapter      | Import                         | Usage                                         |
-| ------------ | ------------------------------ | --------------------------------------------- |
-| Vercel AI    | Native (no adapter needed)     | `stream: () => streamText({ model, prompt })` |
-| OpenAI       | `openaiStream` from `@ai2070/l0` | `stream: openaiStream(client, params)`         |
-| Anthropic    | `anthropicStream` from `@ai2070/l0` | `stream: anthropicStream(client, params)`  |
-| Mastra       | `mastraStream` from `@ai2070/l0` | `stream: mastraStream(agent, prompt)`         |
+| Adapter   | Import                              | Usage                                         |
+| --------- | ----------------------------------- | --------------------------------------------- |
+| Vercel AI | Native (no adapter needed)          | `stream: () => streamText({ model, prompt })` |
+| OpenAI    | `openaiStream` from `@ai2070/l0`    | `stream: openaiStream(client, params)`        |
+| Anthropic | `anthropicStream` from `@ai2070/l0` | `stream: anthropicStream(client, params)`     |
+| Mastra    | `mastraStream` from `@ai2070/l0`    | `stream: mastraStream(agent, prompt)`         |
 
 For custom providers, L0 provides an adapter registry and helper functions (`toL0Events()`, `createAdapterTokenEvent()`, `createAdapterDoneEvent()`) to convert any async iterable into L0's normalized event format.
 
@@ -567,16 +573,16 @@ These repairs are applied only when explicitly enabled (`autoCorrect: true`) and
 
 L0 is designed to stay far ahead of model inference speeds, even with the full feature stack enabled.
 
-### Benchmark Results (Apple M1 Max, Node.js 22, zero-delay mock streams)
+### Benchmark Results (Apple M1 Max, Node.js 24, zero-delay mock streams)
 
-| Scenario                 | Tokens/s    | Overhead vs Baseline |
-| ------------------------ | ----------- | -------------------- |
-| Baseline (raw streaming) | 3,881,905   | --                   |
-| L0 Core (no features)    | 1,368,701   | 144%                 |
-| L0 + JSON Guardrail      | 636,865     | 401%                 |
-| L0 + All Guardrails      | 364,838     | 765%                 |
-| L0 + Drift Detection     | 688,476     | 362%                 |
-| **L0 Full Stack**        | **288,921** | 994%                 |
+| Scenario                 | Tokens/s    | Avg Duration | TTFT        | Overhead  |
+| ------------------------ | ----------- | ------------ | ----------- | --------- |
+| Baseline (raw streaming) | 4,459,021   | 0.45 ms      | 0.00 ms     | --        |
+| L0 Core (no features)    | 1,068,683   | 1.87 ms      | 0.04 ms     | 316%      |
+| L0 + JSON Guardrail      | 615,031     | 3.28 ms      | 0.20 ms     | 629%      |
+| L0 + All Guardrails      | 337,174     | 5.93 ms      | 0.08 ms     | 1218%     |
+| L0 + Drift Detection     | 609,546     | 3.37 ms      | 0.07 ms     | 649%      |
+| **L0 Full Stack**        | **259,478** | **7.73 ms**  | **0.08 ms** | **1618%** |
 
 ### Key Optimizations
 
@@ -587,28 +593,28 @@ L0 is designed to stay far ahead of model inference speeds, even with the full f
 
 ### Inference Speed Headroom
 
-Even with the full stack enabled, L0 sustains ~290K tokens/s -- orders of magnitude above current and next-generation inference hardware:
+Even with the full stack enabled, L0 sustains ~260K tokens/s -- orders of magnitude above current and next-generation inference hardware:
 
-| GPU Generation   | Expected Tokens/s | L0 Headroom |
-| ---------------- | ----------------- | ----------- |
-| Current (H100)   | ~100-200          | 1,400-2,900x |
-| Blackwell (B200) | ~1,000+           | ~290x       |
+| GPU Generation   | Expected Tokens/s | L0 Headroom  |
+| ---------------- | ----------------- | ------------ |
+| Current (H100)   | ~100-200          | 1,300-2,600x |
+| Blackwell (B200) | ~1,000+           | ~260x        |
 
 The substrate will not be the bottleneck.
 
 ### Bundle Size
 
-| Export              | Minified | Gzipped |
-| ------------------- | -------- | ------- |
-| `@ai2070/l0`       | 191 KB   | 56 KB   |
-| `@ai2070/l0/core`  | 71 KB    | 21 KB   |
-| `@ai2070/l0/structured` | 61 KB | 18 KB  |
-| `@ai2070/l0/consensus`  | 72 KB | 21 KB  |
-| `@ai2070/l0/parallel`   | 58 KB | 17 KB  |
-| `@ai2070/l0/window`     | 62 KB | 18 KB  |
-| `@ai2070/l0/guardrails` | 18 KB | 6 KB   |
-| `@ai2070/l0/drift`      | 4 KB  | 2 KB   |
-| `@ai2070/l0/monitoring` | 27 KB | 7 KB   |
+| Export                  | Minified | Gzipped |
+| ----------------------- | -------- | ------- |
+| `@ai2070/l0`            | 191 KB   | 56 KB   |
+| `@ai2070/l0/core`       | 71 KB    | 21 KB   |
+| `@ai2070/l0/structured` | 61 KB    | 18 KB   |
+| `@ai2070/l0/consensus`  | 72 KB    | 21 KB   |
+| `@ai2070/l0/parallel`   | 58 KB    | 17 KB   |
+| `@ai2070/l0/window`     | 62 KB    | 18 KB   |
+| `@ai2070/l0/guardrails` | 18 KB    | 6 KB    |
+| `@ai2070/l0/drift`      | 4 KB     | 2 KB    |
+| `@ai2070/l0/monitoring` | 27 KB    | 7 KB    |
 
 Tree-shakeable with subpath exports. No frameworks. No heavy abstractions.
 
@@ -663,46 +669,46 @@ L0 is validated by 3,000+ unit tests and 250+ integration tests covering:
 
 ### Error Codes
 
-| Code | Category | Description |
-|---|---|---|
-| `STREAM_ABORTED` | transient | Stream was aborted unexpectedly |
-| `INITIAL_TOKEN_TIMEOUT` | transient | No first token within deadline |
-| `INTER_TOKEN_TIMEOUT` | transient | Gap between tokens exceeded limit |
-| `ZERO_OUTPUT` | content | Model produced empty/trivial output |
-| `GUARDRAIL_VIOLATION` | content | Output violated a guardrail rule |
-| `FATAL_GUARDRAIL_VIOLATION` | fatal | Output violated a fatal guardrail |
-| `DRIFT_DETECTED` | content | Semantic drift detected |
-| `INVALID_STREAM` | fatal | Stream is not a valid async iterable |
-| `ADAPTER_NOT_FOUND` | fatal | No adapter could handle the stream |
-| `ALL_STREAMS_EXHAUSTED` | fatal | All retries and fallbacks failed |
-| `NETWORK_ERROR` | network | Transport-level failure |
-| `FEATURE_NOT_ENABLED` | fatal | Required feature not enabled |
+| Code                        | Category  | Description                          |
+| --------------------------- | --------- | ------------------------------------ |
+| `STREAM_ABORTED`            | transient | Stream was aborted unexpectedly      |
+| `INITIAL_TOKEN_TIMEOUT`     | transient | No first token within deadline       |
+| `INTER_TOKEN_TIMEOUT`       | transient | Gap between tokens exceeded limit    |
+| `ZERO_OUTPUT`               | content   | Model produced empty/trivial output  |
+| `GUARDRAIL_VIOLATION`       | content   | Output violated a guardrail rule     |
+| `FATAL_GUARDRAIL_VIOLATION` | fatal     | Output violated a fatal guardrail    |
+| `DRIFT_DETECTED`            | content   | Semantic drift detected              |
+| `INVALID_STREAM`            | fatal     | Stream is not a valid async iterable |
+| `ADAPTER_NOT_FOUND`         | fatal     | No adapter could handle the stream   |
+| `ALL_STREAMS_EXHAUSTED`     | fatal     | All retries and fallbacks failed     |
+| `NETWORK_ERROR`             | network   | Transport-level failure              |
+| `FEATURE_NOT_ENABLED`       | fatal     | Required feature not enabled         |
 
 ### Error Categories
 
-| Category    | Recovery Behavior                                | Counts Toward Model Limit? |
-| ----------- | ------------------------------------------------ | -------------------------- |
-| `network`   | Retry with backoff                               | No                         |
-| `transient` | Retry with backoff                               | No                         |
-| `model`     | Retry with limits, may trigger fallback          | Yes                        |
-| `content`   | Retry with limits (guardrail/drift violation)    | Yes                        |
-| `provider`  | Retry with limits, may trigger fallback          | Yes                        |
-| `fatal`     | Halt immediately (auth failure, invalid config)  | N/A                        |
-| `internal`  | Halt immediately (bug in L0 itself)              | N/A                        |
+| Category    | Recovery Behavior                               | Counts Toward Model Limit? |
+| ----------- | ----------------------------------------------- | -------------------------- |
+| `network`   | Retry with backoff                              | No                         |
+| `transient` | Retry with backoff                              | No                         |
+| `model`     | Retry with limits, may trigger fallback         | Yes                        |
+| `content`   | Retry with limits (guardrail/drift violation)   | Yes                        |
+| `provider`  | Retry with limits, may trigger fallback         | Yes                        |
+| `fatal`     | Halt immediately (auth failure, invalid config) | N/A                        |
+| `internal`  | Halt immediately (bug in L0 itself)             | N/A                        |
 
 ---
 
 ## Appendix B: Drift Types
 
-| Type | Detection Method |
-|---|---|
-| `tone_shift` | Register/voice change analysis |
-| `meta_commentary` | AI self-reference pattern matching |
-| `format_collapse` | Structural degradation detection |
-| `markdown_collapse` | Markdown formatting breakdown |
-| `repetition` | Phrase/sentence loop detection |
-| `entropy_spike` | Statistical surprise in token distribution |
-| `hedging` | Excessive qualification language |
+| Type                | Detection Method                           |
+| ------------------- | ------------------------------------------ |
+| `tone_shift`        | Register/voice change analysis             |
+| `meta_commentary`   | AI self-reference pattern matching         |
+| `format_collapse`   | Structural degradation detection           |
+| `markdown_collapse` | Markdown formatting breakdown              |
+| `repetition`        | Phrase/sentence loop detection             |
+| `entropy_spike`     | Statistical surprise in token distribution |
+| `hedging`           | Excessive qualification language           |
 
 ---
 
@@ -710,11 +716,11 @@ L0 is validated by 3,000+ unit tests and 250+ integration tests covering:
 
 Violations carry severity which influences L0's recovery decision:
 
-| Severity  | Behavior                                           |
-| --------- | -------------------------------------------------- |
-| `warning` | Recorded but execution continues                   |
-| `error`   | Triggers retry (counts toward model retry budget)  |
-| `fatal`   | Halts execution immediately                        |
+| Severity  | Behavior                                          |
+| --------- | ------------------------------------------------- |
+| `warning` | Recorded but execution continues                  |
+| `error`   | Triggers retry (counts toward model retry budget) |
+| `fatal`   | Halts execution immediately                       |
 
 ---
 

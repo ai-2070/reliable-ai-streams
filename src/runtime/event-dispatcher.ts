@@ -72,6 +72,7 @@ function deepCloneAndFreeze<T>(obj: T): T {
 
 export class EventDispatcher {
   private handlers: L0EventHandler[] = [];
+  private handlersSnapshot: L0EventHandler[] | null = null;
   private readonly streamId: string;
   private readonly _context: Record<string, unknown>;
   private readonly highPerformance: boolean;
@@ -117,6 +118,7 @@ export class EventDispatcher {
    */
   onEvent(handler: L0EventHandler): void {
     this.handlers.push(handler);
+    this.handlersSnapshot = null;
   }
 
   /**
@@ -126,6 +128,7 @@ export class EventDispatcher {
     const index = this.handlers.indexOf(handler);
     if (index !== -1) {
       this.handlers.splice(index, 1);
+      this.handlersSnapshot = null;
     }
   }
 
@@ -153,8 +156,11 @@ export class EventDispatcher {
    * Internal: dispatch a single event to all handlers
    */
   private dispatchToHandlers(event: L0ObservabilityEvent): void {
-    // Snapshot handlers to avoid issues if handlers modify the list during dispatch
-    for (const handler of [...this.handlers]) {
+    // Cache snapshot — invalidated only on onEvent/offEvent
+    if (!this.handlersSnapshot) {
+      this.handlersSnapshot = [...this.handlers];
+    }
+    for (const handler of this.handlersSnapshot) {
       queueMicrotask(() => {
         try {
           // Cast to L0Event - the constructed event matches one of the union members
@@ -234,8 +240,11 @@ export class EventDispatcher {
       ...payload,
     };
 
-    // Snapshot handlers to avoid issues if handlers modify the list during dispatch
-    for (const handler of [...this.handlers]) {
+    // Use cached snapshot — invalidated only on onEvent/offEvent
+    if (!this.handlersSnapshot) {
+      this.handlersSnapshot = [...this.handlers];
+    }
+    for (const handler of this.handlersSnapshot) {
       try {
         // Cast to L0Event - the constructed event matches one of the union members
         const result = handler(event as L0Event) as unknown;

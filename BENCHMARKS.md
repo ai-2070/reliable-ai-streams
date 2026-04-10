@@ -12,25 +12,12 @@ Performance benchmarks measuring L0 overhead on high-throughput streaming.
 
 | Scenario                 | Tokens/s  | Avg Duration | TTFT    | Overhead |
 | ------------------------ | --------- | ------------ | ------- | -------- |
-| Baseline (raw streaming) | 3,881,905 | 0.63 ms      | 0.00 ms | -        |
-| L0 Core (no features)    | 1,368,701 | 1.54 ms      | 0.03 ms | 144%     |
-| L0 + JSON Guardrail      | 636,865   | 3.18 ms      | 0.05 ms | 401%     |
-| L0 + All Guardrails      | 364,838   | 5.48 ms      | 0.04 ms | 765%     |
-| L0 + Drift Detection     | 688,476   | 2.93 ms      | 0.04 ms | 362%     |
-| L0 Full Stack            | 288,921   | 6.93 ms      | 0.04 ms | 994%     |
-
-### Node.js 22 Results
-
-For comparison, results on Node.js 22 (previous LTS). The raw async iteration baseline is ~2x faster on Node 22, but L0's absolute throughput for real work (guardrails, drift, etc.) is comparable. The higher overhead percentages reflect the faster baseline, not slower L0 execution.
-
-| Scenario                 | Tokens/s  | Avg Duration | TTFT    | Overhead |
-| ------------------------ | --------- | ------------ | ------- | -------- |
-| Baseline (raw streaming) | 7,548,751 | 0.26 ms      | 0.00 ms | -        |
-| L0 Core (no features)    | 1,034,235 | 2.03 ms      | 0.04 ms | 668%     |
-| L0 + JSON Guardrail      | 522,955   | 3.88 ms      | 0.06 ms | 1366%    |
-| L0 + All Guardrails      | 365,505   | 5.56 ms      | 0.05 ms | 1997%    |
-| L0 + Drift Detection     | 685,437   | 2.95 ms      | 0.04 ms | 1012%    |
-| L0 Full Stack            | 316,194   | 6.33 ms      | 0.05 ms | 2290%    |
+| Baseline (raw streaming) | 4,459,021 | 0.45 ms      | 0.00 ms | -        |
+| L0 Core (no features)    | 1,068,683 | 1.87 ms      | 0.04 ms | 316%     |
+| L0 + JSON Guardrail      | 615,031   | 3.28 ms      | 0.20 ms | 629%     |
+| L0 + All Guardrails      | 337,174   | 5.93 ms      | 0.08 ms | 1218%    |
+| L0 + Drift Detection     | 609,546   | 3.37 ms      | 0.07 ms | 649%     |
+| L0 Full Stack            | 259,478   | 7.73 ms      | 0.08 ms | 1618%    |
 
 **Legend:**
 
@@ -81,12 +68,12 @@ const result = await l0({
 
 ## Nvidia Blackwell Ready
 
-Even with full guardrails, drift detection, and checkpointing enabled, L0 sustains **~290K tokens/s** - well above current LLM inference speeds and ready for Nvidia Blackwell's 1000+ tokens/s streaming.
+Even with full guardrails, drift detection, and checkpointing enabled, L0 sustains **~260K tokens/s** - well above current LLM inference speeds and ready for Nvidia Blackwell's 1000+ tokens/s streaming.
 
-| GPU Generation   | Expected Tokens/s | L0 Headroom |
-| ---------------- | ----------------- | ----------- |
-| Current (H100)   | ~100-200          | 1400-2900x  |
-| Blackwell (B200) | ~1000+            | 290x        |
+| GPU Generation   | Expected Tokens/s | L0 Headroom  |
+| ---------------- | ----------------- | ------------ |
+| Current (H100)   | ~100-200          | 1,300-2,600x |
+| Blackwell (B200) | ~1000+            | ~260x        |
 
 ## Running Benchmarks
 
