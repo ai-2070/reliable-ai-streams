@@ -1,0 +1,25 @@
+BENCHMARKS.md
+  e686492543f67967 15-20,71,75-76
+WHITEPAPER.md
+  e686492543f67967 67,576,578-585,596,598-601
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.6",
+  "base_commit_sha": "bb25b29be06f53ed29d3284ed911a93d1a1930bf",
+  "prompts": {
+    "e686492543f67967": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7180a511-6042-41ae-bcc9-9ca91c3721a0",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "LZL0",
+      "messages": [],
+      "total_additions": 24,
+      "total_deletions": 37,
+      "accepted_lines": 24,
+      "overriden_lines": 0
+    }
+  }
+}
