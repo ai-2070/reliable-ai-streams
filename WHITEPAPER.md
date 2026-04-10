@@ -64,7 +64,7 @@ L0 treats a model stream as a noisy transport and upgrades it into a determinist
    Telemetry is built in: timing, throughput, errors, retries, violations, drift, and network diagnostics. OpenTelemetry and Sentry integrations ship out of the box. Every lifecycle phase fires observable callbacks.
 
 5. **Performance headroom**
-   The substrate must stay far ahead of model inference speeds. L0 uses incremental state tracking (O(delta) per token), sliding-window drift detection, and tunable check intervals to sustain ~290K tokens/s with full features enabled -- orders of magnitude above current and next-generation inference speeds.
+   The substrate must stay far ahead of model inference speeds. L0 uses incremental state tracking (O(delta) per token), sliding-window drift detection, and tunable check intervals to sustain ~237K tokens/s with full features enabled -- orders of magnitude above current and next-generation inference speeds.
 
 6. **Safety-first defaults**
    Checkpoint continuation is off by default. Structured objects are never resumed mid-stream. No silent corruption. Every opt-in feature requires explicit enablement.
@@ -573,16 +573,16 @@ These repairs are applied only when explicitly enabled (`autoCorrect: true`) and
 
 L0 is designed to stay far ahead of model inference speeds, even with the full feature stack enabled.
 
-### Benchmark Results (Apple M1 Max, Node.js 22, zero-delay mock streams)
+### Benchmark Results (Apple M1 Max, Node.js 24, zero-delay mock streams)
 
-| Scenario                 | Tokens/s    | Overhead vs Baseline |
-| ------------------------ | ----------- | -------------------- |
-| Baseline (raw streaming) | 3,881,905   | --                   |
-| L0 Core (no features)    | 1,368,701   | 144%                 |
-| L0 + JSON Guardrail      | 636,865     | 401%                 |
-| L0 + All Guardrails      | 364,838     | 765%                 |
-| L0 + Drift Detection     | 688,476     | 362%                 |
-| **L0 Full Stack**        | **288,921** | 994%                 |
+| Scenario                 | Tokens/s    | Avg Duration | TTFT    | Overhead |
+| ------------------------ | ----------- | ------------ | ------- | -------- |
+| Baseline (raw streaming) | 2,861,107   | 0.78 ms      | 0.01 ms | --       |
+| L0 Core (no features)    | 827,621     | 2.54 ms      | 0.09 ms | 226%     |
+| L0 + JSON Guardrail      | 553,970     | 3.65 ms      | 0.11 ms | 370%     |
+| L0 + All Guardrails      | 315,898     | 6.34 ms      | 0.13 ms | 714%     |
+| L0 + Drift Detection     | 486,234     | 4.13 ms      | 0.17 ms | 431%     |
+| **L0 Full Stack**        | **236,679** | **8.46 ms**  | **0.10 ms** | **988%** |
 
 ### Key Optimizations
 
@@ -593,12 +593,12 @@ L0 is designed to stay far ahead of model inference speeds, even with the full f
 
 ### Inference Speed Headroom
 
-Even with the full stack enabled, L0 sustains ~290K tokens/s -- orders of magnitude above current and next-generation inference hardware:
+Even with the full stack enabled, L0 sustains ~237K tokens/s -- orders of magnitude above current and next-generation inference hardware:
 
-| GPU Generation   | Expected Tokens/s | L0 Headroom  |
-| ---------------- | ----------------- | ------------ |
-| Current (H100)   | ~100-200          | 1,400-2,900x |
-| Blackwell (B200) | ~1,000+           | ~290x        |
+| GPU Generation   | Expected Tokens/s | L0 Headroom    |
+| ---------------- | ----------------- | -------------- |
+| Current (H100)   | ~100-200          | 1,180-2,370x   |
+| Blackwell (B200) | ~1,000+           | ~237x          |
 
 The substrate will not be the bottleneck.
 
