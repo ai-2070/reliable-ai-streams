@@ -12,12 +12,12 @@ Performance benchmarks measuring L0 overhead on high-throughput streaming.
 
 | Scenario                 | Tokens/s  | Avg Duration | TTFT    | Overhead |
 | ------------------------ | --------- | ------------ | ------- | -------- |
-| Baseline (raw streaming) | 2,861,107 | 0.78 ms      | 0.01 ms | -        |
-| L0 Core (no features)    | 827,621   | 2.54 ms      | 0.09 ms | 226%     |
-| L0 + JSON Guardrail      | 553,970   | 3.65 ms      | 0.11 ms | 370%     |
-| L0 + All Guardrails      | 315,898   | 6.34 ms      | 0.13 ms | 714%     |
-| L0 + Drift Detection     | 486,234   | 4.13 ms      | 0.17 ms | 431%     |
-| L0 Full Stack            | 236,679   | 8.46 ms      | 0.10 ms | 988%     |
+| Baseline (raw streaming) | 4,459,021 | 0.45 ms      | 0.00 ms | -        |
+| L0 Core (no features)    | 1,068,683 | 1.87 ms      | 0.04 ms | 316%     |
+| L0 + JSON Guardrail      | 615,031   | 3.28 ms      | 0.20 ms | 629%     |
+| L0 + All Guardrails      | 337,174   | 5.93 ms      | 0.08 ms | 1218%    |
+| L0 + Drift Detection     | 609,546   | 3.37 ms      | 0.07 ms | 649%     |
+| L0 Full Stack            | 259,478   | 7.73 ms      | 0.08 ms | 1618%    |
 
 **Legend:**
 
@@ -68,12 +68,12 @@ const result = await l0({
 
 ## Nvidia Blackwell Ready
 
-Even with full guardrails, drift detection, and checkpointing enabled, L0 sustains **~237K tokens/s** - well above current LLM inference speeds and ready for Nvidia Blackwell's 1000+ tokens/s streaming.
+Even with full guardrails, drift detection, and checkpointing enabled, L0 sustains **~260K tokens/s** - well above current LLM inference speeds and ready for Nvidia Blackwell's 1000+ tokens/s streaming.
 
-| GPU Generation   | Expected Tokens/s | L0 Headroom |
-| ---------------- | ----------------- | ----------- |
-| Current (H100)   | ~100-200          | 1,180-2,370x |
-| Blackwell (B200) | ~1000+            | ~237x       |
+| GPU Generation   | Expected Tokens/s | L0 Headroom  |
+| ---------------- | ----------------- | ------------ |
+| Current (H100)   | ~100-200          | 1,300-2,600x |
+| Blackwell (B200) | ~1000+            | ~260x        |
 
 ## Running Benchmarks
 
