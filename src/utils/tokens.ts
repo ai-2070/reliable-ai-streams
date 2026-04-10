@@ -6,22 +6,7 @@
  * @returns True if token contains meaningful content
  */
 export function isMeaningfulToken(token: string): boolean {
-  if (!token || token.length === 0) {
-    return false;
-  }
-
-  // Check if token is only whitespace
-  const trimmed = token.trim();
-  if (trimmed.length === 0) {
-    return false;
-  }
-
-  // Check if token is only newlines or similar
-  if (/^[\r\n\t\s]+$/.test(token)) {
-    return false;
-  }
-
-  return true;
+  return token != null && token.length > 0 && token.trim().length > 0;
 }
 
 /**
@@ -30,21 +15,7 @@ export function isMeaningfulToken(token: string): boolean {
  * @returns True if content has meaningful tokens
  */
 export function hasMeaningfulContent(content: string): boolean {
-  if (!content || content.length === 0) {
-    return false;
-  }
-
-  const trimmed = content.trim();
-  if (trimmed.length === 0) {
-    return false;
-  }
-
-  // Check if content is only whitespace characters
-  if (/^[\r\n\t\s]+$/.test(content)) {
-    return false;
-  }
-
-  return true;
+  return content != null && content.length > 0 && content.trim().length > 0;
 }
 
 /**
@@ -386,58 +357,87 @@ export function detectOverlap(
     };
   }
 
-  // Search from longest to shortest overlap for efficiency
-  // This way we find the longest match first and can exit early
-  for (let len = maxPossibleOverlap; len >= minOverlap; len--) {
-    const suffix = checkpointForMatch.slice(-len);
-    const prefix = continuationForMatch.slice(0, len);
+  // Find longest suffix of checkpoint that matches a prefix of continuation.
+  // Instead of O(n*m) loop with string slices, scan once from the end of
+  // checkpoint to find candidate start positions, then verify.
+  // We only need to check suffixes of checkpoint that start with the same
+  // character as continuation[0].
+  const firstChar = continuationForMatch[0]!;
+  const searchStart = Math.max(
+    0,
+    checkpointForMatch.length - maxPossibleOverlap,
+  );
+  let bestOverlapLen = 0;
 
-    if (suffix === prefix) {
-      // Found overlap - calculate the actual overlap text from original strings
-      // When whitespace is normalized, we need to find the actual boundary
-      let actualOverlapLength = len;
+  // Scan checkpoint for positions where continuation could align
+  for (
+    let i = searchStart;
+    i <= checkpointForMatch.length - minOverlap;
+    i++
+  ) {
+    if (checkpointForMatch[i] !== firstChar) continue;
 
-      if (normalizeWhitespace) {
-        // Find the actual position in the original continuation
-        // by matching the normalized prefix length
-        let normalizedPos = 0;
-        let originalPos = 0;
-        const normalizedPrefix = continuationForMatch.slice(0, len);
+    // Candidate: suffix starting at i
+    const suffixLen = checkpointForMatch.length - i;
+    if (suffixLen < minOverlap || suffixLen <= bestOverlapLen) continue;
+    if (suffixLen > continuationForMatch.length) continue;
 
-        while (
-          normalizedPos < normalizedPrefix.length &&
-          originalPos < continuation.length
-        ) {
-          // Skip extra whitespace in original
-          if (/\s/.test(continuation[originalPos]!)) {
-            if (normalizedPrefix[normalizedPos] === " ") {
-              normalizedPos++;
-              originalPos++;
-              // Skip any additional whitespace in original
-              while (
-                originalPos < continuation.length &&
-                /\s/.test(continuation[originalPos]!)
-              ) {
-                originalPos++;
-              }
-            } else {
+    // Verify full match
+    let match = true;
+    for (let j = 1; j < suffixLen; j++) {
+      if (checkpointForMatch[i + j] !== continuationForMatch[j]) {
+        match = false;
+        break;
+      }
+    }
+
+    if (match) {
+      bestOverlapLen = suffixLen;
+    }
+  }
+
+  if (bestOverlapLen >= minOverlap) {
+    let actualOverlapLength = bestOverlapLen;
+
+    if (normalizeWhitespace) {
+      // Map normalized overlap length back to original continuation positions
+      let normalizedPos = 0;
+      let originalPos = 0;
+
+      while (
+        normalizedPos < bestOverlapLen &&
+        originalPos < continuation.length
+      ) {
+        if (/\s/.test(continuation[originalPos]!)) {
+          if (
+            normalizedPos < bestOverlapLen &&
+            continuationForMatch[normalizedPos] === " "
+          ) {
+            normalizedPos++;
+            originalPos++;
+            while (
+              originalPos < continuation.length &&
+              /\s/.test(continuation[originalPos]!)
+            ) {
               originalPos++;
             }
           } else {
-            normalizedPos++;
             originalPos++;
           }
+        } else {
+          normalizedPos++;
+          originalPos++;
         }
-        actualOverlapLength = originalPos;
       }
-
-      return {
-        overlapLength: actualOverlapLength,
-        overlapText: continuation.slice(0, actualOverlapLength),
-        deduplicatedContinuation: continuation.slice(actualOverlapLength),
-        hasOverlap: true,
-      };
+      actualOverlapLength = originalPos;
     }
+
+    return {
+      overlapLength: actualOverlapLength,
+      overlapText: continuation.slice(0, actualOverlapLength),
+      deduplicatedContinuation: continuation.slice(actualOverlapLength),
+      hasOverlap: true,
+    };
   }
 
   // No overlap found

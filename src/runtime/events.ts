@@ -97,18 +97,11 @@ export function normalizeStreamEvent(chunk: any): L0Event {
     }
   }
 
-  // Handle Anthropic streaming format
+  // Handle Anthropic streaming format (content_delta without a .type field)
   if (chunk.delta?.text) {
     return {
       type: "token",
       value: chunk.delta.text,
-      timestamp: Date.now(),
-    };
-  }
-
-  if (chunk.type === "message_stop" || chunk.type === "content_block_stop") {
-    return {
-      type: "complete",
       timestamp: Date.now(),
     };
   }
