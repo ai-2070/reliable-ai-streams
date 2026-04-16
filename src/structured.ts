@@ -11,7 +11,7 @@ import type {
 import type { L0Options, L0Event } from "./types/l0";
 import type { GuardrailViolation } from "./types/guardrails";
 import { l0 } from "./runtime/l0";
-import { autoCorrectJSON, isValidJSON, extractJSON } from "./utils/autoCorrect";
+import { autoCorrectJSON, extractJSON } from "./utils/autoCorrect";
 
 /**
  * L0 Structured Output - Guaranteed valid JSON matching your schema
