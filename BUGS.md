@@ -14,7 +14,7 @@ The timeout sets a flag checked inside the `for await` loop body. If the stream 
 
 **File:** `src/runtime/l0.ts:289,1981`
 
-When a user passes an `AbortSignal`, `signal` is set to the user's signal. But `result.abort()` only aborts the *internal* controller, which nothing checks. The stream keeps running.
+When a user passes an `AbortSignal`, `signal` is set to the user's signal. But `result.abort()` only aborts the _internal_ controller, which nothing checks. The stream keeps running.
 
 **Fix:** Combine both signals, or check both in the abort condition.
 
@@ -72,7 +72,7 @@ Both `RetryManager` internal state and `l0.ts`'s `retryAttempt` variable track a
 
 **File:** `src/guardrails/engine.ts:180-185`
 
-Fatal violation flags are computed from only the *current* check's violations, not the cumulative `this.state.violations`. A fatal violation from a previous check is silently forgotten.
+Fatal violation flags are computed from only the _current_ check's violations, not the cumulative `this.state.violations`. A fatal violation from a previous check is silently forgotten.
 
 **Fix:** Use `||=` to accumulate: `this.state.hasFatalViolations = this.state.hasFatalViolations || violations.some(v => v.severity === "fatal")`.
 
