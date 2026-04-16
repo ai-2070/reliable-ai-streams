@@ -246,8 +246,93 @@ Duration was calculated from `firstTokenAt` instead of `startTime`, excluding TT
 
 ---
 
+## Pass 3 (Final Sweep) — 7 bugs fixed, plus 3 reviewer fixes
+
+### High Severity
+
+#### P3-1. `extractJSON` balanced brace matching escape outside strings
+
+**File:** `src/utils/autoCorrect.ts`
+
+Same bug class as P2-1 but in the balanced brace matching loop of `extractJSON()`. Backslash outside a JSON string triggered `escapeNext`, skipping the next character and corrupting depth counting.
+
+**Fix:** Only set `escapeNext` when `inString` is true.
+
+#### P3-2. Vercel AI adapter reader lock leak
+
+**File:** `src/adapters/vercel-ai.ts`
+
+`fullStream.getReader()` acquired a reader that was never released via `reader.releaseLock()`. If the generator was abandoned early (e.g., during retry/fallback), the ReadableStream remained locked permanently.
+
+**Fix:** Wrapped the read loop in `try/finally` with `reader.releaseLock()` in the finally block.
+
+#### P3-4. `structured` and `structuredStream` `abort()` broken with user signal
+
+**File:** `src/structured.ts`
+
+Same bug class as Bug 2 (l0.ts abort). When a user provided their own `AbortSignal`, the returned `abort()` method only aborted the internal controller that L0 wasn't listening to.
+
+**Fix:** Wire external signal to internal controller via `addEventListener('abort', ...)`, always pass internal signal to L0.
+
+### Medium Severity
+
+#### P3-3. DriftDetector not reset between retries
+
+**File:** `src/runtime/l0.ts`
+
+The `driftDetector` instance was reused across retry attempts without calling `reset()`. Cached `formatCollapseDetected`, `hedgingDetected`, entropy history, and window comparisons carried stale data from previous attempts, causing false drift detections.
+
+**Fix:** Call `driftDetector.reset()` in the retry state-reset block.
+
+#### P3-5. Inter-token timeout fires during tool call execution
+
+**File:** `src/runtime/l0.ts`
+
+`lastTokenEmissionTime` was only updated for token events. During tool calls that produced message/data/progress events, the inter-token timer kept running and could fire spuriously.
+
+**Fix:** Update `lastTokenEmissionTime` for message, data, and progress events.
+
+#### P3-6. Initial token timeout not cleared by non-token events
+
+**File:** `src/runtime/l0.ts`
+
+The initial token timeout was only cleared when the first token arrived. Streams that started with non-token events (e.g., tool call before text) would be aborted even though the stream was active.
+
+**Fix:** Clear the initial timeout on any incoming chunk, not just tokens.
+
+### Low Severity
+
+#### P3-7. `calculateConfidence` returns 1.0 for single surviving output
+
+**File:** `src/consensus.ts`
+
+When only 1 stream succeeded out of many, confidence was 1.0 — contradicting the `"partial"` status and misleading callers.
+
+**Fix:** Return 0.5 for single-output consensus.
+
+### Reviewer Fixes
+
+#### R-1. Drift detection caching locks in false negatives on incomplete early chunks
+
+**File:** `src/runtime/drift.ts`
+
+The `=== null` caching pattern for `formatCollapseDetected` and `hedgingDetected` locked in `false` on the first check, even if the content was incomplete (e.g., only "He" had arrived, not "Here is the code:"). Once cached as `false`, the check never re-ran.
+
+**Fix:** Changed from `=== null` guard to `||` latch pattern: `this.history.formatCollapseDetected = this.history.formatCollapseDetected || this.detectFormatCollapse(content)`. This re-checks on every call until detected, then latches `true` permanently. Type changed from `boolean | null` to `boolean`.
+
+#### R-2. Initial timeout abort permanently kills session controller, blocking retries
+
+**File:** `src/runtime/l0.ts`
+
+The initial token timeout callback called `abortController.abort()` on the session-level controller. Once aborted, the signal stayed aborted permanently, and the retry check `!signal?.aborted` blocked all subsequent retry attempts.
+
+**Fix:** Introduced a per-iteration `iterationAbortController` that the timeout aborts instead. The session-level controller is no longer touched by the timeout. The `for await` loop checks both signals separately — iteration abort triggers a `break` (handled by the post-loop timeout check), while session abort throws `STREAM_ABORTED`.
+
+---
+
 ## Test Coverage
 
-- `tests/bugfix-regressions.test.ts` — 22 regression tests (Pass 1)
-- `tests/bugfix-regressions-pass2.test.ts` — 11 regression tests (Pass 2)
-- Full suite: 3,260+ tests passing
+- `tests/bugfix-regressions.test.ts` — 24 regression tests (Pass 1)
+- `tests/bugfix-regressions-pass2.test.ts` — 12 regression tests (Pass 2)
+- `tests/bugfix-regressions-pass3.test.ts` — 11 regression tests (Pass 3)
+- Full suite: 3,270+ tests passing
