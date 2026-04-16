@@ -1,0 +1,23 @@
+tests/bugfix-regressions-pass2.test.ts
+  7727c30431514784 107-108,110-125,128-137,139-140,147-148,195-199,203,210-217,224-229,231,233-234,236-237
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "2aa47388fe8118fb3de55f32ce68af2be46604fe",
+  "prompts": {
+    "7727c30431514784": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7d3456ce-ebea-4e36-8960-f7b8103addb5",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "LZL0",
+      "messages": [],
+      "total_additions": 57,
+      "total_deletions": 21,
+      "accepted_lines": 407,
+      "overriden_lines": 0
+    }
+  }
+}
