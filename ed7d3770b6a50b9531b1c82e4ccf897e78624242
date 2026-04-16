@@ -1,0 +1,45 @@
+src/utils/chunking.ts
+  7727c30431514784 53-54,460,468-469
+src/runtime/drift.ts
+  7727c30431514784 99-102,122-123,210-214,227-231,472-473
+src/consensus.ts
+  7727c30431514784 160,162-167,170-177,401-405
+src/guardrails/engine.ts
+  7727c30431514784 180-185
+src/utils/errors.ts
+  7727c30431514784 648
+src/runtime/l0.ts
+  7727c30431514784 290-304,733-734,1247-1273,1864
+src/adapters/anthropic.ts
+  7727c30431514784 230-231,247-248
+tests/bugfix-regressions.test.ts
+  7727c30431514784 1-353
+src/utils/autoCorrect.ts
+  7727c30431514784 170-199,216-218,369-375,378-380
+src/structured.ts
+  7727c30431514784 274
+src/guardrails/json.ts
+  7727c30431514784 59
+src/runtime/retry.ts
+  7727c30431514784 71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "ed7d3770b6a50b9531b1c82e4ccf897e78624242",
+  "prompts": {
+    "7727c30431514784": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7d3456ce-ebea-4e36-8960-f7b8103addb5",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "LZL0",
+      "messages": [],
+      "total_additions": 515,
+      "total_deletions": 77,
+      "accepted_lines": 510,
+      "overriden_lines": 0
+    }
+  }
+}
