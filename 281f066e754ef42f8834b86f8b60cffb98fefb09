@@ -1,0 +1,23 @@
+BUGS2.md
+  7727c30431514784 249-332,335-338
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "281f066e754ef42f8834b86f8b60cffb98fefb09",
+  "prompts": {
+    "7727c30431514784": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7d3456ce-ebea-4e36-8960-f7b8103addb5",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "LZL0",
+      "messages": [],
+      "total_additions": 88,
+      "total_deletions": 3,
+      "accepted_lines": 418,
+      "overriden_lines": 0
+    }
+  }
+}
