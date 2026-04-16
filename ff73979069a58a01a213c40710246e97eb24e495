@@ -1,0 +1,43 @@
+src/utils/autoCorrect.ts
+  7727c30431514784 149-201,339,394
+tests/bugfix-regressions-pass2.test.ts
+  7727c30431514784 1-213
+src/consensus.ts
+  7727c30431514784 215-220,240-244,250,259,269-272,276,280,291,381
+src/utils/consensusUtils.ts
+  7727c30431514784 402,404,542,544-547
+src/utils/timers.ts
+  7727c30431514784 196-207
+src/utils/chunking.ts
+  7727c30431514784 212-214,225-226,230,346-348,353-354,358
+tests/bugfix-regressions-pass3.test.ts
+  7727c30431514784 1-133
+src/runtime/l0.ts
+  7727c30431514784 449-451,566-570,790-793,1040-1043,1217,1235,1531-1532,1578-1584
+src/structured.ts
+  7727c30431514784 81,83-91,260,461-469,496
+src/adapters/vercel-ai.ts
+  7727c30431514784 72-74,76-78,80,82,84-85,87-88,91-141,144,146-151,154-163,166-167
+tests/bugfix-regressions.test.ts
+  7727c30431514784 340-361
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "ff73979069a58a01a213c40710246e97eb24e495",
+  "prompts": {
+    "7727c30431514784": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7d3456ce-ebea-4e36-8960-f7b8103addb5",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "LZL0",
+      "messages": [],
+      "total_additions": 608,
+      "total_deletions": 112,
+      "accepted_lines": 618,
+      "overriden_lines": 0
+    }
+  }
+}
