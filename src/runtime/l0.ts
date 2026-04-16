@@ -287,7 +287,21 @@ export async function l0<TOutput = unknown>(
 
   // Initialize built-in abort controller
   const abortController = new AbortController();
-  const signal = processedSignal || externalSignal || abortController.signal;
+  // Combine user signal with internal controller so abort() always works
+  const externalOrProcessedSignal = processedSignal || externalSignal;
+  if (externalOrProcessedSignal) {
+    // Propagate external abort to internal controller
+    if (externalOrProcessedSignal.aborted) {
+      abortController.abort();
+    } else {
+      externalOrProcessedSignal.addEventListener(
+        "abort",
+        () => abortController.abort(),
+        { once: true },
+      );
+    }
+  }
+  const signal = abortController.signal;
 
   // Use monitoring if enabled AND feature is loaded
   let monitor: L0MonitorType | null = null;
@@ -716,6 +730,8 @@ export async function l0<TOutput = unknown>(
             });
             initialTimeoutId = setTimeout(() => {
               initialTimeoutReached = true;
+              // Abort the stream to break out of for-await when no chunks arrive
+              abortController.abort();
             }, initialTimeout);
           }
 
@@ -1226,6 +1242,33 @@ export async function l0<TOutput = unknown>(
           // Clear any remaining timeout
           if (initialTimeoutId) {
             clearTimeout(initialTimeoutId);
+          }
+
+          // Check if initial timeout was reached while stream was hanging
+          // (the for-await loop may exit without yielding if the stream
+          // was aborted by the timeout callback)
+          if (initialTimeoutReached && !firstTokenReceived) {
+            metrics.timeouts++;
+            const elapsedMs =
+              processedTimeout.initialToken ?? defaultInitialTokenTimeout;
+            dispatcher.emit(EventType.TIMEOUT_TRIGGERED, {
+              timeoutType: "initial",
+              elapsedMs,
+            });
+            throw new L0Error("Initial token timeout reached", {
+              code: L0ErrorCodes.INITIAL_TOKEN_TIMEOUT,
+              checkpoint: state.checkpoint,
+              tokenCount: 0,
+              contentLength: 0,
+              modelRetryCount: state.modelRetryCount,
+              networkRetryCount: state.networkRetryCount,
+              fallbackIndex,
+              context: processedContext,
+              metadata: {
+                timeout:
+                  processedTimeout.initialToken ?? defaultInitialTokenTimeout,
+              },
+            });
           }
 
           // Flush any remaining deduplication buffer content
@@ -1818,7 +1861,7 @@ export async function l0<TOutput = unknown>(
           fallbackIndex++;
           stateMachine.transition(RuntimeStates.FALLBACK);
           metrics.fallbacks++;
-          const fallbackMessage = `Retries exhausted for stream ${fallbackIndex}, falling back to stream ${fallbackIndex + 1}`;
+          const fallbackMessage = `Retries exhausted for stream ${fallbackIndex - 1}, falling back to stream ${fallbackIndex}`;
 
           monitor?.logEvent({
             type: "fallback",

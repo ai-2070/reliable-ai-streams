@@ -96,6 +96,10 @@ export class DriftDetector {
     lastContent: string;
     /** Last window content for efficient delta processing */
     lastWindowContent: string;
+    /** Cached result for format collapse (only checked once) */
+    formatCollapseDetected: boolean | null;
+    /** Cached result for hedging (only checked once) */
+    hedgingDetected: boolean | null;
   };
 
   constructor(config: DriftConfig = {}) {
@@ -115,6 +119,8 @@ export class DriftDetector {
       tokens: [],
       lastContent: "",
       lastWindowContent: "",
+      formatCollapseDetected: null,
+      hedgingDetected: null,
     };
   }
 
@@ -201,8 +207,11 @@ export class DriftDetector {
       }
     }
 
-    // Check for format collapse (only checks beginning - already efficient)
-    if (this.detectFormatCollapse(content)) {
+    // Check for format collapse (only on first check, result is cached)
+    if (this.history.formatCollapseDetected === null) {
+      this.history.formatCollapseDetected = this.detectFormatCollapse(content);
+    }
+    if (this.history.formatCollapseDetected) {
       types.push("format_collapse");
       confidence = Math.max(confidence, 0.8);
       details.push("Format collapse detected");
@@ -215,8 +224,11 @@ export class DriftDetector {
       details.push("Markdown formatting collapse detected");
     }
 
-    // Check for excessive hedging (only checks first line - already efficient)
-    if (this.detectExcessiveHedging(content)) {
+    // Check for excessive hedging (only on first check, result is cached)
+    if (this.history.hedgingDetected === null) {
+      this.history.hedgingDetected = this.detectExcessiveHedging(content);
+    }
+    if (this.history.hedgingDetected) {
       types.push("hedging");
       confidence = Math.max(confidence, 0.5);
       details.push("Excessive hedging detected");
@@ -457,6 +469,8 @@ export class DriftDetector {
       tokens: [],
       lastContent: "",
       lastWindowContent: "",
+      formatCollapseDetected: null,
+      hedgingDetected: null,
     };
   }
 

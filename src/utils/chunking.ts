@@ -50,8 +50,8 @@ export function chunkByTokens(
     while (endPos < document.length && currentTokens < size) {
       endPos++;
 
-      // Rough estimate: 1 token ≈ 4 characters
-      if (endPos % 4 === 0) {
+      // Rough estimate: 1 token ≈ 4 characters (relative to chunk start)
+      if ((endPos - startPos) % 4 === 0) {
         currentTokens++;
       }
     }
@@ -457,21 +457,16 @@ export function splitIntoSentences(text: string): string[] {
 function createChunk(
   content: string,
   startPos: number,
-  fullDocument: string,
+  _fullDocument: string,
   index: number,
   estimateTokens: (text: string) => number,
   metadata?: Record<string, any>,
 ): DocumentChunk {
-  const actualStartPos = fullDocument.indexOf(content, startPos);
-
   return {
     index,
     content,
-    startPos: actualStartPos !== -1 ? actualStartPos : startPos,
-    endPos:
-      actualStartPos !== -1
-        ? actualStartPos + content.length
-        : startPos + content.length,
+    startPos,
+    endPos: startPos + content.length,
     tokenCount: estimateTokens(content),
     charCount: content.length,
     isFirst: index === 0,

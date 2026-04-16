@@ -645,6 +645,7 @@ export function isNetworkError(error: Error): boolean {
     isRuntimeKilled(error) ||
     isBackgroundThrottle(error) ||
     isDNSError(error) ||
+    isSSLError(error) ||
     isTimeoutError(error)
   );
 }

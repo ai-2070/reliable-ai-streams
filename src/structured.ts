@@ -270,19 +270,8 @@ export async function structured<T extends z.ZodTypeAny>(
             return [];
           }
 
-          // Check if output is valid JSON first
-          if (!isValidJSON(context.content)) {
-            return [
-              {
-                rule: "json-schema-validation",
-                message: "Output is not valid JSON",
-                severity: "error",
-                recoverable: true,
-              },
-            ];
-          }
-
           // Try to parse and validate against schema
+          // (tryParseAndValidate handles auto-correction of invalid JSON)
           const result = tryParseAndValidate(context.content);
           if (!result.success) {
             return [

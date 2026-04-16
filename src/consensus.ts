@@ -157,15 +157,24 @@ export async function consensus<T extends z.ZodTypeAny = z.ZodTypeAny>(
   });
 
   // Wait for all streams with timeout
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
   const timeoutPromise = timeout
-    ? new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Consensus timeout")), timeout),
-      )
+    ? new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(
+          () => reject(new Error("Consensus timeout")),
+          timeout,
+        );
+      })
     : null;
 
-  const results = timeoutPromise
-    ? await Promise.race([Promise.all(promises), timeoutPromise])
-    : await Promise.all(promises);
+  let results: typeof outputs;
+  try {
+    results = timeoutPromise
+      ? await Promise.race([Promise.all(promises), timeoutPromise])
+      : await Promise.all(promises);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
 
   outputs.push(...results);
 
@@ -389,8 +398,11 @@ function calculateConfidence(
 function countIdenticalOutputs(outputs: ConsensusOutput[]): number {
   if (outputs.length === 0) return 0;
 
-  const first = outputs[0]!.text;
-  return outputs.filter((o) => o.text === first).length;
+  const counts = new Map<string, number>();
+  for (const o of outputs) {
+    counts.set(o.text, (counts.get(o.text) || 0) + 1);
+  }
+  return Math.max(...counts.values());
 }
 
 /**
