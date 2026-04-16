@@ -11,7 +11,7 @@ import type {
 import type { L0Options, L0Event } from "./types/l0";
 import type { GuardrailViolation } from "./types/guardrails";
 import { l0 } from "./runtime/l0";
-import { autoCorrectJSON, isValidJSON, extractJSON } from "./utils/autoCorrect";
+import { autoCorrectJSON, extractJSON } from "./utils/autoCorrect";
 
 /**
  * L0 Structured Output - Guaranteed valid JSON matching your schema
@@ -78,8 +78,17 @@ export async function structured<T extends z.ZodTypeAny>(
   let validationStartTime = 0;
   let validationEndTime = 0;
 
-  // Create abort controller
+  // Create abort controller and wire up user signal
   const abortController = new AbortController();
+  if (signal) {
+    if (signal.aborted) {
+      abortController.abort();
+    } else {
+      signal.addEventListener("abort", () => abortController.abort(), {
+        once: true,
+      });
+    }
+  }
 
   // Schema validation state (for guardrail to access)
   let parsedData: unknown = null;
@@ -248,7 +257,7 @@ export async function structured<T extends z.ZodTypeAny>(
       errorTypeDelays: retry.errorTypeDelays,
     },
     timeout,
-    signal: signal || abortController.signal,
+    signal: abortController.signal,
     // Default to disabled for structured output since short valid JSON
     // (like "[]" or "{}") should not be rejected
     detectZeroTokens: detectZeroTokens ?? false,
@@ -270,19 +279,8 @@ export async function structured<T extends z.ZodTypeAny>(
             return [];
           }
 
-          // Check if output is valid JSON first
-          if (!isValidJSON(context.content)) {
-            return [
-              {
-                rule: "json-schema-validation",
-                message: "Output is not valid JSON",
-                severity: "error",
-                recoverable: true,
-              },
-            ];
-          }
-
           // Try to parse and validate against schema
+          // (tryParseAndValidate handles auto-correction of invalid JSON)
           const result = tryParseAndValidate(context.content);
           if (!result.success) {
             return [
@@ -460,7 +458,15 @@ export async function structuredStream<T extends z.ZodTypeAny>(
   } = options;
 
   const abortController = new AbortController();
-  const combinedSignal = signal || abortController.signal;
+  if (signal) {
+    if (signal.aborted) {
+      abortController.abort();
+    } else {
+      signal.addEventListener("abort", () => abortController.abort(), {
+        once: true,
+      });
+    }
+  }
 
   // Shared state for validation
   let rawOutput = "";
@@ -487,7 +493,7 @@ export async function structuredStream<T extends z.ZodTypeAny>(
     },
     detectZeroTokens: detectZeroTokens ?? false,
     timeout,
-    signal: combinedSignal,
+    signal: abortController.signal,
     monitoring: {
       enabled: monitoring?.enabled ?? false,
       sampleRate: monitoring?.sampleRate ?? 1.0,

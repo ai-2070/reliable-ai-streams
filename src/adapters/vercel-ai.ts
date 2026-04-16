@@ -69,96 +69,102 @@ export async function* wrapVercelAIStream(
     const fullStream = streamResult.fullStream;
     const reader = fullStream.getReader();
 
-    while (true) {
-      const { done, value } = await reader.read();
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
 
-      if (done) {
-        break;
-      }
-
-      if (!value) continue;
-
-      const chunk = value as VercelStreamChunk;
-
-      switch (chunk.type) {
-        case "text-delta":
-          yield {
-            type: "token",
-            value: chunk.text,
-            timestamp: Date.now(),
-          };
-          break;
-
-        case "tool-call":
-          if (includeToolCalls) {
-            yield {
-              type: "message",
-              value: JSON.stringify({
-                type: "tool_call",
-                id: chunk.toolCallId,
-                name: chunk.toolName,
-                arguments: chunk.input,
-              }),
-              role: "assistant",
-              timestamp: Date.now(),
-            };
-          }
-          break;
-
-        case "tool-input-start":
-          // Could emit a message event here if needed for streaming tool args
-          break;
-
-        case "tool-input-delta":
-          // Could accumulate and emit streaming tool args if needed
-          break;
-
-        case "tool-result":
-          if (includeToolCalls) {
-            yield {
-              type: "message",
-              value: JSON.stringify({
-                type: "tool_result",
-                id: chunk.toolCallId,
-                name: chunk.toolName,
-                result: chunk.output,
-              }),
-              role: "tool",
-              timestamp: Date.now(),
-            };
-          }
-          break;
-
-        case "finish": {
-          let usage: unknown;
-          if (includeUsage) {
-            try {
-              usage = await streamResult.usage;
-            } catch {
-              // Usage not available
-            }
-          }
-
-          yield {
-            type: "complete",
-            timestamp: Date.now(),
-            ...(includeUsage && usage ? { usage } : {}),
-            ...(chunk.finishReason ? { finishReason: chunk.finishReason } : {}),
-          } as L0Event;
+        if (done) {
           break;
         }
 
-        case "error":
-          yield {
-            type: "error",
-            error:
-              chunk.error instanceof Error
-                ? chunk.error
-                : new Error(String(chunk.error)),
-            timestamp: Date.now(),
-          };
-          break;
+        if (!value) continue;
+
+        const chunk = value as VercelStreamChunk;
+
+        switch (chunk.type) {
+          case "text-delta":
+            yield {
+              type: "token",
+              value: chunk.text,
+              timestamp: Date.now(),
+            };
+            break;
+
+          case "tool-call":
+            if (includeToolCalls) {
+              yield {
+                type: "message",
+                value: JSON.stringify({
+                  type: "tool_call",
+                  id: chunk.toolCallId,
+                  name: chunk.toolName,
+                  arguments: chunk.input,
+                }),
+                role: "assistant",
+                timestamp: Date.now(),
+              };
+            }
+            break;
+
+          case "tool-input-start":
+            // Could emit a message event here if needed for streaming tool args
+            break;
+
+          case "tool-input-delta":
+            // Could accumulate and emit streaming tool args if needed
+            break;
+
+          case "tool-result":
+            if (includeToolCalls) {
+              yield {
+                type: "message",
+                value: JSON.stringify({
+                  type: "tool_result",
+                  id: chunk.toolCallId,
+                  name: chunk.toolName,
+                  result: chunk.output,
+                }),
+                role: "tool",
+                timestamp: Date.now(),
+              };
+            }
+            break;
+
+          case "finish": {
+            let usage: unknown;
+            if (includeUsage) {
+              try {
+                usage = await streamResult.usage;
+              } catch {
+                // Usage not available
+              }
+            }
+
+            yield {
+              type: "complete",
+              timestamp: Date.now(),
+              ...(includeUsage && usage ? { usage } : {}),
+              ...(chunk.finishReason
+                ? { finishReason: chunk.finishReason }
+                : {}),
+            } as L0Event;
+            break;
+          }
+
+          case "error":
+            yield {
+              type: "error",
+              error:
+                chunk.error instanceof Error
+                  ? chunk.error
+                  : new Error(String(chunk.error)),
+              timestamp: Date.now(),
+            };
+            break;
+        }
       }
+    } finally {
+      reader.releaseLock();
     }
   } catch (error) {
     yield {

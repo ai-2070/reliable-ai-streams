@@ -227,7 +227,8 @@ export async function* wrapAnthropicStream(
             yield {
               type: "complete",
               timestamp: Date.now(),
-              ...(includeUsage && (usage.input_tokens || usage.output_tokens)
+              ...(includeUsage &&
+              (usage.input_tokens != null || usage.output_tokens != null)
                 ? { usage }
                 : {}),
             } as L0Event;
@@ -243,7 +244,8 @@ export async function* wrapAnthropicStream(
       yield {
         type: "complete",
         timestamp: Date.now(),
-        ...(includeUsage && (usage.input_tokens || usage.output_tokens)
+        ...(includeUsage &&
+        (usage.input_tokens != null || usage.output_tokens != null)
           ? { usage }
           : {}),
       } as L0Event;

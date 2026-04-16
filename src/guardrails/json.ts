@@ -56,7 +56,7 @@ export function updateJsonStateIncremental(
       continue;
     }
 
-    if (char === "\\") {
+    if (char === "\\" && state.inString) {
       state.escapeNext = true;
       continue;
     }

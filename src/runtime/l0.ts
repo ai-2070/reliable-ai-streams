@@ -287,7 +287,21 @@ export async function l0<TOutput = unknown>(
 
   // Initialize built-in abort controller
   const abortController = new AbortController();
-  const signal = processedSignal || externalSignal || abortController.signal;
+  // Combine user signal with internal controller so abort() always works
+  const externalOrProcessedSignal = processedSignal || externalSignal;
+  if (externalOrProcessedSignal) {
+    // Propagate external abort to internal controller
+    if (externalOrProcessedSignal.aborted) {
+      abortController.abort();
+    } else {
+      externalOrProcessedSignal.addEventListener(
+        "abort",
+        () => abortController.abort(),
+        { once: true },
+      );
+    }
+  }
+  const signal = abortController.signal;
 
   // Use monitoring if enabled AND feature is loaded
   let monitor: L0MonitorType | null = null;
@@ -432,6 +446,12 @@ export async function l0<TOutput = unknown>(
         // Transition to init state at start of each attempt
         stateMachine.transition(RuntimeStates.INIT);
 
+        // Declare timeout ID outside try so catch block can clear it
+        let initialTimeoutId: NodeJS.Timeout | null = null;
+        // Per-iteration controller for breaking hanging streams on timeout
+        // without permanently aborting the session-level controller
+        let iterationAbortController = new AbortController();
+
         try {
           // Reset state for retry (but preserve checkpoint if continuation enabled)
           // retryAttempt > 0: guardrail/drift retries increment this directly
@@ -545,6 +565,11 @@ export async function l0<TOutput = unknown>(
             } else {
               tokenBuffer = [];
               resetStateForRetry(state);
+            }
+
+            // Reset drift detector to avoid stale state from previous attempt
+            if (driftDetector) {
+              driftDetector.reset();
             }
           }
 
@@ -706,7 +731,6 @@ export async function l0<TOutput = unknown>(
           // Initial token timeout
           const initialTimeout =
             processedTimeout.initialToken ?? defaultInitialTokenTimeout;
-          let initialTimeoutId: NodeJS.Timeout | null = null;
           let initialTimeoutReached = false;
 
           if (!signal?.aborted) {
@@ -716,12 +740,21 @@ export async function l0<TOutput = unknown>(
             });
             initialTimeoutId = setTimeout(() => {
               initialTimeoutReached = true;
+              // Abort the per-iteration controller to break out of for-await
+              // when no chunks arrive (does NOT abort session-level controller,
+              // so retries remain possible)
+              iterationAbortController.abort();
             }, initialTimeout);
           }
 
           // Stream processing
           for await (const chunk of sourceStream) {
-            // Check abort signal
+            // Check if initial timeout broke the stream
+            if (iterationAbortController.signal.aborted) {
+              break; // post-loop check will throw INITIAL_TOKEN_TIMEOUT
+            }
+
+            // Check session-level abort signal
             if (signal?.aborted) {
               dispatcher.emit(EventType.ABORT_COMPLETED, {
                 tokenCount: state.tokenCount,
@@ -764,8 +797,10 @@ export async function l0<TOutput = unknown>(
               }
             }
 
-            // Clear initial timeout on first chunk
-            if (initialTimeoutId && !firstTokenReceived) {
+            // Clear initial timeout on any chunk (not just tokens)
+            // This prevents false timeouts when the stream starts with
+            // non-token events (e.g., tool calls before text)
+            if (initialTimeoutId) {
               clearTimeout(initialTimeoutId);
               initialTimeoutId = null;
               initialTimeoutReached = false;
@@ -1012,6 +1047,10 @@ export async function l0<TOutput = unknown>(
               // Update emission time AFTER yielding for accurate inter-token timeout measurement
               lastTokenEmissionTime = Date.now();
             } else if (event.type === "message") {
+              // Update emission time for non-token active events
+              // to prevent inter-token timeout during tool calls
+              lastTokenEmissionTime = Date.now();
+
               // Pass through message events (e.g., tool calls, function calls)
               // Preserve all original event properties including role
               const messageEvent: L0Event = {
@@ -1185,6 +1224,7 @@ export async function l0<TOutput = unknown>(
               );
               yield messageEvent;
             } else if (event.type === "data") {
+              lastTokenEmissionTime = Date.now();
               // Handle multimodal data events (images, audio, etc.)
               if (event.data) {
                 state.dataOutputs.push(event.data);
@@ -1202,6 +1242,7 @@ export async function l0<TOutput = unknown>(
               );
               yield dataEvent;
             } else if (event.type === "progress") {
+              lastTokenEmissionTime = Date.now();
               // Handle progress events for long-running operations
               state.lastProgress = event.progress;
               const progressEvent: L0Event = {
@@ -1226,6 +1267,33 @@ export async function l0<TOutput = unknown>(
           // Clear any remaining timeout
           if (initialTimeoutId) {
             clearTimeout(initialTimeoutId);
+          }
+
+          // Check if initial timeout was reached while stream was hanging
+          // (the for-await loop may exit without yielding if the stream
+          // was aborted by the timeout callback)
+          if (initialTimeoutReached && !firstTokenReceived) {
+            metrics.timeouts++;
+            const elapsedMs =
+              processedTimeout.initialToken ?? defaultInitialTokenTimeout;
+            dispatcher.emit(EventType.TIMEOUT_TRIGGERED, {
+              timeoutType: "initial",
+              elapsedMs,
+            });
+            throw new L0Error("Initial token timeout reached", {
+              code: L0ErrorCodes.INITIAL_TOKEN_TIMEOUT,
+              checkpoint: state.checkpoint,
+              tokenCount: 0,
+              contentLength: 0,
+              modelRetryCount: state.modelRetryCount,
+              networkRetryCount: state.networkRetryCount,
+              fallbackIndex,
+              context: processedContext,
+              metadata: {
+                timeout:
+                  processedTimeout.initialToken ?? defaultInitialTokenTimeout,
+              },
+            });
           }
 
           // Flush any remaining deduplication buffer content
@@ -1470,10 +1538,8 @@ export async function l0<TOutput = unknown>(
           monitor?.complete();
           metrics.completions++;
 
-          // Calculate duration
-          if (state.firstTokenAt) {
-            state.duration = Date.now() - state.firstTokenAt;
-          }
+          // Calculate duration from stream start (includes time-to-first-token)
+          state.duration = Date.now() - startTime;
 
           // Emit complete event
           const completeEvent: L0Event = {
@@ -1518,6 +1584,13 @@ export async function l0<TOutput = unknown>(
         } catch (error) {
           const err = error instanceof Error ? error : new Error(String(error));
           errors.push(err);
+
+          // Clear initial timeout timer to prevent it from firing during
+          // retry delay or next attempt's stream factory call
+          if (initialTimeoutId) {
+            clearTimeout(initialTimeoutId);
+            initialTimeoutId = null;
+          }
 
           // Run final guardrails on partial stream content before retry/fallback
           // This validates the accumulated content and updates checkpoint if valid
@@ -1818,7 +1891,7 @@ export async function l0<TOutput = unknown>(
           fallbackIndex++;
           stateMachine.transition(RuntimeStates.FALLBACK);
           metrics.fallbacks++;
-          const fallbackMessage = `Retries exhausted for stream ${fallbackIndex}, falling back to stream ${fallbackIndex + 1}`;
+          const fallbackMessage = `Retries exhausted for stream ${fallbackIndex - 1}, falling back to stream ${fallbackIndex}`;
 
           monitor?.logEvent({
             type: "fallback",

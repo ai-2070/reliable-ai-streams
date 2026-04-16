@@ -68,7 +68,7 @@ export class RetryManager {
     return {
       error,
       category,
-      reason: reason ?? this.inferReason(classification),
+      reason: reason ?? this.inferReason(classification, error),
       countsTowardLimit,
       retryable,
       timestamp: Date.now(),

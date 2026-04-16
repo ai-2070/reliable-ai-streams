@@ -146,9 +146,59 @@ function stripUnwantedFormatting(text: string): {
   }
 
   // Remove C-style comments (some models add them)
-  if (/\/\*[\s\S]*?\*\/|\/\/.*$/gm.test(result)) {
-    result = result.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
-    applied.push("remove_comments");
+  // Only strip comments that appear outside of JSON string values
+  {
+    let hasComments = false;
+    let cleaned = "";
+    let inStr = false;
+    let esc = false;
+    for (let i = 0; i < result.length; i++) {
+      const ch = result[i];
+      if (esc) {
+        esc = false;
+        cleaned += ch;
+        continue;
+      }
+      if (ch === "\\" && inStr) {
+        esc = true;
+        cleaned += ch;
+        continue;
+      }
+      if (ch === '"') {
+        inStr = !inStr;
+        cleaned += ch;
+        continue;
+      }
+      if (!inStr) {
+        // Block comment: /* ... */
+        if (ch === "/" && result[i + 1] === "*") {
+          hasComments = true;
+          const endIdx = result.indexOf("*/", i + 2);
+          if (endIdx !== -1) {
+            i = endIdx + 1; // skip past */
+          } else {
+            break; // unclosed block comment, skip rest
+          }
+          continue;
+        }
+        // Line comment: // ...
+        if (ch === "/" && result[i + 1] === "/") {
+          hasComments = true;
+          const endIdx = result.indexOf("\n", i + 2);
+          if (endIdx !== -1) {
+            i = endIdx - 1; // will be incremented by loop
+          } else {
+            break; // rest of string is a comment
+          }
+          continue;
+        }
+      }
+      cleaned += ch;
+    }
+    if (hasComments) {
+      result = cleaned;
+      applied.push("remove_comments");
+    }
   }
 
   // Trim whitespace
@@ -167,11 +217,36 @@ function applyStructuralFixes(text: string): {
   let result = text;
   const applied: CorrectionType[] = [];
 
-  // Count braces and brackets
-  const openBraces = (result.match(/{/g) || []).length;
-  const closeBraces = (result.match(/}/g) || []).length;
-  const openBrackets = (result.match(/\[/g) || []).length;
-  const closeBrackets = (result.match(/\]/g) || []).length;
+  // Count braces and brackets outside of quoted strings
+  let openBraces = 0;
+  let closeBraces = 0;
+  let openBrackets = 0;
+  let closeBrackets = 0;
+  {
+    let inStr = false;
+    let esc = false;
+    for (let i = 0; i < result.length; i++) {
+      const ch = result[i];
+      if (esc) {
+        esc = false;
+        continue;
+      }
+      if (ch === "\\") {
+        esc = true;
+        continue;
+      }
+      if (ch === '"') {
+        inStr = !inStr;
+        continue;
+      }
+      if (!inStr) {
+        if (ch === "{") openBraces++;
+        else if (ch === "}") closeBraces++;
+        else if (ch === "[") openBrackets++;
+        else if (ch === "]") closeBrackets++;
+      }
+    }
+  }
 
   // Close missing braces
   if (openBraces > closeBraces) {
@@ -188,9 +263,9 @@ function applyStructuralFixes(text: string): {
   }
 
   // Remove trailing commas before closing braces/brackets
-  const trailingCommaRegex = /,(\s*[}\]])/g;
-  if (trailingCommaRegex.test(result)) {
-    result = result.replace(trailingCommaRegex, "$1");
+  const before = result;
+  result = result.replace(/,(\s*[}\]])/g, "$1");
+  if (result !== before) {
     applied.push("remove_trailing_comma");
   }
 
@@ -261,7 +336,7 @@ function findFirstJSONDelimiter(
       continue;
     }
 
-    if (char === "\\") {
+    if (char === "\\" && inString) {
       escapeNext = true;
       continue;
     }
@@ -316,7 +391,7 @@ export function extractJSON(text: string): string {
       continue;
     }
 
-    if (char === "\\") {
+    if (char === "\\" && inString) {
       escapeNext = true;
       continue;
     }
@@ -341,14 +416,18 @@ export function extractJSON(text: string): string {
   }
 
   // Couldn't find balanced braces, fall back to greedy regex
-  const objectMatch = text.match(/\{[\s\S]*\}/);
-  if (objectMatch) {
-    return objectMatch[0];
+  // Try the detected delimiter type first
+  const primaryRegex = openChar === "[" ? /\[[\s\S]*\]/ : /\{[\s\S]*\}/;
+  const secondaryRegex = openChar === "[" ? /\{[\s\S]*\}/ : /\[[\s\S]*\]/;
+
+  const primaryMatch = text.match(primaryRegex);
+  if (primaryMatch) {
+    return primaryMatch[0];
   }
 
-  const arrayMatch = text.match(/\[[\s\S]*\]/);
-  if (arrayMatch) {
-    return arrayMatch[0];
+  const secondaryMatch = text.match(secondaryRegex);
+  if (secondaryMatch) {
+    return secondaryMatch[0];
   }
 
   return text;

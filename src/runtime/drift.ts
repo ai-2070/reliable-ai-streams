@@ -96,6 +96,10 @@ export class DriftDetector {
     lastContent: string;
     /** Last window content for efficient delta processing */
     lastWindowContent: string;
+    /** Cached result for format collapse (latches true once detected) */
+    formatCollapseDetected: boolean;
+    /** Cached result for hedging (latches true once detected) */
+    hedgingDetected: boolean;
   };
 
   constructor(config: DriftConfig = {}) {
@@ -115,6 +119,8 @@ export class DriftDetector {
       tokens: [],
       lastContent: "",
       lastWindowContent: "",
+      formatCollapseDetected: false,
+      hedgingDetected: false,
     };
   }
 
@@ -201,8 +207,10 @@ export class DriftDetector {
       }
     }
 
-    // Check for format collapse (only checks beginning - already efficient)
-    if (this.detectFormatCollapse(content)) {
+    // Check for format collapse (re-check until detected, then cache true)
+    this.history.formatCollapseDetected =
+      this.history.formatCollapseDetected || this.detectFormatCollapse(content);
+    if (this.history.formatCollapseDetected) {
       types.push("format_collapse");
       confidence = Math.max(confidence, 0.8);
       details.push("Format collapse detected");
@@ -215,8 +223,10 @@ export class DriftDetector {
       details.push("Markdown formatting collapse detected");
     }
 
-    // Check for excessive hedging (only checks first line - already efficient)
-    if (this.detectExcessiveHedging(content)) {
+    // Check for excessive hedging (re-check until detected, then cache true)
+    this.history.hedgingDetected =
+      this.history.hedgingDetected || this.detectExcessiveHedging(content);
+    if (this.history.hedgingDetected) {
       types.push("hedging");
       confidence = Math.max(confidence, 0.5);
       details.push("Excessive hedging detected");
@@ -457,6 +467,8 @@ export class DriftDetector {
       tokens: [],
       lastContent: "",
       lastWindowContent: "",
+      formatCollapseDetected: false,
+      hedgingDetected: false,
     };
   }
 

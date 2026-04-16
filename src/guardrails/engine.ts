@@ -177,12 +177,12 @@ export class GuardrailEngine {
     // Update state
     this.state.violations.push(...violations);
     this.state.violationCount = this.state.violations.length;
-    this.state.hasFatalViolations = violations.some(
-      (v) => v.severity === "fatal",
-    );
-    this.state.hasErrorViolations = violations.some(
-      (v) => v.severity === "error",
-    );
+    this.state.hasFatalViolations =
+      this.state.hasFatalViolations ||
+      violations.some((v) => v.severity === "fatal");
+    this.state.hasErrorViolations =
+      this.state.hasErrorViolations ||
+      violations.some((v) => v.severity === "error");
     this.state.lastCheckTime = timestamp;
 
     // Notify callback
