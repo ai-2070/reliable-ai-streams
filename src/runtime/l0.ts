@@ -446,6 +446,9 @@ export async function l0<TOutput = unknown>(
         // Transition to init state at start of each attempt
         stateMachine.transition(RuntimeStates.INIT);
 
+        // Declare timeout ID outside try so catch block can clear it
+        let initialTimeoutId: NodeJS.Timeout | null = null;
+
         try {
           // Reset state for retry (but preserve checkpoint if continuation enabled)
           // retryAttempt > 0: guardrail/drift retries increment this directly
@@ -559,6 +562,11 @@ export async function l0<TOutput = unknown>(
             } else {
               tokenBuffer = [];
               resetStateForRetry(state);
+            }
+
+            // Reset drift detector to avoid stale state from previous attempt
+            if (driftDetector) {
+              driftDetector.reset();
             }
           }
 
@@ -720,7 +728,6 @@ export async function l0<TOutput = unknown>(
           // Initial token timeout
           const initialTimeout =
             processedTimeout.initialToken ?? defaultInitialTokenTimeout;
-          let initialTimeoutId: NodeJS.Timeout | null = null;
           let initialTimeoutReached = false;
 
           if (!signal?.aborted) {
@@ -780,8 +787,10 @@ export async function l0<TOutput = unknown>(
               }
             }
 
-            // Clear initial timeout on first chunk
-            if (initialTimeoutId && !firstTokenReceived) {
+            // Clear initial timeout on any chunk (not just tokens)
+            // This prevents false timeouts when the stream starts with
+            // non-token events (e.g., tool calls before text)
+            if (initialTimeoutId) {
               clearTimeout(initialTimeoutId);
               initialTimeoutId = null;
               initialTimeoutReached = false;
@@ -1028,6 +1037,10 @@ export async function l0<TOutput = unknown>(
               // Update emission time AFTER yielding for accurate inter-token timeout measurement
               lastTokenEmissionTime = Date.now();
             } else if (event.type === "message") {
+              // Update emission time for non-token active events
+              // to prevent inter-token timeout during tool calls
+              lastTokenEmissionTime = Date.now();
+
               // Pass through message events (e.g., tool calls, function calls)
               // Preserve all original event properties including role
               const messageEvent: L0Event = {
@@ -1201,6 +1214,7 @@ export async function l0<TOutput = unknown>(
               );
               yield messageEvent;
             } else if (event.type === "data") {
+              lastTokenEmissionTime = Date.now();
               // Handle multimodal data events (images, audio, etc.)
               if (event.data) {
                 state.dataOutputs.push(event.data);
@@ -1218,6 +1232,7 @@ export async function l0<TOutput = unknown>(
               );
               yield dataEvent;
             } else if (event.type === "progress") {
+              lastTokenEmissionTime = Date.now();
               // Handle progress events for long-running operations
               state.lastProgress = event.progress;
               const progressEvent: L0Event = {
@@ -1513,10 +1528,8 @@ export async function l0<TOutput = unknown>(
           monitor?.complete();
           metrics.completions++;
 
-          // Calculate duration
-          if (state.firstTokenAt) {
-            state.duration = Date.now() - state.firstTokenAt;
-          }
+          // Calculate duration from stream start (includes time-to-first-token)
+          state.duration = Date.now() - startTime;
 
           // Emit complete event
           const completeEvent: L0Event = {
@@ -1561,6 +1574,13 @@ export async function l0<TOutput = unknown>(
         } catch (error) {
           const err = error instanceof Error ? error : new Error(String(error));
           errors.push(err);
+
+          // Clear initial timeout timer to prevent it from firing during
+          // retry delay or next attempt's stream factory call
+          if (initialTimeoutId) {
+            clearTimeout(initialTimeoutId);
+            initialTimeoutId = null;
+          }
 
           // Run final guardrails on partial stream content before retry/fallback
           // This validates the accumulated content and updates checkpoint if valid

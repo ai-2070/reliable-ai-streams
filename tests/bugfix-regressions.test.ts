@@ -337,6 +337,28 @@ describe("Bug 23: Chunk position metadata is correct for repeated content", () =
   });
 });
 
+// === Bug 10: isValidJSON gate blocks auto-correction in structured guardrail ===
+describe("Bug 10: Auto-correction should work on fixable-but-invalid JSON", () => {
+  it("should auto-correct JSON with trailing commas and validate against schema", () => {
+    // This JSON is invalid (trailing comma) but fixable
+    const fixableJson = '{"name": "test", "value": 42,}';
+    // autoCorrectJSON should fix it
+    const result = autoCorrectJSON(fixableJson);
+    expect(result.success).toBe(true);
+    expect(result.corrections).toContain("remove_trailing_comma");
+    const parsed = JSON.parse(result.corrected);
+    expect(parsed.name).toBe("test");
+    expect(parsed.value).toBe(42);
+  });
+
+  it("should auto-correct JSON with missing closing braces", () => {
+    const fixableJson = '{"name": "test"';
+    const result = autoCorrectJSON(fixableJson);
+    expect(result.success).toBe(true);
+    expect(result.corrections).toContain("close_brace");
+  });
+});
+
 // === Bug 16: Anthropic adapter zero token usage ===
 // Tested indirectly since we can't import the actual adapter without the SDK
 // but we verify the logic pattern

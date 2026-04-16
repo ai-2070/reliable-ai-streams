@@ -399,9 +399,9 @@ function findStructuredDisagreements(
 
   // Check each field for disagreement
   for (const path of allPaths) {
-    const values = outputs.map((o) => ({
+    const values = outputs.map((o, idx) => ({
       value: getValueAtPath(o.data, path),
-      index: outputs.indexOf(o),
+      index: idx,
     }));
 
     // Group by value
@@ -539,9 +539,12 @@ export function calculateFieldConsensus(
   const disagreedFields = Object.keys(fields).filter(
     (k) => !fields[k]!.unanimous,
   );
+  const fieldCount = Object.keys(fields).length;
   const overallAgreement =
-    Object.values(fields).reduce((sum, f) => sum + f.agreement, 0) /
-    Object.keys(fields).length;
+    fieldCount > 0
+      ? Object.values(fields).reduce((sum, f) => sum + f.agreement, 0) /
+        fieldCount
+      : 0;
 
   return {
     fields,

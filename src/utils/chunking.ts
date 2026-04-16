@@ -209,6 +209,9 @@ export function chunkByParagraphs(
       }
 
       // Split large paragraph by characters
+      const paraStart = document.indexOf(para, currentStartPos);
+      const paraOffset = paraStart !== -1 ? paraStart : currentStartPos;
+
       const paraChunks = chunkByChars(para, {
         ...options,
         size,
@@ -219,11 +222,12 @@ export function chunkByParagraphs(
         chunks.push({
           ...pc,
           index: chunks.length,
-          startPos: document.indexOf(pc.content, currentStartPos),
+          startPos: paraOffset + pc.startPos,
+          endPos: paraOffset + pc.endPos,
         });
       });
 
-      currentStartPos = document.indexOf(para, currentStartPos) + para.length;
+      currentStartPos = paraOffset + para.length;
       continue;
     }
 
@@ -339,16 +343,19 @@ export function chunkBySentences(
         overlap: 0,
       });
 
+      const sentStart = document.indexOf(sentence, currentStartPos);
+      const sentOffset = sentStart !== -1 ? sentStart : currentStartPos;
+
       sentChunks.forEach((sc) => {
         chunks.push({
           ...sc,
           index: chunks.length,
-          startPos: document.indexOf(sc.content, currentStartPos),
+          startPos: sentOffset + sc.startPos,
+          endPos: sentOffset + sc.endPos,
         });
       });
 
-      currentStartPos =
-        document.indexOf(sentence, currentStartPos) + sentence.length;
+      currentStartPos = sentOffset + sentence.length;
       continue;
     }
 

@@ -146,9 +146,59 @@ function stripUnwantedFormatting(text: string): {
   }
 
   // Remove C-style comments (some models add them)
-  if (/\/\*[\s\S]*?\*\/|\/\/.*$/gm.test(result)) {
-    result = result.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
-    applied.push("remove_comments");
+  // Only strip comments that appear outside of JSON string values
+  {
+    let hasComments = false;
+    let cleaned = "";
+    let inStr = false;
+    let esc = false;
+    for (let i = 0; i < result.length; i++) {
+      const ch = result[i];
+      if (esc) {
+        esc = false;
+        cleaned += ch;
+        continue;
+      }
+      if (ch === "\\" && inStr) {
+        esc = true;
+        cleaned += ch;
+        continue;
+      }
+      if (ch === '"') {
+        inStr = !inStr;
+        cleaned += ch;
+        continue;
+      }
+      if (!inStr) {
+        // Block comment: /* ... */
+        if (ch === "/" && result[i + 1] === "*") {
+          hasComments = true;
+          const endIdx = result.indexOf("*/", i + 2);
+          if (endIdx !== -1) {
+            i = endIdx + 1; // skip past */
+          } else {
+            break; // unclosed block comment, skip rest
+          }
+          continue;
+        }
+        // Line comment: // ...
+        if (ch === "/" && result[i + 1] === "/") {
+          hasComments = true;
+          const endIdx = result.indexOf("\n", i + 2);
+          if (endIdx !== -1) {
+            i = endIdx - 1; // will be incremented by loop
+          } else {
+            break; // rest of string is a comment
+          }
+          continue;
+        }
+      }
+      cleaned += ch;
+    }
+    if (hasComments) {
+      result = cleaned;
+      applied.push("remove_comments");
+    }
   }
 
   // Trim whitespace
@@ -286,7 +336,7 @@ function findFirstJSONDelimiter(
       continue;
     }
 
-    if (char === "\\") {
+    if (char === "\\" && inString) {
       escapeNext = true;
       continue;
     }
@@ -341,7 +391,7 @@ export function extractJSON(text: string): string {
       continue;
     }
 
-    if (char === "\\") {
+    if (char === "\\" && inString) {
       escapeNext = true;
       continue;
     }

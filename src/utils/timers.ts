@@ -193,7 +193,18 @@ export async function withTimeout<T>(
   timeoutMs: number,
   timeoutMessage?: string,
 ): Promise<T> {
-  return Promise.race([promise, timeout(timeoutMs, timeoutMessage)]);
+  let timerId: ReturnType<typeof setTimeout>;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timerId = setTimeout(
+      () => reject(new Error(timeoutMessage ?? "Timeout")),
+      timeoutMs,
+    );
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    clearTimeout(timerId!);
+  }
 }
 
 /**

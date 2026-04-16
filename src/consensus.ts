@@ -212,6 +212,12 @@ export async function consensus<T extends z.ZodTypeAny = z.ZodTypeAny>(
   const averageSimilarity =
     comparisons > 0 ? totalSimilarity / comparisons : 1.0;
 
+  // Fix bounds when there are no comparisons (0 or 1 outputs)
+  if (comparisons === 0) {
+    minSimilarity = 1.0;
+    maxSimilarity = 1.0;
+  }
+
   // Find agreements and disagreements
   const agreements = findAgreements(successfulOutputs, threshold);
   const disagreements = findDisagreements(successfulOutputs, threshold);
@@ -231,12 +237,17 @@ export async function consensus<T extends z.ZodTypeAny = z.ZodTypeAny>(
     }
   }
 
+  // Map weights to match successfulOutputs (align by original stream index)
+  const alignedWeights = successfulOutputs.map(
+    (o) => defaultWeights[o.index] ?? 1.0,
+  );
+
   // Resolve consensus based on strategy
   let consensusOutput: ConsensusOutput;
 
   switch (strategy) {
     case "majority":
-      consensusOutput = resolveMajority(successfulOutputs, defaultWeights);
+      consensusOutput = resolveMajority(successfulOutputs, alignedWeights);
       break;
 
     case "unanimous":
@@ -245,7 +256,7 @@ export async function consensus<T extends z.ZodTypeAny = z.ZodTypeAny>(
         if (resolveConflicts === "fail") {
           throw new Error("Unanimous consensus failed: outputs differ");
         }
-        consensusOutput = resolveMajority(successfulOutputs, defaultWeights);
+        consensusOutput = resolveMajority(successfulOutputs, alignedWeights);
       } else {
         consensusOutput = successfulOutputs[0]!;
       }
@@ -255,15 +266,18 @@ export async function consensus<T extends z.ZodTypeAny = z.ZodTypeAny>(
       if (!weights) {
         throw new Error("Weighted strategy requires weights to be provided");
       }
-      consensusOutput = resolveMajority(successfulOutputs, weights);
+      consensusOutput = resolveMajority(
+        successfulOutputs,
+        successfulOutputs.map((o) => weights[o.index] ?? 1.0),
+      );
       break;
 
     case "best":
-      consensusOutput = resolveBest(successfulOutputs, defaultWeights);
+      consensusOutput = resolveBest(successfulOutputs, alignedWeights);
       break;
 
     default:
-      consensusOutput = resolveMajority(successfulOutputs, defaultWeights);
+      consensusOutput = resolveMajority(successfulOutputs, alignedWeights);
   }
 
   // Apply conflict resolution if needed
@@ -274,7 +288,7 @@ export async function consensus<T extends z.ZodTypeAny = z.ZodTypeAny>(
         break;
 
       case "best":
-        consensusOutput = resolveBest(successfulOutputs, defaultWeights);
+        consensusOutput = resolveBest(successfulOutputs, alignedWeights);
         break;
 
       case "fail":
@@ -364,7 +378,7 @@ function calculateConfidence(
   averageSimilarity: number,
   strategy: string,
 ): number {
-  if (outputs.length === 1) return 1.0;
+  if (outputs.length === 1) return 0.5;
 
   // Base confidence on similarity and agreements
   let confidence = averageSimilarity;
