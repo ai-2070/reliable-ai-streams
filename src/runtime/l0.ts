@@ -448,6 +448,9 @@ export async function l0<TOutput = unknown>(
 
         // Declare timeout ID outside try so catch block can clear it
         let initialTimeoutId: NodeJS.Timeout | null = null;
+        // Per-iteration controller for breaking hanging streams on timeout
+        // without permanently aborting the session-level controller
+        let iterationAbortController = new AbortController();
 
         try {
           // Reset state for retry (but preserve checkpoint if continuation enabled)
@@ -737,14 +740,21 @@ export async function l0<TOutput = unknown>(
             });
             initialTimeoutId = setTimeout(() => {
               initialTimeoutReached = true;
-              // Abort the stream to break out of for-await when no chunks arrive
-              abortController.abort();
+              // Abort the per-iteration controller to break out of for-await
+              // when no chunks arrive (does NOT abort session-level controller,
+              // so retries remain possible)
+              iterationAbortController.abort();
             }, initialTimeout);
           }
 
           // Stream processing
           for await (const chunk of sourceStream) {
-            // Check abort signal
+            // Check if initial timeout broke the stream
+            if (iterationAbortController.signal.aborted) {
+              break; // post-loop check will throw INITIAL_TOKEN_TIMEOUT
+            }
+
+            // Check session-level abort signal
             if (signal?.aborted) {
               dispatcher.emit(EventType.ABORT_COMPLETED, {
                 tokenCount: state.tokenCount,

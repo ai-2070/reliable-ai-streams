@@ -96,10 +96,10 @@ export class DriftDetector {
     lastContent: string;
     /** Last window content for efficient delta processing */
     lastWindowContent: string;
-    /** Cached result for format collapse (only checked once) */
-    formatCollapseDetected: boolean | null;
-    /** Cached result for hedging (only checked once) */
-    hedgingDetected: boolean | null;
+    /** Cached result for format collapse (latches true once detected) */
+    formatCollapseDetected: boolean;
+    /** Cached result for hedging (latches true once detected) */
+    hedgingDetected: boolean;
   };
 
   constructor(config: DriftConfig = {}) {
@@ -119,8 +119,8 @@ export class DriftDetector {
       tokens: [],
       lastContent: "",
       lastWindowContent: "",
-      formatCollapseDetected: null,
-      hedgingDetected: null,
+      formatCollapseDetected: false,
+      hedgingDetected: false,
     };
   }
 
@@ -207,10 +207,9 @@ export class DriftDetector {
       }
     }
 
-    // Check for format collapse (only on first check, result is cached)
-    if (this.history.formatCollapseDetected === null) {
-      this.history.formatCollapseDetected = this.detectFormatCollapse(content);
-    }
+    // Check for format collapse (re-check until detected, then cache true)
+    this.history.formatCollapseDetected =
+      this.history.formatCollapseDetected || this.detectFormatCollapse(content);
     if (this.history.formatCollapseDetected) {
       types.push("format_collapse");
       confidence = Math.max(confidence, 0.8);
@@ -224,10 +223,9 @@ export class DriftDetector {
       details.push("Markdown formatting collapse detected");
     }
 
-    // Check for excessive hedging (only on first check, result is cached)
-    if (this.history.hedgingDetected === null) {
-      this.history.hedgingDetected = this.detectExcessiveHedging(content);
-    }
+    // Check for excessive hedging (re-check until detected, then cache true)
+    this.history.hedgingDetected =
+      this.history.hedgingDetected || this.detectExcessiveHedging(content);
     if (this.history.hedgingDetected) {
       types.push("hedging");
       confidence = Math.max(confidence, 0.5);
@@ -469,8 +467,8 @@ export class DriftDetector {
       tokens: [],
       lastContent: "",
       lastWindowContent: "",
-      formatCollapseDetected: null,
-      hedgingDetected: null,
+      formatCollapseDetected: false,
+      hedgingDetected: false,
     };
   }
 

@@ -55,6 +55,46 @@ describe("Pass 3: DriftDetector reset clears all cached state", () => {
   });
 });
 
+// === Drift detection latches true but re-checks on false (reviewer fix) ===
+describe("Pass 3: Drift detection re-checks incomplete content", () => {
+  it("should detect format_collapse even if first chunk was incomplete", () => {
+    const detector = new DriftDetector();
+
+    // First check: only partial content, not enough to trigger
+    const result1 = detector.check("He");
+    expect(result1.types).not.toContain("format_collapse");
+
+    // Second check: full content now triggers format_collapse
+    const result2 = detector.check("Here is the code:\nfunction foo() {}");
+    expect(result2.types).toContain("format_collapse");
+  });
+
+  it("should detect hedging even if first chunk was incomplete", () => {
+    const detector = new DriftDetector();
+
+    // First check: partial first line
+    const result1 = detector.check("Su");
+    expect(result1.types).not.toContain("hedging");
+
+    // Second check: full content with hedging
+    const result2 = detector.check("Sure!\nHere is some content.");
+    expect(result2.types).toContain("hedging");
+  });
+
+  it("should latch true and not re-run detection once detected", () => {
+    const detector = new DriftDetector();
+
+    // Detect hedging
+    detector.check("Sure!\nContent");
+
+    // Even with different content, hedging stays true (latched)
+    const result = detector.check(
+      "Completely different content without hedging",
+    );
+    expect(result.types).toContain("hedging");
+  });
+});
+
 // === Consensus calculateConfidence with single surviving output ===
 describe("Pass 3: Consensus confidence with single survivor", () => {
   it("should not return 1.0 confidence for single output", () => {
