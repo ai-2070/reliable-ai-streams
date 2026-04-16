@@ -1,0 +1,23 @@
+src/structured.ts
+  7727c30431514784 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "152e666c6a44e9fadf51419eea822b6e4d849851",
+  "prompts": {
+    "7727c30431514784": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7d3456ce-ebea-4e36-8960-f7b8103addb5",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "LZL0",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 351,
+      "overriden_lines": 0
+    }
+  }
+}
