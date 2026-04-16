@@ -104,22 +104,48 @@ describe("Pass 2: calculateFieldConsensus edge cases", () => {
 });
 
 // === consensus minSimilarity/maxSimilarity with 1 output ===
-// We test indirectly via the logic pattern
+import { calculateSimilarityMatrix } from "../src/utils/consensusUtils";
+
 describe("Pass 2: Similarity bounds with single output", () => {
-  it("should have minSimilarity <= maxSimilarity", () => {
-    // With 0 comparisons, before fix: min=1.0 max=0.0 (inverted)
-    // After fix: both should be 1.0
+  it("should produce valid min/max similarity with 1 output", () => {
+    const singleOutput = [
+      {
+        index: 0,
+        text: "only answer",
+        status: "success" as const,
+        duration: 0,
+        weight: 1,
+      },
+    ];
+
+    // Exercise the real similarity matrix code path
+    const matrix = calculateSimilarityMatrix(singleOutput);
+    expect(matrix).toHaveLength(1);
+
+    // Compute min/max the same way consensus.ts does
     let minSimilarity = 1.0;
     let maxSimilarity = 0.0;
-    const comparisons = 0;
+    let comparisons = 0;
 
-    // Apply the fix logic
+    for (let i = 0; i < matrix.length; i++) {
+      for (let j = i + 1; j < matrix.length; j++) {
+        const sim = matrix[i]?.[j] ?? 0;
+        comparisons++;
+        minSimilarity = Math.min(minSimilarity, sim);
+        maxSimilarity = Math.max(maxSimilarity, sim);
+      }
+    }
+
+    // Before fix: comparisons=0, min=1.0, max=0.0 (inverted!)
+    // After fix: normalized to both 1.0
     if (comparisons === 0) {
       minSimilarity = 1.0;
       maxSimilarity = 1.0;
     }
 
     expect(minSimilarity).toBeLessThanOrEqual(maxSimilarity);
+    expect(minSimilarity).toBe(1.0);
+    expect(maxSimilarity).toBe(1.0);
   });
 });
 
@@ -166,39 +192,49 @@ describe("Pass 2: chunkByParagraphs sub-chunk positions", () => {
 import { resolveMajority } from "../src/utils/consensusUtils";
 
 describe("Pass 2: Consensus weights aligned correctly with failed streams", () => {
-  it("should apply correct weights when aligning by output index", () => {
-    // Simulate 3 streams where stream 0 failed:
-    // weights = [10, 1, 1] but successfulOutputs only has streams 1 and 2
-    const weights = [10, 1, 1];
+  it("should align weights by original stream index, not array position", () => {
+    // 4 streams: stream 0 failed, streams 1-3 succeeded
+    // weights: stream 0 has weight 100, streams 1-3 have weight 1
+    const originalWeights = [100, 1, 1, 1];
+
     const successfulOutputs = [
       {
         index: 1,
-        text: "answer B",
+        text: "answer A",
         status: "success" as const,
         duration: 0,
         weight: 1,
       },
       {
         index: 2,
-        text: "answer C",
+        text: "answer B",
+        status: "success" as const,
+        duration: 0,
+        weight: 1,
+      },
+      {
+        index: 3,
+        text: "answer B",
         status: "success" as const,
         duration: 0,
         weight: 1,
       },
     ];
 
-    // Aligned weights should map by output.index, not array position
+    // WRONG (before fix): weights[0]=100 applied to stream 1
+    const misalignedWeights = originalWeights; // [100, 1, 1, 1]
+    const wrongResult = resolveMajority(successfulOutputs, misalignedWeights);
+    // Stream 1 ("answer A") would win because it gets weight 100
+
+    // CORRECT (after fix): map by output.index
     const alignedWeights = successfulOutputs.map(
-      (o) => weights[o.index] ?? 1.0,
+      (o) => originalWeights[o.index] ?? 1.0,
     );
+    expect(alignedWeights).toEqual([1, 1, 1]); // all equal since stream 0 failed
+    const correctResult = resolveMajority(successfulOutputs, alignedWeights);
 
-    // Before fix: weights[0]=10 would be applied to stream 1 (wrong)
-    // After fix: weights[1]=1 applied to stream 1, weights[2]=1 to stream 2
-    expect(alignedWeights).toEqual([1, 1]);
-
-    // Should not throw
-    const result = resolveMajority(successfulOutputs, alignedWeights);
-    expect(result).toBeDefined();
+    // With correct alignment, "answer B" should win (2 votes vs 1)
+    expect(correctResult.text).toBe("answer B");
   });
 });
 
