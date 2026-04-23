@@ -231,8 +231,16 @@ export async function consensus<T extends z.ZodTypeAny = z.ZodTypeAny>(
     )
   ) {
     if (resolveConflicts === "fail") {
+      // Mirror the ratio definition used by meetsMinimumAgreement so the
+      // reported number actually corresponds to the failed check.
+      const actualRatio =
+        agreements.length === 0
+          ? 0
+          : Math.max(
+              ...agreements.map((a) => a.count / successfulOutputs.length),
+            );
       throw new Error(
-        `Consensus failed: agreement ratio ${agreements[0]?.ratio || 0} below minimum ${minimumAgreement}`,
+        `Consensus failed: agreement ratio ${actualRatio} below minimum ${minimumAgreement}`,
       );
     }
   }

@@ -1520,6 +1520,45 @@ describe("consensus() main function", () => {
         }),
       ).rejects.toThrow();
     });
+
+    it("minimum-agreement failure message reports the largest group's ratio, not the first", async () => {
+      // Two agreement groups: small group (2 outputs, ratio 0.4) listed first,
+      // larger group (3 outputs, ratio 0.6) listed second. With minimumAgreement
+      // 0.9 the check fails. The previous implementation reported
+      // `agreements[0]?.ratio` (0.4) — the smaller group's ratio — which did
+      // not match the value the check actually compared against (max = 0.6).
+      const responses = [
+        "apple banana cherry",
+        "apple banana cherry",
+        "xyz 123 qwerty foobar baz",
+        "xyz 123 qwerty foobar baz",
+        "xyz 123 qwerty foobar baz",
+      ];
+      let callCount = 0;
+      mockL0.mockImplementation(async () =>
+        createMockL0Result(responses[callCount++]!),
+      );
+
+      let caught: Error | undefined;
+      try {
+        await consensus({
+          streams: responses.map(() => () => Promise.resolve({} as any)),
+          resolveConflicts: "fail",
+          minimumAgreement: 0.9,
+        });
+      } catch (err) {
+        caught = err as Error;
+      }
+
+      expect(caught).toBeDefined();
+      const message = caught!.message;
+      // Extract the reported ratio so we can assert against the value used by
+      // meetsMinimumAgreement (max group count / successfulOutputs.length).
+      const match = message.match(/agreement ratio ([\d.]+) below/);
+      expect(match).not.toBeNull();
+      const reported = Number(match![1]);
+      expect(reported).toBeCloseTo(0.6, 5);
+    });
   });
 
   describe("structured consensus", () => {
