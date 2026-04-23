@@ -1,0 +1,25 @@
+tests/consensus.test.ts
+  456a554fccdeaf1a 1523-1561
+src/consensus.ts
+  456a554fccdeaf1a 234-241,243
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "d9cdb7579d328893941615228d4f60db0f87a039",
+  "prompts": {
+    "456a554fccdeaf1a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "15fa6d67-69b9-4c97-a66c-c7ad5a1868b0",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "LZL0",
+      "messages": [],
+      "total_additions": 48,
+      "total_deletions": 1,
+      "accepted_lines": 48,
+      "overriden_lines": 0
+    }
+  }
+}
