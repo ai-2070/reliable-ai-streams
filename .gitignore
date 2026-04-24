@@ -19,8 +19,8 @@ dist-test/
 *.swo
 *~
 .DS_Store
-.claude/
 PLAN*.md
+.claude/settings.local.json
 
 # Testing
 coverage/
