@@ -119,7 +119,7 @@ import { z } from "zod";
 const schema = z.object({ name: z.string(), age: z.number() });
 
 const r = await structured({
-  schema,                                     // zod v3/v4, Effect Schema, or JSON Schema
+  schema,                                     // zod v3/v4 wired by default; see below for Effect/JSON Schema
   stream: () => streamText({ model, prompt }),
   autoCorrect: true,                          // fix trailing commas, missing braces, fences
   // strictMode: true,                        // disable best-effort repairs
@@ -130,7 +130,23 @@ r.raw     // the assembled string before parse
 r.corrected, r.corrections   // what auto-correct did
 ```
 
-For arrays use `structuredArray({ schema: z.array(item), ... })`; for streaming partial objects use `structuredStream`. Structured outputs intentionally **never resume mid-stream** — that's a safety guarantee, don't try to bypass it.
+For arrays use `structuredArray({ schema: z.array(item), ... })`; for streaming partial objects use `structuredStream`. Structured outputs intentionally **never resume mid-stream** (see "Continuation" below) — that's a safety guarantee, don't try to bypass it.
+
+### Schema adapters (Zod works out of the box, others do not)
+
+Zod v3 and v4 are detected automatically. **Effect Schema and JSON Schema must be registered once** before `structured()` will accept them — if you forget, the schema is treated as opaque and parsing silently falls back to unvalidated JSON:
+
+```ts
+import {
+  registerEffectSchemaAdapter, registerJSONSchemaAdapter,
+  createSimpleJSONSchemaAdapter,
+} from "@ai2070/l0";
+
+registerJSONSchemaAdapter(createSimpleJSONSchemaAdapter());
+// For Effect Schema, supply your own adapter wrapping @effect/schema's decoder.
+```
+
+Do this once at boot, same pattern as `enableDriftDetection`.
 
 ## Consensus
 
@@ -158,18 +174,158 @@ L0 exposes the full lifecycle as plain options on `l0()`. Prefer these to wrappi
 
 `onStart`, `onToken`, `onEvent`, `onCheckpoint`, `onViolation`, `onDrift`, `onTimeout`, `onRetry`, `onFallback`, `onResume`, `onToolCall`, `onAbort`, `onError`, `onComplete`.
 
+## Error handling
+
+L0 throws `L0Error` instances with a typed `code` field. **Don't string-match error messages; branch on `code`.**
+
+```ts
+import { l0, isL0Error, L0ErrorCodes, isNetworkError, analyzeNetworkError } from "@ai2070/l0";
+
+try {
+  await l0({ stream: () => streamText({ model, prompt }) });
+} catch (err) {
+  if (isL0Error(err)) {
+    switch (err.code) {
+      case L0ErrorCodes.INITIAL_TOKEN_TIMEOUT:
+      case L0ErrorCodes.INTER_TOKEN_TIMEOUT: /* model was too slow */ break;
+      case L0ErrorCodes.ZERO_OUTPUT:           /* model produced nothing */ break;
+      case L0ErrorCodes.FATAL_GUARDRAIL_VIOLATION: /* hard fail */ break;
+      case L0ErrorCodes.ALL_STREAMS_EXHAUSTED: /* primary + all fallbacks failed */ break;
+      case L0ErrorCodes.STREAM_ABORTED:        /* user signal fired */ break;
+    }
+    err.context; // recovery hints, attempt history
+  } else if (isNetworkError(err)) {
+    const info = analyzeNetworkError(err);  // { type, retryable, countsTowardLimit, suggestion }
+  }
+}
+```
+
+Full code list: `STREAM_ABORTED`, `INITIAL_TOKEN_TIMEOUT`, `INTER_TOKEN_TIMEOUT`, `ZERO_OUTPUT`, `GUARDRAIL_VIOLATION`, `FATAL_GUARDRAIL_VIOLATION`, `INVALID_STREAM`, `ALL_STREAMS_EXHAUSTED`, `NETWORK_ERROR`, `DRIFT_DETECTED` (and more in `L0ErrorCodes`).
+
+Network errors typically don't count toward the retry limit — L0 treats transport failures as free retries.
+
+## Continuation (opt-in token resumption)
+
+Off by default. Enable only for long-form text generation where a mid-stream failure should pick up from the last-good checkpoint rather than restart the whole prompt. **Never enable for structured output** (`structured` rejects it anyway).
+
+```ts
+let continuationPrompt = "";
+await l0({
+  stream: () => streamText({ model, prompt: continuationPrompt || originalPrompt }),
+  continueFromLastKnownGoodToken: true,
+  buildContinuationPrompt: (checkpoint) => {
+    continuationPrompt = `${originalPrompt}\n\nContinue from:\n${checkpoint}`;
+    return continuationPrompt;
+  },
+  deduplicateContinuation: true,  // default: strips overlap between checkpoint tail and new start
+});
+```
+
+Because L0 wraps factories (not prompts), you must thread the new prompt through a closure as shown. The `deduplicateContinuation` flag prevents `"...Hello world" + "world is great"` from producing `"...Hello worldworld is great"`.
+
+## Guardrails: streaming flag and the async path
+
+Each `GuardrailRule` has a `streaming` field:
+
+- `streaming: true` — rule runs at every `checkIntervals.guardrails` tokens (default: every 5). Use for cheap checks that inspect the delta or a small recent window. Runs inline on the hot path; keep it fast.
+- `streaming: false` (or unset) — rule runs only at completion. Use for expensive full-content scans (full JSON parse, large regex, etc.).
+
+For truly heavy checks (LLM-as-judge, embedding similarity, network calls), **don't block the stream** — use the async helpers:
+
+```ts
+import { runAsyncGuardrailCheck, createGuardrailEngine } from "@ai2070/l0";
+
+const engine = createGuardrailEngine([heavyRule]);
+runAsyncGuardrailCheck(engine, context, (result) => {
+  if (!result.passed) { /* handle violation after the fact */ }
+});
+```
+
+Rule `severity`: `"warning"` (logged only), `"error"` (triggers retry if `recoverable`), `"fatal"` (aborts immediately, no retry).
+
+## Interceptors
+
+Middleware around `l0()` calls. Call `enableInterceptors()` once, then attach via `InterceptorManager`. Built-ins: `loggingInterceptor`, `metadataInterceptor`, `authInterceptor`, `timingInterceptor`, `validationInterceptor`, `rateLimitInterceptor(max, windowMs)`, `cachingInterceptor(cache, getKey)`, `transformInterceptor`, `analyticsInterceptor`. Compose via `createInterceptorManager([...])` and pass `before`/`onError`/`after` hooks. Ideal for cross-cutting concerns the user doesn't want to repeat per-call.
+
+## Event sourcing and replay
+
+For audit logs, deterministic tests, and time-travel debugging. Call `enableInterceptors()` is **not** needed; the event sourcing API is independent.
+
+```ts
+import { createEventRecorder, createInMemoryEventStore, replay } from "@ai2070/l0";
+
+const store = createInMemoryEventStore();
+const recorder = createEventRecorder(store);
+
+const result = await l0({
+  stream: () => streamText({ model, prompt }),
+  onEvent: recorder,              // recorder is an event handler
+});
+
+// Later, deterministically reproduce:
+const replayed = await replay(store, result.state.streamId);
+```
+
+Persisted stores: `FileEventStore`, `LocalStorageEventStore`, `CompositeEventStore`, `withTTL(store, ms)`. Custom backends via `registerStorageAdapter`.
+
+## Multimodal streams
+
+For image / audio / video / data output adapters, use the event-builder helpers: `createImageEvent`, `createAudioEvent`, `createJsonDataEvent`, `createAdapterProgressEvent`, `createAdapterDataEvent`. Consumers read `data` events alongside `token` events. See `MULTIMODAL.md`.
+
+## Format helpers
+
+`@ai2070/l0` ships prompt- and output-shaping utilities so apps don't reinvent them:
+
+- `formatContext(context, opts)`, `formatMultipleContexts`, `formatDocument`, `formatInstructions` — build system prompts with escaped delimiters.
+- `formatMemory`, `createMemoryEntry`, `mergeMemory`, `truncateMemory` — chat-style memory assembly.
+- `formatTool`, `formatTools`, `createTool`, `parseFunctionCall` — tool-use JSON.
+- `extractJsonFromOutput`, `cleanOutput`, `normalizeWhitespace`, `dedent` — post-processing.
+
+Prefer these over hand-rolled string concatenation; they handle escape-sequence edge cases that bite.
+
+## Testing L0 code
+
+Unit tests should mock `l0` / `structured` / `consensus` rather than hit real models.
+
+```ts
+import { vi } from "vitest";
+
+vi.mock("@ai2070/l0", async (orig) => {
+  const actual = await orig<typeof import("@ai2070/l0")>();
+  return { ...actual, l0: vi.fn() };
+});
+
+import { l0 } from "@ai2070/l0";
+
+const mockL0 = vi.mocked(l0);
+mockL0.mockResolvedValue({
+  stream: (async function* () {
+    yield { type: "token", value: "hello" };
+    yield { type: "complete" };
+  })(),
+  state: { content: "hello", tokenCount: 1 } as any,
+  telemetry: {} as any,
+  errors: [],
+  abort: () => {},
+} as any);
+```
+
+For integration tests against real providers, use `vitest.integration.config.ts` (already set up in this repo's own tests).
+
 ## Common pitfalls (check for these in reviews)
 
 - **Stream passed instead of factory** — breaks retry and fallback. Always `() => streamText(...)`.
-- **`fallbackStreams` ordered wrong** — they're tried in array order. Put cheaper/faster fallbacks first.
+- **`fallbackStreams` ordered wrong** — tried in array order. Put cheaper/faster fallbacks first.
 - **Custom retry config that re-implements a preset** — prefer `recommendedRetry` etc.
-- **Optional feature option set without calling its `enable…()`** — silent no-op.
-- **Event loop without break/return on `complete`** — works, but allocates extra ticks.
+- **Optional feature option set without calling its `enable…()`** — silent no-op. Same for `registerEffectSchemaAdapter` / `registerJSONSchemaAdapter`.
 - **Reading `result.state.content` before draining `result.stream`** — final state isn't populated until the stream completes.
 - **`consensus` called with 1 stream** — throws `"Consensus requires at least 2 streams"`.
 - **Weighted consensus without `weights`** — throws.
+- **`continueFromLastKnownGoodToken: true` on `structured()`** — structured rejects continuation. Don't enable it for JSON output.
+- **Heavy guardrail with `streaming: true`** — blocks the token loop. Either set `streaming: false` (run at completion) or use `runAsyncGuardrailCheck`.
+- **Mutating `recommendedGuardrails` / preset arrays in place** — they're shared. Spread first: `guardrails: [...recommendedGuardrails, customRule]`.
 - **`AbortController` not propagated** — pass `signal:` to `l0`/`structured`/`consensus`/`pipe`/`parallel` so the user's cancel actually cancels.
-- **Mutating `recommendedGuardrails`/preset arrays in place** — they're shared. Spread first: `guardrails: [...recommendedGuardrails, customRule]`.
+- **String-matching error messages** — branch on `err.code` (`L0ErrorCodes.*`) or `isNetworkError(err)`. Messages change, codes are stable.
 - **Using `any` for events/state** — import `L0Event`, `L0State`, `L0Result` from `@ai2070/l0`.
 
 ## Where to read more (in this repo)
