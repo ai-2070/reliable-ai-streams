@@ -1,6 +1,6 @@
 ---
 name: use-l0
-description: "Build, debug, and review apps that use the L0 reliability layer (`@ai2070/l0`). TRIGGER when: a file imports `@ai2070/l0` or any subpath (`@ai2070/l0/core`, `/structured`, `/consensus`, `/parallel`, `/window`, `/guardrails`, `/drift`, `/monitoring`, `/openai`, `/anthropic`, `/mastra`, `/zod`); the user asks for L0 retry/guardrail/drift/structured/consensus/pipeline/parallel/race wiring; the user references L0 events, lifecycle callbacks (`onRetry`, `onFallback`, `onDrift`, `onCheckpoint`, `onViolation`, etc.), or `L0Event`/`L0State`/`L0Result` types. SKIP for unrelated AI SDK code that doesn't touch L0."
+description: "Build, debug, and review apps that use the L0 reliability layer (`@ai2070/l0`). TRIGGER when: a file imports `@ai2070/l0` or any subpath (`@ai2070/l0/core`, `/structured`, `/consensus`, `/parallel`, `/pipeline`, `/window`, `/guardrails`, `/drift`, `/monitoring`, `/openai`, `/anthropic`, `/mastra`, `/zod`, `/adapters/helpers`, `/utils/chunking`); the user asks for L0 retry/guardrail/drift/structured/consensus/pipeline/parallel/race wiring; the user references L0 events, lifecycle callbacks (`onRetry`, `onFallback`, `onDrift`, `onCheckpoint`, `onViolation`, etc.), or `L0Event`/`L0State`/`L0Result` types. SKIP for unrelated AI SDK code that doesn't touch L0."
 ---
 
 # Use L0 effectively
