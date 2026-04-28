@@ -1,5 +1,10 @@
 # L0: Deterministic Streaming Execution Substrate (DSES) for AI
 
+**Dr. Laszlo Attila Vekony**  
+**Sopron, Hungary**
+
+*December 15, 2026.*
+
 **A reliability + observability layer for token streams**
 
 > LLMs produce high-value reasoning over a low-integrity transport layer. Streams stall, drop tokens, reorder events, violate timing guarantees, and expose no deterministic contract. L0 fixes the transport so you can build reliable systems on top of any AI stream.
