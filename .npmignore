@@ -13,6 +13,7 @@ vitest.*.config.*
 
 # Documentation
 *.md
+!.claude/skills/*
 !README.md
 !API.md
 !LICENSE
