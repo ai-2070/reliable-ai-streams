@@ -1,6 +1,6 @@
 {
   "name": "@ai2070/l0",
-  "version": "0.24.4",
+  "version": "0.25.0",
   "description": "L0: The Missing Reliability Substrate for AI",
   "license": "Apache-2.0",
   "author": "AI2070 Contributors",
@@ -205,7 +205,7 @@
     "glob": "^13.0.0",
     "openai": "^6.9.1",
     "prettier": "^3.7.0",
-    "typescript": "5.9.3",
+    "typescript": "^6.0.0",
     "uuid": "^14.0.0",
     "vitest": "^4.0.0",
     "zod": "^3.25.76",
