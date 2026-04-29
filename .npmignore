@@ -1,27 +1,8 @@
-# Source files (dist is published)
-src/
-examples/
-tests/
-integration/
-coverage/
-scripts/
-
-# Tests
-*.test.*
-vitest.config.*
-vitest.*.config.*
-
-# Documentation
-# *.md
-!.claude/skills/
-!README.md
-!API.md
-!LICENSE
+# Misc
 .env*
 
 # Build artifacts
 html/
-.claude/
 
 # IDE and editor
 .vscode/
@@ -34,8 +15,6 @@ html/
 Thumbs.db
 
 # Dev dependencies config
-tsconfig.json
-tsconfig.*.json
 renovate.json
 
 # Lock files (users have their own)
