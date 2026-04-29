@@ -22,25 +22,25 @@ L0 wraps **factories**, not streams. The single most common mistake is passing a
 
 ```ts
 // WRONG — retries cannot recreate the stream
-l0({ stream: streamText({ model, prompt }) })
+l0({ stream: streamText({ model, prompt }) });
 
 // CORRECT — L0 can re-invoke this on retry/fallback
-l0({ stream: () => streamText({ model, prompt }) })
+l0({ stream: () => streamText({ model, prompt }) });
 ```
 
 The same rule applies to `fallbackStreams`, `consensus({ streams })`, `parallel`, `race`, and pipeline `fn`.
 
 ## Pick the right entry point
 
-| You want to…                             | Use                              | Import                       |
-| ---------------------------------------- | -------------------------------- | ---------------------------- |
-| Wrap a single stream with reliability    | `l0(opts)`                       | `@ai2070/l0` or `/core`      |
-| Get guaranteed-valid JSON from a stream  | `structured({ schema, stream })` | `@ai2070/l0` or `/structured`|
-| Combine N streams into one answer        | `consensus({ streams })`         | `@ai2070/l0` or `/consensus` |
-| Fan out N independent calls              | `parallel(items, opts)`          | `@ai2070/l0` or `/parallel`  |
-| First valid stream wins                  | `race(items, opts)`              | `@ai2070/l0` or `/parallel`  |
-| Chain steps (summarize → translate)      | `pipe(steps, input)`             | `@ai2070/l0` or `/pipeline`  |
-| Process a long doc in chunks             | `processWithWindow` / `l0WithWindow` | `@ai2070/l0` or `/window`|
+| You want to…                            | Use                                  | Import                        |
+| --------------------------------------- | ------------------------------------ | ----------------------------- |
+| Wrap a single stream with reliability   | `l0(opts)`                           | `@ai2070/l0` or `/core`       |
+| Get guaranteed-valid JSON from a stream | `structured({ schema, stream })`     | `@ai2070/l0` or `/structured` |
+| Combine N streams into one answer       | `consensus({ streams })`             | `@ai2070/l0` or `/consensus`  |
+| Fan out N independent calls             | `parallel(items, opts)`              | `@ai2070/l0` or `/parallel`   |
+| First valid stream wins                 | `race(items, opts)`                  | `@ai2070/l0` or `/parallel`   |
+| Chain steps (summarize → translate)     | `pipe(steps, input)`                 | `@ai2070/l0` or `/pipeline`   |
+| Process a long doc in chunks            | `processWithWindow` / `l0WithWindow` | `@ai2070/l0` or `/window`     |
 
 `structured`, `consensus`, `parallel`, `pipe`, and the window helpers all build on `l0` — they accept the same `retry`, `guardrails`, `timeout`, `signal`, `monitoring` shape and re-emit the same lifecycle.
 
@@ -50,13 +50,30 @@ L0 ships tested presets. Reach for them first; only customize when a preset clea
 
 ```ts
 import {
-  recommendedRetry, minimalRetry, strictRetry, exponentialRetry,
-  recommendedGuardrails, minimalGuardrails, strictGuardrails,
-  jsonOnlyGuardrails, markdownOnlyGuardrails,
-  recommendedStructured, minimalStructured, strictStructured,
-  standardConsensus, strictConsensus, lenientConsensus, bestConsensus,
-  smallWindow, mediumWindow, largeWindow, paragraphWindow, sentenceWindow,
-  fastPipeline, reliablePipeline, productionPipeline,
+  recommendedRetry,
+  minimalRetry,
+  strictRetry,
+  exponentialRetry,
+  recommendedGuardrails,
+  minimalGuardrails,
+  strictGuardrails,
+  jsonOnlyGuardrails,
+  markdownOnlyGuardrails,
+  recommendedStructured,
+  minimalStructured,
+  strictStructured,
+  standardConsensus,
+  strictConsensus,
+  lenientConsensus,
+  bestConsensus,
+  smallWindow,
+  mediumWindow,
+  largeWindow,
+  paragraphWindow,
+  sentenceWindow,
+  fastPipeline,
+  reliablePipeline,
+  productionPipeline,
 } from "@ai2070/l0";
 ```
 
@@ -64,13 +81,13 @@ Don't invent your own retry counts, backoff strategies, or guardrail lists if a 
 
 ## Adapter selection
 
-| Source SDK              | How to wrap                                                        |
-| ----------------------- | ------------------------------------------------------------------ |
-| Vercel AI SDK (`ai`)    | Pass `() => streamText({...})` directly — auto-detected            |
-| OpenAI SDK              | `openaiStream(client, { model, messages, ... })`                   |
-| Anthropic SDK           | `anthropicStream(client, { model, messages, ... })`                |
-| Mastra agent            | `mastraStream(agent, prompt)` / `mastraStructured(agent, schema)`  |
-| Anything else           | Build an adapter; see `CUSTOM_ADAPTERS.md` and `adapters/helpers`  |
+| Source SDK           | How to wrap                                                       |
+| -------------------- | ----------------------------------------------------------------- |
+| Vercel AI SDK (`ai`) | Pass `() => streamText({...})` directly — auto-detected           |
+| OpenAI SDK           | `openaiStream(client, { model, messages, ... })`                  |
+| Anthropic SDK        | `anthropicStream(client, { model, messages, ... })`               |
+| Mastra agent         | `mastraStream(agent, prompt)` / `mastraStructured(agent, schema)` |
+| Anything else        | Build an adapter; see `CUSTOM_ADAPTERS.md` and `adapters/helpers` |
 
 For custom adapters, use the helpers in `@ai2070/l0`: `toL0Events`, `createAdapterTokenEvent`, `createAdapterDoneEvent`, `createAdapterErrorEvent`. Register with `registerAdapter` (requires `enableAdapterRegistry()` first — see below).
 
@@ -80,8 +97,10 @@ Several subsystems are tree-shaken out by default. If the user wants them, **cal
 
 ```ts
 import {
-  enableDriftDetection, enableMonitoring,
-  enableInterceptors, enableAdapterRegistry,
+  enableDriftDetection,
+  enableMonitoring,
+  enableInterceptors,
+  enableAdapterRegistry,
 } from "@ai2070/l0";
 import { DriftDetector } from "@ai2070/l0/drift";
 
@@ -102,10 +121,10 @@ for await (const event of result.stream) {
 }
 
 // After the loop drains, these are populated:
-result.state.content      // final assembled text
-result.state.tokenCount
-result.telemetry          // timing, retries, fallbacks
-result.errors             // collected non-fatal errors
+result.state.content; // final assembled text
+result.state.tokenCount;
+result.telemetry; // timing, retries, fallbacks
+result.errors; // collected non-fatal errors
 ```
 
 The runtime emits a richer observability event stream too (`L0ObservabilityEvent`) covering retries, fallbacks, guardrail phases, drift checks, checkpoints, etc. — wire it via `onEvent` or `EventDispatcher` if the user needs full audit telemetry. Use `getText(result)` if you only want the final string and don't care about tokens.
@@ -119,15 +138,15 @@ import { z } from "zod";
 const schema = z.object({ name: z.string(), age: z.number() });
 
 const r = await structured({
-  schema,                                     // zod v3/v4 wired by default; see below for Effect/JSON Schema
+  schema, // zod v3/v4 wired by default; see below for Effect/JSON Schema
   stream: () => streamText({ model, prompt }),
-  autoCorrect: true,                          // fix trailing commas, missing braces, fences
+  autoCorrect: true, // fix trailing commas, missing braces, fences
   // strictMode: true,                        // disable best-effort repairs
 });
 
-r.data    // typed, validated parsed object
-r.raw     // the assembled string before parse
-r.corrected, r.corrections   // what auto-correct did
+r.data; // typed, validated parsed object
+r.raw; // the assembled string before parse
+(r.corrected, r.corrections); // what auto-correct did
 ```
 
 For arrays use `structuredArray({ schema: z.array(item), ... })`; for streaming partial objects use `structuredStream`. Structured outputs intentionally **never resume mid-stream** (see "Continuation" below) — that's a safety guarantee, don't try to bypass it.
@@ -138,7 +157,8 @@ Zod v3 and v4 are detected automatically. **Effect Schema and JSON Schema must b
 
 ```ts
 import {
-  registerEffectSchemaAdapter, registerJSONSchemaAdapter,
+  registerEffectSchemaAdapter,
+  registerJSONSchemaAdapter,
   createSimpleJSONSchemaAdapter,
 } from "@ai2070/l0";
 
@@ -179,7 +199,13 @@ L0 exposes the full lifecycle as plain options on `l0()`. Prefer these to wrappi
 L0 throws `L0Error` instances with a typed `code` field. **Don't string-match error messages; branch on `code`.**
 
 ```ts
-import { l0, isL0Error, L0ErrorCodes, isNetworkError, analyzeNetworkError } from "@ai2070/l0";
+import {
+  l0,
+  isL0Error,
+  L0ErrorCodes,
+  isNetworkError,
+  analyzeNetworkError,
+} from "@ai2070/l0";
 
 try {
   await l0({ stream: () => streamText({ model, prompt }) });
@@ -187,15 +213,20 @@ try {
   if (isL0Error(err)) {
     switch (err.code) {
       case L0ErrorCodes.INITIAL_TOKEN_TIMEOUT:
-      case L0ErrorCodes.INTER_TOKEN_TIMEOUT: /* model was too slow */ break;
-      case L0ErrorCodes.ZERO_OUTPUT:           /* model produced nothing */ break;
-      case L0ErrorCodes.FATAL_GUARDRAIL_VIOLATION: /* hard fail */ break;
-      case L0ErrorCodes.ALL_STREAMS_EXHAUSTED: /* primary + all fallbacks failed */ break;
-      case L0ErrorCodes.STREAM_ABORTED:        /* user signal fired */ break;
+      case L0ErrorCodes.INTER_TOKEN_TIMEOUT:
+        /* model was too slow */ break;
+      case L0ErrorCodes.ZERO_OUTPUT:
+        /* model produced nothing */ break;
+      case L0ErrorCodes.FATAL_GUARDRAIL_VIOLATION:
+        /* hard fail */ break;
+      case L0ErrorCodes.ALL_STREAMS_EXHAUSTED:
+        /* primary + all fallbacks failed */ break;
+      case L0ErrorCodes.STREAM_ABORTED:
+        /* user signal fired */ break;
     }
     err.context; // recovery hints, attempt history
   } else if (isNetworkError(err)) {
-    const info = analyzeNetworkError(err);  // { type, retryable, countsTowardLimit, suggestion }
+    const info = analyzeNetworkError(err); // { type, retryable, countsTowardLimit, suggestion }
   }
 }
 ```
@@ -211,13 +242,14 @@ Off by default. Enable only for long-form text generation where a mid-stream fai
 ```ts
 let continuationPrompt = "";
 await l0({
-  stream: () => streamText({ model, prompt: continuationPrompt || originalPrompt }),
+  stream: () =>
+    streamText({ model, prompt: continuationPrompt || originalPrompt }),
   continueFromLastKnownGoodToken: true,
   buildContinuationPrompt: (checkpoint) => {
     continuationPrompt = `${originalPrompt}\n\nContinue from:\n${checkpoint}`;
     return continuationPrompt;
   },
-  deduplicateContinuation: true,  // default: strips overlap between checkpoint tail and new start
+  deduplicateContinuation: true, // default: strips overlap between checkpoint tail and new start
 });
 ```
 
@@ -237,7 +269,9 @@ import { runAsyncGuardrailCheck, createGuardrailEngine } from "@ai2070/l0";
 
 const engine = createGuardrailEngine([heavyRule]);
 runAsyncGuardrailCheck(engine, context, (result) => {
-  if (!result.passed) { /* handle violation after the fact */ }
+  if (!result.passed) {
+    /* handle violation after the fact */
+  }
 });
 ```
 
@@ -252,14 +286,18 @@ Middleware around `l0()` calls. Call `enableInterceptors()` once, then attach vi
 For audit logs, deterministic tests, and time-travel debugging. Call `enableInterceptors()` is **not** needed; the event sourcing API is independent.
 
 ```ts
-import { createEventRecorder, createInMemoryEventStore, replay } from "@ai2070/l0";
+import {
+  createEventRecorder,
+  createInMemoryEventStore,
+  replay,
+} from "@ai2070/l0";
 
 const store = createInMemoryEventStore();
 const recorder = createEventRecorder(store);
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
-  onEvent: recorder,              // recorder is an event handler
+  onEvent: recorder, // recorder is an event handler
 });
 
 // Later, deterministically reproduce:

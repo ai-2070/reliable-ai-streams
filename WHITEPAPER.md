@@ -3,7 +3,7 @@
 **Dr. Laszlo Attila Vekony**  
 **Sopron, Hungary**
 
-*December 15, 2026.*
+_December 15, 2026._
 
 **A reliability + observability layer for token streams**
 
