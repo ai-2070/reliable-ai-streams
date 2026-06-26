@@ -1,0 +1,25 @@
+.github/workflows/ci.yml
+  s_1c06f0455fe79c::t_606ed384090d27 32-58
+package.json
+  s_1c06f0455fe79c::t_4932478b79936d 160
+  s_1c06f0455fe79c::t_7d869a8ddba5d1 202
+src/adapters/vercel-ai.ts
+  s_1c06f0455fe79c::t_3b09ed46c87be9 8,11,13-14,16,19-27,29-42
+  s_1c06f0455fe79c::t_b7fa81e1b58bb7 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "f890767c0360a7e0ea5498756422634238b34359",
+  "prompts": {},
+  "sessions": {
+    "s_1c06f0455fe79c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3fb9c1c5-1d79-48af-a153-6e715ae24f75",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "LZL0 <12474488+LZL0@users.noreply.github.com>"
+    }
+  }
+}
