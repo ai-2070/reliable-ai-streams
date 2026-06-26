@@ -29,3 +29,30 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  # Guard the lower bound of the `ai` peer range (^6.0.0 || ^7.0.0).
+  # The main job above exercises ai v7 (the saved devDependency); this job
+  # pins ai to v6 so the adapter's cross-version typing keeps compiling.
+  compat-ai-v6:
+    name: Build against ai v6
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Pin ai to v6
+        run: npm install ai@6 --no-save
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build

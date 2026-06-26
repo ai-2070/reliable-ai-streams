@@ -5,17 +5,41 @@
 // Install it with: npm install ai
 
 import type { L0Event, L0Adapter } from "../types/l0";
-import type { StreamTextResult, TextStreamPart, ToolSet } from "ai";
-
-/**
- * Vercel AI SDK StreamTextResult with any tool set
- */
-export type VercelStreamTextResult = StreamTextResult<ToolSet, never>;
+import type { TextStreamPart, ToolSet } from "ai";
 
 /**
  * Vercel AI SDK stream chunk type
+ *
+ * `TextStreamPart` is a single-argument generic in both AI SDK v6 and v7, so
+ * this reference is version-agnostic.
  */
 export type VercelStreamChunk = TextStreamPart<ToolSet>;
+
+/**
+ * Vercel AI SDK StreamTextResult, typed structurally for cross-version support.
+ *
+ * We deliberately avoid `import('ai').StreamTextResult` because its generic
+ * arity changed between major versions: v6 is `StreamTextResult<TOOLS, OUTPUT>`
+ * while v7 added a middle generic, `StreamTextResult<TOOLS, RUNTIME_CONTEXT,
+ * OUTPUT>`. No single explicit instantiation satisfies both. Instead we declare
+ * only the members this adapter actually reads — mirroring the minimal-interface
+ * approach already used in vercel-ai-object.ts — so the adapter compiles against
+ * `ai@^6 || ^7`. Detection stays runtime-based via `isVercelAIStream`.
+ */
+export interface VercelStreamTextResult {
+  /** Raw text token stream */
+  textStream: AsyncIterable<string>;
+  /** Full event stream including tool calls and results */
+  fullStream: ReadableStream<VercelStreamChunk>;
+  /** Promise resolving to the complete text */
+  text: Promise<string>;
+  /** Promise resolving to the tool calls made */
+  toolCalls: Promise<unknown>;
+  /** Promise resolving to usage information */
+  usage: Promise<unknown>;
+  /** Promise resolving to the finish reason */
+  finishReason: Promise<unknown>;
+}
 
 /**
  * Options for wrapping Vercel AI streams
