@@ -45,8 +45,8 @@ All adapters must be maintained out-of-tree. The L0 core will remain small, depe
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/ai-2070/l0.git
-   cd l0
+   git clone https://github.com/ai-2070/reliable-ai-streams.git
+   cd reliable-ai-streams
    ```
 3. **Install dependencies**:
    ```bash
@@ -99,7 +99,7 @@ src/
 
 ### 1. Choose what to work on
 
-- Check [GitHub Issues](https://github.com/ai-2070/l0/issues)
+- Check [GitHub Issues](https://github.com/ai-2070/reliable-ai-streams/issues)
 - Look for issues labeled `good first issue` or `help wanted`
 - Discuss major changes in an issue first
 
@@ -413,8 +413,8 @@ export function check(content: string): boolean {
 
 ## Questions?
 
-- Open a [GitHub Issue](https://github.com/ai-2070/l0/issues)
-- Start a [Discussion](https://github.com/ai-2070/l0/discussions)
+- Open a [GitHub Issue](https://github.com/ai-2070/reliable-ai-streams/issues)
+- Start a [Discussion](https://github.com/ai-2070/reliable-ai-streams/discussions)
 - Check existing issues and discussions
 
 ## Recognition

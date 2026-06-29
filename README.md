@@ -17,7 +17,7 @@
     <img src="https://packagephobia.com/badge?p=@ai2070/l0" alt="install size">
   </a>
   <img src="https://img.shields.io/badge/types-included-blue?logo=typescript&logoColor=white" alt="Types Included">
-  <a href="https://github.com/ai-2070/l0/actions">
+  <a href="https://github.com/ai-2070/reliable-ai-streams/actions">
     <img src="https://img.shields.io/github/actions/workflow/status/ai-2070/l0/ci.yml?label=tests" alt="CI status">
   </a>
   <img src="https://img.shields.io/badge/license-Apache_2.0-green" alt="Apache 2.0 License">
@@ -39,7 +39,7 @@ It works with **OpenAI**, **Vercel AI SDK**, **Mastra AI**, and **custom adapter
 npm install @ai2070/l0
 ```
 
-**Also available in Python:** [@ai-2070/l0-python](https://github.com/ai-2070/l0-python) `uv add ai2070-l0` - native implementation with full lifecycle and event signature parity.
+**Also available in Python:** [@ai-2070/reliable-ai-streams-py](https://github.com/ai-2070/reliable-ai-streams-py) `uv add reliable-ai-streams-py` - native implementation with full lifecycle and event signature parity.
 
 _Production-grade reliability. Just pass your stream. L0'll take it from here._
 
