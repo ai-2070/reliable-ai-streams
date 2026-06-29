@@ -1,4 +1,4 @@
-# L0 - Reliable AI Streams
+# L0 - Reliable AI Streams (TypeScript)
 
 ### The missing reliability and observability layer for all AI streams.
 
