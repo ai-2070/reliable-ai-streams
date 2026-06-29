@@ -2,6 +2,8 @@
 
 ### The missing reliability and observability layer for all AI streams.
 
+> **Rename note:** This project was previously called L0. The package/repository is being renamed to `reliable-ai-streams`. Existing imports remain supported.
+
 ![L0: The Missing AI Reliability Substrate](img/l0-banner.jpg)
 
 <p align="center">
