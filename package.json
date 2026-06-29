@@ -1,7 +1,7 @@
 {
-  "name": "@ai2070/l0",
-  "version": "0.26.1",
-  "description": "L0: The Missing Reliability Substrate for AI",
+  "name": "reliable-ai-streams",
+  "version": "0.27.0",
+  "description": "L0: Reliable AI Streams",
   "license": "Apache-2.0",
   "author": "AI2070 Contributors",
   "type": "module",
