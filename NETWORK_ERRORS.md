@@ -5,7 +5,7 @@ L0 provides comprehensive network error detection and automatic recovery.
 ## Quick Start
 
 ```typescript
-import { l0, recommendedRetry } from "@ai2070/l0";
+import { l0, recommendedRetry } from "reliable-ai-streams";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -45,7 +45,7 @@ console.log("Model retries:", result.state.modelRetryCount);
 L0 classifies errors into categories that determine retry behavior:
 
 ```typescript
-import { ErrorCategory } from "@ai2070/l0";
+import { ErrorCategory } from "reliable-ai-streams";
 
 enum ErrorCategory {
   NETWORK = "network", // Retry forever, doesn't count toward limit
@@ -67,7 +67,7 @@ import {
   isNetworkError,
   analyzeNetworkError,
   NetworkErrorType,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 try {
   await l0({ stream, retry: recommendedRetry });
@@ -86,7 +86,7 @@ try {
 ### NetworkErrorType Enum
 
 ```typescript
-import { NetworkErrorType } from "@ai2070/l0";
+import { NetworkErrorType } from "reliable-ai-streams";
 
 enum NetworkErrorType {
   CONNECTION_DROPPED = "connection_dropped",
@@ -128,7 +128,7 @@ import {
   isTimeoutError,
   isDNSError,
   isSSLError,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 if (isConnectionDropped(error)) {
   // Connection was dropped mid-stream
@@ -155,7 +155,7 @@ import {
   recommendedRetry,
   strictRetry,
   exponentialRetry,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // minimalRetry: 2 attempts, 4 max, linear backoff
 // recommendedRetry: 3 attempts, 6 max, fixed-jitter backoff (default)
@@ -166,7 +166,7 @@ import {
 ### Retry Defaults
 
 ```typescript
-import { RETRY_DEFAULTS, ERROR_TYPE_DELAY_DEFAULTS } from "@ai2070/l0";
+import { RETRY_DEFAULTS, ERROR_TYPE_DELAY_DEFAULTS } from "reliable-ai-streams";
 
 // RETRY_DEFAULTS
 {
@@ -304,7 +304,7 @@ const result = await l0({
 For advanced use cases, use the RetryManager directly:
 
 ```typescript
-import { createRetryManager, ErrorCategory } from "@ai2070/l0";
+import { createRetryManager, ErrorCategory } from "reliable-ai-streams";
 
 const manager = createRetryManager({
   attempts: 3,
@@ -350,7 +350,7 @@ manager.reset();
 ### Helper Functions
 
 ```typescript
-import { isRetryableError, getErrorCategory } from "@ai2070/l0";
+import { isRetryableError, getErrorCategory } from "reliable-ai-streams";
 
 // Quick check if error is retryable
 if (isRetryableError(error)) {
@@ -398,7 +398,7 @@ import {
   suggestRetryDelay, // Get recommended delay for error
   describeNetworkError, // Human-readable description
   isStreamInterrupted, // Check if stream was interrupted
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Get suggested delay with exponential backoff
 const delay = suggestRetryDelay(error, attemptNumber);
@@ -431,7 +431,7 @@ if (isStreamInterrupted(error, tokenCount)) {
 L0 provides an enhanced error class with recovery context:
 
 ```typescript
-import { L0Error, isL0Error, L0ErrorCodes } from "@ai2070/l0";
+import { L0Error, isL0Error, L0ErrorCodes } from "reliable-ai-streams";
 
 try {
   await l0({ stream, retry: recommendedRetry });

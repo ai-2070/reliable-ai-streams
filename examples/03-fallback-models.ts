@@ -1,7 +1,11 @@
 // Fallback Models Example
 // Run: OPENAI_API_KEY=sk-... npx tsx examples/03-fallback-models.ts
 
-import { l0, recommendedGuardrails, recommendedRetry } from "@ai2070/l0";
+import {
+  l0,
+  recommendedGuardrails,
+  recommendedRetry,
+} from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 

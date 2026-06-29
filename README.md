@@ -5,14 +5,14 @@
 ![L0: The Missing AI Reliability Substrate](img/l0-banner.jpg)
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@ai2070/l0">
-    <img src="https://img.shields.io/npm/v/@ai2070/l0?color=brightgreen&label=npm" alt="npm version">
+  <a href="https://www.npmjs.com/package/reliable-ai-streams">
+    <img src="https://img.shields.io/npm/v/reliable-ai-streams?color=brightgreen&label=npm" alt="npm version">
   </a>
-  <a href="https://bundlephobia.com/package/@ai2070/l0">
-    <img src="https://img.shields.io/bundlephobia/minzip/@ai2070/l0?label=minzipped" alt="minzipped size">
+  <a href="https://bundlephobia.com/package/reliable-ai-streams">
+    <img src="https://img.shields.io/bundlephobia/minzip/reliable-ai-streams?label=minzipped" alt="minzipped size">
   </a>
-  <a href="https://packagephobia.com/result?p=@ai2070/l0">
-    <img src="https://packagephobia.com/badge?p=@ai2070/l0" alt="install size">
+  <a href="https://packagephobia.com/result?p=reliable-ai-streams">
+    <img src="https://packagephobia.com/badge?p=reliable-ai-streams" alt="install size">
   </a>
   <img src="https://img.shields.io/badge/types-included-blue?logo=typescript&logoColor=white" alt="Types Included">
   <a href="https://github.com/ai-2070/reliable-ai-streams/actions">
@@ -34,7 +34,7 @@
 It works with **OpenAI**, **Vercel AI SDK**, **Mastra AI**, and **custom adapters**. Supports **multimodal streams**, tool calls, and provides full deterministic replay.
 
 ```bash
-npm install @ai2070/l0
+npm install reliable-ai-streams
 ```
 
 **Also available in Python:** [@ai-2070/reliable-ai-streams-py](https://github.com/ai-2070/reliable-ai-streams-py) `uv add reliable-ai-streams-py` - native implementation with full lifecycle and event signature parity.
@@ -99,7 +99,7 @@ L0 includes 3,000+ tests covering all major reliability features.
 ### With Vercel AI SDK: Minimal Usage
 
 ```typescript
-import { l0, recommendedGuardrails, recommendedRetry } from "@ai2070/l0";
+import { l0, recommendedGuardrails, recommendedRetry } from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
@@ -121,7 +121,7 @@ for await (const event of result.stream) {
 ### Vercel AI SDK: With Reliability
 
 ```typescript
-import { l0, recommendedGuardrails, recommendedRetry } from "@ai2070/l0";
+import { l0, recommendedGuardrails, recommendedRetry } from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
@@ -166,7 +166,7 @@ for await (const event of result.stream) {
 
 ```typescript
 import OpenAI from "openai";
-import { l0, openaiStream, recommendedGuardrails } from "@ai2070/l0";
+import { l0, openaiStream, recommendedGuardrails } from "reliable-ai-streams";
 
 const openai = new OpenAI();
 
@@ -187,7 +187,7 @@ for await (const event of result.stream) {
 
 ```typescript
 import { Agent } from "@mastra/core/agent";
-import { l0, mastraStream, recommendedGuardrails } from "@ai2070/l0";
+import { l0, mastraStream, recommendedGuardrails } from "reliable-ai-streams";
 
 const agent = new Agent({
   name: "haiku-writer",
@@ -208,7 +208,7 @@ for await (const event of result.stream) {
 ### Structured Output with Zod
 
 ```typescript
-import { structured } from "@ai2070/l0";
+import { structured } from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
@@ -236,7 +236,7 @@ console.log(result.data); // { name: "Alice", age: 32, occupation: "Engineer" }
 ### Lifecycle Events
 
 ```typescript
-import { l0 } from "@ai2070/l0";
+import { l0 } from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
@@ -258,7 +258,7 @@ for await (const _ of result.stream) {
 ### Fallback Models & Providers
 
 ```typescript
-import { l0 } from "@ai2070/l0";
+import { l0 } from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
@@ -280,7 +280,7 @@ const result = await l0({
 ### Parallel Execution
 
 ```typescript
-import { parallel } from "@ai2070/l0";
+import { parallel } from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
@@ -301,7 +301,7 @@ results.results.forEach((r, i) => {
 ### Pipe: Streaming Pipelines
 
 ```typescript
-import { pipe } from "@ai2070/l0";
+import { pipe } from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
@@ -348,20 +348,20 @@ console.log(result.output); // French translation of summary
 
 | Import                  | Size  | Gzipped | Description              |
 | ----------------------- | ----- | ------- | ------------------------ |
-| `@ai2070/l0` (full)     | 191KB | 56KB    | Everything               |
-| `@ai2070/l0/core`       | 71KB  | 21KB    | Runtime + retry + errors |
-| `@ai2070/l0/structured` | 61KB  | 18KB    | Structured output        |
-| `@ai2070/l0/consensus`  | 72KB  | 21KB    | Multi-model consensus    |
-| `@ai2070/l0/parallel`   | 58KB  | 17KB    | Parallel/race operations |
-| `@ai2070/l0/window`     | 62KB  | 18KB    | Document chunking        |
-| `@ai2070/l0/guardrails` | 18KB  | 6KB     | Validation rules         |
-| `@ai2070/l0/monitoring` | 27KB  | 7KB     | OTel/Sentry              |
-| `@ai2070/l0/drift`      | 4KB   | 2KB     | Drift detection          |
-| `@ai2070/l0/zod`        | 12KB  | 4KB     | Zod 4 validation schemas |
+| `reliable-ai-streams` (full)     | 191KB | 56KB    | Everything               |
+| `reliable-ai-streams/core`       | 71KB  | 21KB    | Runtime + retry + errors |
+| `reliable-ai-streams/structured` | 61KB  | 18KB    | Structured output        |
+| `reliable-ai-streams/consensus`  | 72KB  | 21KB    | Multi-model consensus    |
+| `reliable-ai-streams/parallel`   | 58KB  | 17KB    | Parallel/race operations |
+| `reliable-ai-streams/window`     | 62KB  | 18KB    | Document chunking        |
+| `reliable-ai-streams/guardrails` | 18KB  | 6KB     | Validation rules         |
+| `reliable-ai-streams/monitoring` | 27KB  | 7KB     | OTel/Sentry              |
+| `reliable-ai-streams/drift`      | 4KB   | 2KB     | Drift detection          |
+| `reliable-ai-streams/zod`        | 12KB  | 4KB     | Zod 4 validation schemas |
 
 Dependency-free. Tree-shakeable subpath exports for minimal bundles.
 
-> Most applications should simply use `import { l0 } from "@ai2070/l0"`.
+> Most applications should simply use `import { l0 } from "reliable-ai-streams"`.
 > Only optimize imports if you're targeting edge runtimes or strict bundle constraints.
 
 ### Zod Validation Schemas
@@ -373,7 +373,7 @@ import {
   L0StateSchema,
   L0EventSchema,
   GuardrailViolationSchema,
-} from "@ai2070/l0/zod";
+} from "reliable-ai-streams/zod";
 
 // Validate runtime data
 const state = L0StateSchema.parse(unknownData);

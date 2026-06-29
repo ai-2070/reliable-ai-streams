@@ -5,8 +5,8 @@ Guardrails are pure functions that validate streaming output without rewriting i
 ## Quick Start
 
 ```typescript
-import { l0 } from "@ai2070/l0/core";
-import { recommendedGuardrails } from "@ai2070/l0/guardrails";
+import { l0 } from "reliable-ai-streams/core";
+import { recommendedGuardrails } from "reliable-ai-streams/guardrails";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -14,7 +14,7 @@ const result = await l0({
 });
 ```
 
-> **Note:** Guardrails are also available from the main `@ai2070/l0` entry point for convenience. Use `@ai2070/l0/guardrails` for smaller bundle sizes.
+> **Note:** Guardrails are also available from the main `reliable-ai-streams` entry point for convenience. Use `reliable-ai-streams/guardrails` for smaller bundle sizes.
 
 ## Presets
 
@@ -26,7 +26,7 @@ import {
   jsonOnlyGuardrails, // JSON + zero output
   markdownOnlyGuardrails, // Markdown + zero output
   latexOnlyGuardrails, // LaTeX + zero output
-} from "@ai2070/l0/guardrails";
+} from "reliable-ai-streams/guardrails";
 ```
 
 ---
@@ -38,7 +38,7 @@ import {
 Validates JSON structure during streaming:
 
 ```typescript
-import { jsonRule, strictJsonRule } from "@ai2070/l0/guardrails";
+import { jsonRule, strictJsonRule } from "reliable-ai-streams/guardrails";
 
 jsonRule(); // Balanced braces/brackets, streaming-aware
 strictJsonRule(); // + Must be parseable, root must be object/array
@@ -56,7 +56,7 @@ strictJsonRule(); // + Must be parseable, root must be object/array
 Validates Markdown structure:
 
 ```typescript
-import { markdownRule } from "@ai2070/l0/guardrails";
+import { markdownRule } from "reliable-ai-streams/guardrails";
 
 markdownRule();
 ```
@@ -73,7 +73,7 @@ markdownRule();
 Validates LaTeX environments and math:
 
 ```typescript
-import { latexRule } from "@ai2070/l0/guardrails";
+import { latexRule } from "reliable-ai-streams/guardrails";
 
 latexRule();
 ```
@@ -90,7 +90,7 @@ latexRule();
 Detects empty or meaningless output:
 
 ```typescript
-import { zeroOutputRule } from "@ai2070/l0/guardrails";
+import { zeroOutputRule } from "reliable-ai-streams/guardrails";
 
 zeroOutputRule();
 ```
@@ -108,7 +108,7 @@ zeroOutputRule();
 Detects known bad patterns:
 
 ```typescript
-import { patternRule, customPatternRule } from "@ai2070/l0/guardrails";
+import { patternRule, customPatternRule } from "reliable-ai-streams/guardrails";
 
 patternRule(); // All built-in patterns
 
@@ -159,7 +159,7 @@ interface GuardrailViolation {
 ### Simple Rule
 
 ```typescript
-import type { GuardrailRule } from "@ai2070/l0/guardrails";
+import type { GuardrailRule } from "reliable-ai-streams/guardrails";
 
 const noSwearing: GuardrailRule = {
   name: "no-swearing",
@@ -237,7 +237,7 @@ import {
   GuardrailEngine,
   createGuardrailEngine,
   checkGuardrails,
-} from "@ai2070/l0/guardrails";
+} from "reliable-ai-streams/guardrails";
 
 // Create engine
 const engine = createGuardrailEngine(recommendedGuardrails, {
@@ -285,18 +285,18 @@ engine.getAllViolations(); // All violations
 Low-level analysis utilities available from the guardrails submodule:
 
 ````typescript
-import { analyzeJsonStructure, looksLikeJson } from "@ai2070/l0/guardrails";
+import { analyzeJsonStructure, looksLikeJson } from "reliable-ai-streams/guardrails";
 
 import {
   analyzeMarkdownStructure,
   looksLikeMarkdown,
-} from "@ai2070/l0/guardrails";
+} from "reliable-ai-streams/guardrails";
 
-import { analyzeLatexStructure, looksLikeLatex } from "@ai2070/l0/guardrails";
+import { analyzeLatexStructure, looksLikeLatex } from "reliable-ai-streams/guardrails";
 
-import { isZeroOutput, isNoiseOnly } from "@ai2070/l0/guardrails";
+import { isZeroOutput, isNoiseOnly } from "reliable-ai-streams/guardrails";
 
-import { findBadPatterns, BAD_PATTERNS } from "@ai2070/l0/guardrails";
+import { findBadPatterns, BAD_PATTERNS } from "reliable-ai-streams/guardrails";
 
 // JSON analysis
 const json = analyzeJsonStructure('{"a": 1');
@@ -352,7 +352,7 @@ Deferred to `setImmediate()` to avoid blocking:
 import {
   runAsyncGuardrailCheck,
   runGuardrailCheckAsync,
-} from "@ai2070/l0/guardrails";
+} from "reliable-ai-streams/guardrails";
 
 // Fast/slow path with immediate result if possible
 const result = runAsyncGuardrailCheck(engine, context, (asyncResult) => {

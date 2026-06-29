@@ -116,8 +116,8 @@ interface L0Progress {
 The simplest way to build a multimodal adapter:
 
 ```typescript
-import { toMultimodalL0Events } from "@ai2070/l0/adapters/helpers";
-import type { L0Adapter } from "@ai2070/l0/core";
+import { toMultimodalL0Events } from "reliable-ai-streams/adapters/helpers";
+import type { L0Adapter } from "reliable-ai-streams/core";
 
 interface FluxChunk {
   type: "progress" | "image";
@@ -195,8 +195,8 @@ import {
   createImageEvent,
   createAdapterDoneEvent,
   createAdapterErrorEvent,
-} from "@ai2070/l0/adapters/helpers";
-import type { L0Adapter, L0Event } from "@ai2070/l0/core";
+} from "reliable-ai-streams/adapters/helpers";
+import type { L0Adapter, L0Event } from "reliable-ai-streams/core";
 
 const fluxAdapter: L0Adapter<FluxStream> = {
   name: "flux",
@@ -287,7 +287,7 @@ createAudioEvent({
 ## Consuming Multimodal Streams
 
 ```typescript
-import { l0 } from "@ai2070/l0/core";
+import { l0 } from "reliable-ai-streams/core";
 
 const result = await l0({
   stream: () => fluxGenerate({ prompt: "A cat in space" }),
@@ -361,9 +361,9 @@ By default, `detectZeroTokens` is `true`, which will throw an error if no tokens
 ## Complete Example: Flux Image Generation
 
 ```typescript
-import { l0 } from "@ai2070/l0/core";
-import { toMultimodalL0Events } from "@ai2070/l0/adapters/helpers";
-import type { L0Adapter } from "@ai2070/l0/core";
+import { l0 } from "reliable-ai-streams/core";
+import { toMultimodalL0Events } from "reliable-ai-streams/adapters/helpers";
+import type { L0Adapter } from "reliable-ai-streams/core";
 
 // Define the Flux stream types
 interface FluxChunk {
@@ -440,7 +440,7 @@ For simpler text-only adapters, use the basic helpers:
 Convert a simple text stream:
 
 ```typescript
-import { toL0Events } from "@ai2070/l0/adapters/helpers";
+import { toL0Events } from "reliable-ai-streams/adapters/helpers";
 
 const myAdapter: L0Adapter<MyStream> = {
   name: "myai",
@@ -458,7 +458,7 @@ const myAdapter: L0Adapter<MyStream> = {
 Convert a stream with both text and messages:
 
 ```typescript
-import { toL0EventsWithMessages } from "@ai2070/l0/adapters/helpers";
+import { toL0EventsWithMessages } from "reliable-ai-streams/adapters/helpers";
 
 const toolAdapter: L0Adapter<ToolStream> = {
   name: "tool-ai",

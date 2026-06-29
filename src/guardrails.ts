@@ -1,12 +1,12 @@
 /**
  * L0 Guardrails - Input/output validation rules
  *
- * Import from "@ai2070/l0/guardrails" to get guardrail features
+ * Import from "reliable-ai-streams/guardrails" to get guardrail features
  * without bundling them in your main application when using core.
  *
  * @example
  * ```typescript
- * import { jsonRule, markdownRule, recommendedGuardrails } from "@ai2070/l0/guardrails";
+ * import { jsonRule, markdownRule, recommendedGuardrails } from "reliable-ai-streams/guardrails";
  * ```
  */
 

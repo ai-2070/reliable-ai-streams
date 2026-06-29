@@ -1,13 +1,13 @@
 /**
  * L0 Core - Minimal entry point for reduced bundle size
  *
- * Import from "@ai2070/l0/core" instead of "@ai2070/l0" to get only
+ * Import from "reliable-ai-streams/core" instead of "reliable-ai-streams" to get only
  * the essential streaming runtime without optional features like
  * monitoring, adapters, consensus, document windows, etc.
  *
  * @example
  * ```typescript
- * import { l0, recommendedGuardrails, recommendedRetry } from "@ai2070/l0/core";
+ * import { l0, recommendedGuardrails, recommendedRetry } from "reliable-ai-streams/core";
  *
  * const result = await l0({
  *   stream: () => streamText({ model, prompt }),

@@ -24,7 +24,7 @@ L0 distinguishes between different error types for appropriate handling:
 Errors thrown by L0 itself, with rich context for debugging and recovery:
 
 ```typescript
-import { isL0Error, L0Error, L0ErrorCodes } from "@ai2070/l0";
+import { isL0Error, L0Error, L0ErrorCodes } from "reliable-ai-streams";
 
 try {
   await l0({ stream, guardrails });
@@ -45,7 +45,7 @@ try {
 Transient failures from network issues:
 
 ```typescript
-import { isNetworkError, analyzeNetworkError } from "@ai2070/l0";
+import { isNetworkError, analyzeNetworkError } from "reliable-ai-streams";
 
 try {
   await l0({ stream });
@@ -115,7 +115,7 @@ interface L0ErrorContext {
 ### Usage Example
 
 ```typescript
-import { isL0Error } from "@ai2070/l0";
+import { isL0Error } from "reliable-ai-streams";
 
 try {
   const result = await l0({
@@ -168,7 +168,7 @@ When errors occur, L0 emits `ERROR` events with detailed failure and recovery in
 What actually went wrong - the root cause of the failure:
 
 ```typescript
-import { FailureType } from "@ai2070/l0";
+import { FailureType } from "reliable-ai-streams";
 
 type FailureType =
   | "network" // Connection drops, DNS, SSL, fetch errors
@@ -185,7 +185,7 @@ type FailureType =
 What L0 decided to do next:
 
 ```typescript
-import { RecoveryStrategy } from "@ai2070/l0";
+import { RecoveryStrategy } from "reliable-ai-streams";
 
 type RecoveryStrategy =
   | "retry" // Will retry the same stream
@@ -199,7 +199,7 @@ type RecoveryStrategy =
 Why L0 chose that recovery strategy:
 
 ```typescript
-import { RecoveryPolicy } from "@ai2070/l0";
+import { RecoveryPolicy } from "reliable-ai-streams";
 
 interface RecoveryPolicy {
   retryEnabled: boolean; // Whether retry is enabled in config
@@ -214,8 +214,8 @@ interface RecoveryPolicy {
 ### Handling Error Events
 
 ```typescript
-import { EventType } from "@ai2070/l0";
-import type { ErrorEvent } from "@ai2070/l0";
+import { EventType } from "reliable-ai-streams";
+import type { ErrorEvent } from "reliable-ai-streams";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -279,7 +279,7 @@ L0 uses specific error codes for programmatic handling:
 ### L0ErrorCodes Constant
 
 ```typescript
-import { L0ErrorCodes } from "@ai2070/l0";
+import { L0ErrorCodes } from "reliable-ai-streams";
 
 const L0ErrorCodes = {
   STREAM_ABORTED: "STREAM_ABORTED",
@@ -300,7 +300,7 @@ const L0ErrorCodes = {
 ### Handling Specific Codes
 
 ```typescript
-import { isL0Error, L0ErrorCodes } from "@ai2070/l0";
+import { isL0Error, L0ErrorCodes } from "reliable-ai-streams";
 
 try {
   await l0({ stream, guardrails });
@@ -351,7 +351,7 @@ try {
 L0's retry system categorizes errors for appropriate handling:
 
 ```typescript
-import { ErrorCategory, getErrorCategory } from "@ai2070/l0";
+import { ErrorCategory, getErrorCategory } from "reliable-ai-streams";
 
 // Get category from error
 const category = getErrorCategory(error);
@@ -395,7 +395,7 @@ switch (category) {
 ### ErrorCategory Enum
 
 ```typescript
-import { ErrorCategory } from "@ai2070/l0";
+import { ErrorCategory } from "reliable-ai-streams";
 
 enum ErrorCategory {
   NETWORK = "network", // Retry forever, doesn't count toward limit
@@ -465,7 +465,7 @@ import {
   isNetworkError,
   analyzeNetworkError,
   NetworkErrorType,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 if (isNetworkError(error)) {
   const analysis = analyzeNetworkError(error);
@@ -499,7 +499,7 @@ if (isNetworkError(error)) {
 ### Custom Delay by Error Type
 
 ```typescript
-import { RETRY_DEFAULTS, ERROR_TYPE_DELAY_DEFAULTS } from "@ai2070/l0";
+import { RETRY_DEFAULTS, ERROR_TYPE_DELAY_DEFAULTS } from "reliable-ai-streams";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),

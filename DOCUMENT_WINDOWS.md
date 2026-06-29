@@ -5,14 +5,14 @@ Automatic chunking and navigation for long documents.
 > **Bundle size tip:** For smaller bundles, use subpath imports:
 >
 > ```typescript
-> import { createWindow } from "@ai2070/l0/window";
-> import { chunkDocument } from "@ai2070/l0/utils/chunking";
+> import { createWindow } from "reliable-ai-streams/window";
+> import { chunkDocument } from "reliable-ai-streams/utils/chunking";
 > ```
 
 ## Quick Start
 
 ```typescript
-import { createWindow } from "@ai2070/l0";
+import { createWindow } from "reliable-ai-streams";
 
 const window = createWindow(longDocument, {
   size: 2000, // Tokens per chunk
@@ -252,7 +252,7 @@ const window = createWindow(document, {
 Auto-retry with adjacent chunks if drift detected:
 
 ```typescript
-import { l0WithWindow } from "@ai2070/l0";
+import { l0WithWindow } from "reliable-ai-streams";
 
 const result = await l0WithWindow({
   window,
@@ -277,7 +277,7 @@ const result = await l0WithWindow({
 Process a document directly without creating a window instance:
 
 ```typescript
-import { processWithWindow } from "@ai2070/l0";
+import { processWithWindow } from "reliable-ai-streams";
 
 const results = await processWithWindow(
   document,
@@ -297,7 +297,7 @@ const results = await processWithWindow(
 Merge results from multiple chunk processing into a single text:
 
 ```typescript
-import { mergeResults } from "@ai2070/l0";
+import { mergeResults } from "reliable-ai-streams";
 
 const results = await window.processAll((chunk) => ({
   stream: () => streamText({ model, prompt: chunk.content }),
@@ -312,7 +312,7 @@ const customMerged = mergeResults(results, "\n---\n"); // Custom separator
 Get processing statistics from results:
 
 ```typescript
-import { getProcessingStats } from "@ai2070/l0";
+import { getProcessingStats } from "reliable-ai-streams";
 
 const results = await window.processAll((chunk) => ({
   stream: () => streamText({ model, prompt: chunk.content }),
@@ -333,7 +333,7 @@ const stats = getProcessingStats(results);
 
 ## Chunking Utilities
 
-Low-level chunking functions available from `@ai2070/l0/utils/chunking`:
+Low-level chunking functions available from `reliable-ai-streams/utils/chunking`:
 
 ```typescript
 import {
@@ -346,7 +346,7 @@ import {
   estimateTokenCount,
   getChunkOverlap,
   mergeChunks,
-} from "@ai2070/l0/utils/chunking";
+} from "reliable-ai-streams/utils/chunking";
 
 // Chunk document with options
 const chunks = chunkDocument(document, {
@@ -474,7 +474,7 @@ import {
   largeWindow, // 4000 tokens, 400 overlap, token strategy
   paragraphWindow, // 2000 tokens, 200 overlap, paragraph strategy
   sentenceWindow, // 1500 tokens, 150 overlap, sentence strategy
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 const window = createWindow(document, largeWindow);
 ```

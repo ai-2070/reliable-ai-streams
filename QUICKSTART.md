@@ -5,7 +5,7 @@ Get started with L0 in 5 minutes.
 ## Installation
 
 ```bash
-npm install @ai2070/l0
+npm install reliable-ai-streams
 ```
 
 **Optional peer dependencies:** Install the SDK(s) you use:
@@ -25,18 +25,18 @@ npm install @mastra/core
 
 | Import                  | Size  | Gzipped | Description              |
 | ----------------------- | ----- | ------- | ------------------------ |
-| `@ai2070/l0` (full)     | 191KB | 56KB    | Everything               |
-| `@ai2070/l0/core`       | 71KB  | 21KB    | Runtime + retry + errors |
-| `@ai2070/l0/guardrails` | 18KB  | 6KB     | Validation rules         |
+| `reliable-ai-streams` (full)     | 191KB | 56KB    | Everything               |
+| `reliable-ai-streams/core`       | 71KB  | 21KB    | Runtime + retry + errors |
+| `reliable-ai-streams/guardrails` | 18KB  | 6KB     | Validation rules         |
 
 Use subpath imports for smaller bundles.
 
 ## Basic Usage
 
 ```typescript
-import { l0 } from "@ai2070/l0/core";
-import { recommendedGuardrails } from "@ai2070/l0/guardrails";
-import { recommendedRetry } from "@ai2070/l0/core";
+import { l0 } from "reliable-ai-streams/core";
+import { recommendedGuardrails } from "reliable-ai-streams/guardrails";
+import { recommendedRetry } from "reliable-ai-streams/core";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
@@ -73,7 +73,7 @@ You now have:
 ### Structured Output (Guaranteed JSON)
 
 ```typescript
-import { structured } from "@ai2070/l0";
+import { structured } from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
@@ -138,7 +138,7 @@ if (result.state.fallbackIndex > 0) {
 ### Custom Guardrails
 
 ```typescript
-import { customPatternRule, zeroOutputRule } from "@ai2070/l0";
+import { customPatternRule, zeroOutputRule } from "reliable-ai-streams";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -152,7 +152,7 @@ const result = await l0({
 ### Document Processing
 
 ```typescript
-import { createWindow } from "@ai2070/l0";
+import { createWindow } from "reliable-ai-streams";
 
 const window = createWindow(longDocument, {
   size: 2000,
@@ -172,7 +172,7 @@ const results = await window.processAll((chunk) => ({
 ### Error Handling
 
 ```typescript
-import { isL0Error, isNetworkError } from "@ai2070/l0";
+import { isL0Error, isNetworkError } from "reliable-ai-streams";
 
 try {
   const result = await l0({ stream, guardrails });
@@ -203,7 +203,7 @@ import {
   jsonOnlyGuardrails, // JSON + zero output
   markdownOnlyGuardrails, // Markdown + zero output
   latexOnlyGuardrails, // LaTeX + zero output
-} from "@ai2070/l0/guardrails";
+} from "reliable-ai-streams/guardrails";
 ```
 
 **Preset contents:**
@@ -225,7 +225,7 @@ import {
   recommendedRetry, // 3 attempts, fixed-jitter backoff
   strictRetry, // 3 attempts, full-jitter backoff
   exponentialRetry, // 4 attempts, exponential backoff
-} from "@ai2070/l0/core";
+} from "reliable-ai-streams/core";
 ```
 
 **Preset details:**

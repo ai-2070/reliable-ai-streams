@@ -11,7 +11,7 @@ import {
   excludeEvents,
   EventType,
   type L0Telemetry,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
@@ -141,7 +141,7 @@ async function sentryExample() {
   console.log("Example code:");
   console.log(`
   import * as Sentry from "@sentry/node";
-  import { l0, createSentryHandler } from "@ai2070/l0";
+  import { l0, createSentryHandler } from "reliable-ai-streams";
 
   const result = await l0({
     stream: () => streamText({ model, prompt }),
@@ -175,7 +175,7 @@ async function openTelemetryExample() {
   console.log("Example code (event handler - recommended):");
   console.log(`
   import { trace, metrics } from "@opentelemetry/api";
-  import { l0, createOpenTelemetryHandler } from "@ai2070/l0";
+  import { l0, createOpenTelemetryHandler } from "reliable-ai-streams";
 
   const result = await l0({
     stream: () => streamText({ model, prompt }),
@@ -208,7 +208,7 @@ async function combinedMonitoring() {
   console.log(`
   import * as Sentry from "@sentry/node";
   import { trace, metrics } from "@opentelemetry/api";
-  import { l0, combineEvents, createSentryHandler, createOpenTelemetryHandler } from "@ai2070/l0";
+  import { l0, combineEvents, createSentryHandler, createOpenTelemetryHandler } from "reliable-ai-streams";
 
   const result = await l0({
     stream: () => streamText({ model, prompt }),
@@ -230,7 +230,7 @@ async function filterExcludeExample() {
 
   console.log("filterEvents - only process specific event types:");
   console.log(`
-  import { l0, filterEvents, EventType } from "@ai2070/l0";
+  import { l0, filterEvents, EventType } from "reliable-ai-streams";
 
   const result = await l0({
     stream: () => streamText({ model, prompt }),
@@ -246,7 +246,7 @@ async function filterExcludeExample() {
 
   console.log("excludeEvents - process all except specific event types:");
   console.log(`
-  import { l0, excludeEvents, EventType } from "@ai2070/l0";
+  import { l0, excludeEvents, EventType } from "reliable-ai-streams";
 
   const result = await l0({
     stream: () => streamText({ model, prompt }),

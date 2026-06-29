@@ -1,12 +1,12 @@
 /**
  * L0 Drift Detection - Detect model derailment and anomalies
  *
- * Import from "@ai2070/l0/drift" to get drift detection features
+ * Import from "reliable-ai-streams/drift" to get drift detection features
  * without bundling them in your main application when using core.
  *
  * @example
  * ```typescript
- * import { DriftDetector, checkDrift } from "@ai2070/l0/drift";
+ * import { DriftDetector, checkDrift } from "reliable-ai-streams/drift";
  * ```
  */
 

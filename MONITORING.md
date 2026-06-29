@@ -20,7 +20,7 @@ L0 includes a **built-in monitoring system** that tracks:
 ### Enable Monitoring
 
 ```typescript
-import { l0 } from "@ai2070/l0/core";
+import { l0 } from "reliable-ai-streams/core";
 import { streamText } from "ai";
 
 const result = await l0({
@@ -305,7 +305,7 @@ if (telemetry.continuation) {
 ### To JSON
 
 ```typescript
-import { TelemetryExporter } from "@ai2070/l0/monitoring";
+import { TelemetryExporter } from "reliable-ai-streams/monitoring";
 
 // Export to JSON string
 const json = TelemetryExporter.toJSON(telemetry);
@@ -639,7 +639,7 @@ await trackABTest(performance);
 Use the `L0Monitor` class directly for fine-grained control:
 
 ```typescript
-import { L0Monitor, createMonitor } from "@ai2070/l0/monitoring";
+import { L0Monitor, createMonitor } from "reliable-ai-streams/monitoring";
 
 const monitor = new L0Monitor({
   enabled: true,
@@ -877,7 +877,7 @@ import {
   combineEvents,
   createOpenTelemetryHandler,
   createSentryHandler,
-} from "@ai2070/l0/monitoring";
+} from "reliable-ai-streams/monitoring";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -894,7 +894,7 @@ const result = await l0({
 Create a handler that only receives specific event types:
 
 ```typescript
-import { filterEvents, EventType } from "@ai2070/l0/monitoring";
+import { filterEvents, EventType } from "reliable-ai-streams/monitoring";
 
 const errorHandler = filterEvents(
   [EventType.ERROR, EventType.NETWORK_ERROR],
@@ -910,7 +910,7 @@ const errorHandler = filterEvents(
 Create a handler that excludes specific event types:
 
 ```typescript
-import { excludeEvents, EventType } from "@ai2070/l0/monitoring";
+import { excludeEvents, EventType } from "reliable-ai-streams/monitoring";
 
 const quietHandler = excludeEvents(
   [EventType.TOKEN], // Exclude noisy token events
@@ -923,7 +923,7 @@ const quietHandler = excludeEvents(
 Create a debounced handler for high-frequency events:
 
 ```typescript
-import { debounceEvents } from "@ai2070/l0/monitoring";
+import { debounceEvents } from "reliable-ai-streams/monitoring";
 
 const throttledLogger = debounceEvents(
   100, // 100ms debounce
@@ -936,7 +936,7 @@ const throttledLogger = debounceEvents(
 Create a batched handler that collects events:
 
 ```typescript
-import { batchEvents } from "@ai2070/l0/monitoring";
+import { batchEvents } from "reliable-ai-streams/monitoring";
 
 const batchedHandler = batchEvents(
   10, // Batch size
@@ -958,8 +958,8 @@ L0 includes native Sentry support for error tracking and performance monitoring.
 
 ```typescript
 import * as Sentry from "@sentry/node";
-import { l0 } from "@ai2070/l0/core";
-import { createSentryHandler } from "@ai2070/l0/monitoring";
+import { l0 } from "reliable-ai-streams/core";
+import { createSentryHandler } from "reliable-ai-streams/monitoring";
 
 Sentry.init({ dsn: "your-sentry-dsn" });
 
@@ -973,8 +973,8 @@ const result = await l0({
 
 ```typescript
 import * as Sentry from "@sentry/node";
-import { l0 } from "@ai2070/l0/core";
-import { withSentry } from "@ai2070/l0/monitoring";
+import { l0 } from "reliable-ai-streams/core";
+import { withSentry } from "reliable-ai-streams/monitoring";
 
 const result = await withSentry({ sentry: Sentry }, () =>
   l0({
@@ -987,7 +987,7 @@ const result = await withSentry({ sentry: Sentry }, () =>
 ### Configuration
 
 ```typescript
-import { createSentryHandler } from "@ai2070/l0/monitoring";
+import { createSentryHandler } from "reliable-ai-streams/monitoring";
 
 interface SentryConfig {
   sentry: SentryClient; // Required: Sentry instance
@@ -1043,8 +1043,8 @@ For fine-grained control, use the `L0Sentry` class directly:
 
 ```typescript
 import * as Sentry from "@sentry/node";
-import { l0 } from "@ai2070/l0/core";
-import { createSentryIntegration, L0Sentry } from "@ai2070/l0/monitoring";
+import { l0 } from "reliable-ai-streams/core";
+import { createSentryIntegration, L0Sentry } from "reliable-ai-streams/monitoring";
 
 const sentry = createSentryIntegration({ sentry: Sentry });
 
@@ -1153,8 +1153,8 @@ L0 includes native OpenTelemetry support for distributed tracing and metrics, fo
 
 ```typescript
 import { trace, metrics } from "@opentelemetry/api";
-import { l0 } from "@ai2070/l0/core";
-import { createOpenTelemetryHandler } from "@ai2070/l0/monitoring";
+import { l0 } from "reliable-ai-streams/core";
+import { createOpenTelemetryHandler } from "reliable-ai-streams/monitoring";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -1171,7 +1171,7 @@ For more control over tracing:
 
 ```typescript
 import { trace, metrics } from "@opentelemetry/api";
-import { L0OpenTelemetry, createOpenTelemetry } from "@ai2070/l0/monitoring";
+import { L0OpenTelemetry, createOpenTelemetry } from "reliable-ai-streams/monitoring";
 
 const otel = createOpenTelemetry({
   tracer: trace.getTracer("l0"),
@@ -1191,7 +1191,7 @@ const result = await otel.traceStream("chat-completion", async (span) => {
 ### Configuration
 
 ```typescript
-import { createOpenTelemetryHandler } from "@ai2070/l0/monitoring";
+import { createOpenTelemetryHandler } from "reliable-ai-streams/monitoring";
 
 interface OpenTelemetryConfig {
   tracer?: Tracer; // OTel tracer instance
@@ -1222,7 +1222,7 @@ createOpenTelemetryHandler({
 L0 follows OpenTelemetry GenAI semantic conventions:
 
 ```typescript
-import { SemanticAttributes } from "@ai2070/l0/monitoring";
+import { SemanticAttributes } from "reliable-ai-streams/monitoring";
 
 // Standard GenAI attributes
 SemanticAttributes.LLM_SYSTEM; // "gen_ai.system"
@@ -1291,7 +1291,7 @@ SemanticAttributes.L0_TOKENS_PER_SECOND; // "l0.tokens_per_second"
 
 ```typescript
 import { trace } from "@opentelemetry/api";
-import { L0OpenTelemetry, SemanticAttributes } from "@ai2070/l0/monitoring";
+import { L0OpenTelemetry, SemanticAttributes } from "reliable-ai-streams/monitoring";
 
 const otel = new L0OpenTelemetry({
   tracer: trace.getTracer("l0"),
@@ -1372,8 +1372,8 @@ If you already have OpenTelemetry configured in your application:
 
 ```typescript
 import { trace, metrics, context, propagation } from "@opentelemetry/api";
-import { l0 } from "@ai2070/l0/core";
-import { createOpenTelemetryHandler } from "@ai2070/l0/monitoring";
+import { l0 } from "reliable-ai-streams/core";
+import { createOpenTelemetryHandler } from "reliable-ai-streams/monitoring";
 
 // L0 will automatically use the active context for trace propagation
 async function handleRequest(req) {
@@ -1399,7 +1399,7 @@ async function handleRequest(req) {
 The monitoring subpath re-exports useful OpenTelemetry types for convenience:
 
 ```typescript
-import { SpanStatusCode, SpanKind } from "@ai2070/l0/monitoring";
+import { SpanStatusCode, SpanKind } from "reliable-ai-streams/monitoring";
 
 // SpanStatusCode.OK, SpanStatusCode.ERROR, SpanStatusCode.UNSET
 // SpanKind.CLIENT, SpanKind.SERVER, SpanKind.INTERNAL, etc.

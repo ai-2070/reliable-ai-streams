@@ -621,7 +621,7 @@ function createNoOpSpan(): Span {
  * @example
  * ```typescript
  * import { trace, metrics } from '@opentelemetry/api';
- * import { l0, createOpenTelemetryHandler, combineEvents } from '@ai2070/l0';
+ * import { l0, createOpenTelemetryHandler, combineEvents } from 'reliable-ai-streams';
  *
  * const result = await l0({
  *   stream: () => streamText({ model, prompt }),

@@ -15,11 +15,11 @@ _December 15, 2026._
 
 Modern LLM applications increasingly depend on _streaming_ responses: chat UIs, agent runtimes, tool calls, real-time summarization, and multimodal generation. But today's provider streams are not a deterministic substrate. They are best-effort event feeds with failure modes that make production reliability, auditability, and reproducibility expensive and fragile.
 
-**L0** (`@ai2070/l0`) is a deterministic streaming execution substrate that wraps existing model streams and upgrades them into a contract you can build systems on. It provides token-level normalization, smart retries with error-category-aware backoff, streaming guardrails, drift detection, checkpoint-based resumption, model fallbacks, multi-model consensus, structured output validation, streaming pipelines, event sourcing with byte-for-byte replay, and built-in telemetry with OpenTelemetry and Sentry integrations.
+**L0** (`reliable-ai-streams`) is a deterministic streaming execution substrate that wraps existing model streams and upgrades them into a contract you can build systems on. It provides token-level normalization, smart retries with error-category-aware backoff, streaming guardrails, drift detection, checkpoint-based resumption, model fallbacks, multi-model consensus, structured output validation, streaming pipelines, event sourcing with byte-for-byte replay, and built-in telemetry with OpenTelemetry and Sentry integrations.
 
 L0 is provider-agnostic. Built-in adapters support Vercel AI SDK, OpenAI, Anthropic, and Mastra, with an extensible adapter registry for custom providers. It handles text, structured JSON, and multimodal streams (image, audio, video) under the same deterministic contract.
 
-Available in TypeScript (`npm install @ai2070/l0`) and Python (`uv add ai2070-l0`) with full lifecycle and event signature parity.
+Available in TypeScript (`npm install reliable-ai-streams`) and Python (`uv add ai2070-l0`) with full lifecycle and event signature parity.
 
 ---
 
@@ -100,7 +100,7 @@ L0 sits between your application and any streaming model API:
 L0's core primitive is `l0()`: you provide a _stream factory_, and L0 returns a normalized event stream plus final state, errors, and telemetry:
 
 ```typescript
-import { l0, recommendedGuardrails, recommendedRetry } from "@ai2070/l0";
+import { l0, recommendedGuardrails, recommendedRetry } from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
@@ -339,7 +339,7 @@ Checkpoint continuation is **not recommended for structured JSON output**, becau
 For applications that require machine-readable output, L0 provides `structured()` -- a dedicated function for schema-validated JSON extraction:
 
 ```typescript
-import { structured } from "@ai2070/l0";
+import { structured } from "reliable-ai-streams";
 import { z } from "zod";
 
 const result = await structured({
@@ -375,7 +375,7 @@ Additional structured variants: `structuredObject()`, `structuredArray()`, and `
 For safety-critical or high-confidence tasks, L0 runs multiple independent generations and resolves disagreements:
 
 ```typescript
-import { consensus } from "@ai2070/l0";
+import { consensus } from "reliable-ai-streams";
 
 const result = await consensus({
   streams: [
@@ -401,7 +401,7 @@ Consensus works with both text and structured (schema-based) output, with field-
 Run multiple models in parallel and keep the **first valid result**. Ideal for ultra-low-latency chat and high-availability systems where you want the fastest provider to win:
 
 ```typescript
-import { race } from "@ai2070/l0";
+import { race } from "reliable-ai-streams";
 
 const result = await race([
   () => l0({ stream: () => streamText({ model: openai("gpt-4o"), prompt }) }),
@@ -418,7 +418,7 @@ const result = await race([
 Fan-out multiple streams simultaneously with concurrency control, then collect results:
 
 ```typescript
-import { parallel } from "@ai2070/l0";
+import { parallel } from "reliable-ai-streams";
 
 const results = await parallel(
   [
@@ -435,7 +435,7 @@ const results = await parallel(
 Compose multiple streaming steps into a pipeline with safe state passing and guardrails between each stage:
 
 ```typescript
-import { pipe } from "@ai2070/l0";
+import { pipe } from "reliable-ai-streams";
 
 const result = await pipe([
   { stream: () => streamText({ model, prompt: "Summarize this..." }) },
@@ -453,7 +453,7 @@ Pipeline presets: `fastPipeline`, `reliablePipeline`, `productionPipeline`.
 For long documents that exceed model context limits, L0 provides built-in chunking with context preservation:
 
 ```typescript
-import { createWindow } from "@ai2070/l0";
+import { createWindow } from "reliable-ai-streams";
 
 const chunks = createWindow(longDocument, {
   strategy: "paragraph", // or "token", "sentence", "character"
@@ -526,9 +526,9 @@ L0 ships with built-in adapters for major LLM SDKs:
 | Adapter   | Import                              | Usage                                         |
 | --------- | ----------------------------------- | --------------------------------------------- |
 | Vercel AI | Native (no adapter needed)          | `stream: () => streamText({ model, prompt })` |
-| OpenAI    | `openaiStream` from `@ai2070/l0`    | `stream: openaiStream(client, params)`        |
-| Anthropic | `anthropicStream` from `@ai2070/l0` | `stream: anthropicStream(client, params)`     |
-| Mastra    | `mastraStream` from `@ai2070/l0`    | `stream: mastraStream(agent, prompt)`         |
+| OpenAI    | `openaiStream` from `reliable-ai-streams`    | `stream: openaiStream(client, params)`        |
+| Anthropic | `anthropicStream` from `reliable-ai-streams` | `stream: anthropicStream(client, params)`     |
+| Mastra    | `mastraStream` from `reliable-ai-streams`    | `stream: mastraStream(agent, prompt)`         |
 
 For custom providers, L0 provides an adapter registry and helper functions (`toL0Events()`, `createAdapterTokenEvent()`, `createAdapterDoneEvent()`) to convert any async iterable into L0's normalized event format.
 
@@ -611,15 +611,15 @@ The substrate will not be the bottleneck.
 
 | Export                  | Minified | Gzipped |
 | ----------------------- | -------- | ------- |
-| `@ai2070/l0`            | 191 KB   | 56 KB   |
-| `@ai2070/l0/core`       | 71 KB    | 21 KB   |
-| `@ai2070/l0/structured` | 61 KB    | 18 KB   |
-| `@ai2070/l0/consensus`  | 72 KB    | 21 KB   |
-| `@ai2070/l0/parallel`   | 58 KB    | 17 KB   |
-| `@ai2070/l0/window`     | 62 KB    | 18 KB   |
-| `@ai2070/l0/guardrails` | 18 KB    | 6 KB    |
-| `@ai2070/l0/drift`      | 4 KB     | 2 KB    |
-| `@ai2070/l0/monitoring` | 27 KB    | 7 KB    |
+| `reliable-ai-streams`            | 191 KB   | 56 KB   |
+| `reliable-ai-streams/core`       | 71 KB    | 21 KB   |
+| `reliable-ai-streams/structured` | 61 KB    | 18 KB   |
+| `reliable-ai-streams/consensus`  | 72 KB    | 21 KB   |
+| `reliable-ai-streams/parallel`   | 58 KB    | 17 KB   |
+| `reliable-ai-streams/window`     | 62 KB    | 18 KB   |
+| `reliable-ai-streams/guardrails` | 18 KB    | 6 KB    |
+| `reliable-ai-streams/drift`      | 4 KB     | 2 KB    |
+| `reliable-ai-streams/monitoring` | 27 KB    | 7 KB    |
 
 Tree-shakeable with subpath exports. No frameworks. No heavy abstractions.
 
@@ -734,10 +734,10 @@ Violations carry severity which influences L0's recovery decision:
 Heavy features use explicit enablement for tree-shaking:
 
 ```typescript
-import { enableDriftDetection, DriftDetector } from "@ai2070/l0";
-import { enableMonitoring, L0Monitor } from "@ai2070/l0";
-import { enableInterceptors, InterceptorManager } from "@ai2070/l0";
-import { enableAdapterRegistry } from "@ai2070/l0";
+import { enableDriftDetection, DriftDetector } from "reliable-ai-streams";
+import { enableMonitoring, L0Monitor } from "reliable-ai-streams";
+import { enableInterceptors, InterceptorManager } from "reliable-ai-streams";
+import { enableAdapterRegistry } from "reliable-ai-streams";
 
 enableDriftDetection(() => new DriftDetector());
 enableMonitoring((config) => new L0Monitor(config));

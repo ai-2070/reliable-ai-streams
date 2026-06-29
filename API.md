@@ -2,7 +2,7 @@
 
 Complete API reference for L0.
 
-> Most applications should simply use `import { l0 } from "@ai2070/l0"`.
+> Most applications should simply use `import { l0 } from "reliable-ai-streams"`.
 > Only optimize imports if you're targeting edge runtimes or strict bundle constraints.
 > See [Subpath Imports](#subpath-imports-bundle-optimization) for details.
 
@@ -38,7 +38,7 @@ Complete API reference for L0.
 Main streaming runtime with guardrails and retry logic.
 
 ```typescript
-import { l0 } from "@ai2070/l0";
+import { l0 } from "reliable-ai-streams";
 
 const result = await l0({
   // Required: Stream factory
@@ -254,7 +254,7 @@ L0 provides a complete set of lifecycle callbacks for monitoring and responding 
 ### Usage Example
 
 ```typescript
-import { l0 } from "@ai2070/l0";
+import { l0 } from "reliable-ai-streams";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -478,7 +478,7 @@ All L0 functions support generic type parameters to forward your output types th
 The core `l0()` function accepts a generic type parameter:
 
 ```typescript
-import { l0 } from "@ai2070/l0";
+import { l0 } from "reliable-ai-streams";
 
 interface UserProfile {
   name: string;
@@ -499,7 +499,7 @@ const result = await l0<UserProfile>({
 Run multiple operations with typed results:
 
 ```typescript
-import { parallel } from "@ai2070/l0";
+import { parallel } from "reliable-ai-streams";
 
 interface TaskResult {
   summary: string;
@@ -526,7 +526,7 @@ for (const result of results.results) {
 Unlimited concurrency variant:
 
 ```typescript
-import { parallelAll } from "@ai2070/l0";
+import { parallelAll } from "reliable-ai-streams";
 
 const results = await parallelAll<TaskResult>(operations);
 // Same typing as parallel<TOutput>()
@@ -537,7 +537,7 @@ const results = await parallelAll<TaskResult>(operations);
 Sequential execution with typed results:
 
 ```typescript
-import { sequential } from "@ai2070/l0";
+import { sequential } from "reliable-ai-streams";
 
 const results = await sequential<TaskResult>(operations);
 // Executes one at a time, same result type
@@ -548,7 +548,7 @@ const results = await sequential<TaskResult>(operations);
 Batch processing with typed results:
 
 ```typescript
-import { batched } from "@ai2070/l0";
+import { batched } from "reliable-ai-streams";
 
 const results = await batched<TaskResult>(operations, 3);
 // Processes in batches of 3
@@ -559,7 +559,7 @@ const results = await batched<TaskResult>(operations, 3);
 First successful result wins:
 
 ```typescript
-import { race } from "@ai2070/l0";
+import { race } from "reliable-ai-streams";
 
 interface FastResponse {
   answer: string;
@@ -582,7 +582,7 @@ console.log(`Model ${result.winnerIndex} won`);
 Multi-model agreement with schema inference:
 
 ```typescript
-import { consensus } from "@ai2070/l0";
+import { consensus } from "reliable-ai-streams";
 import { z } from "zod";
 
 const schema = z.object({
@@ -611,7 +611,7 @@ console.log(result.confidence);
 Pipelines with typed input and output:
 
 ```typescript
-import { pipe } from "@ai2070/l0";
+import { pipe } from "reliable-ai-streams";
 
 interface DocumentInput {
   text: string;
@@ -696,7 +696,7 @@ const result = await l0<{ status: "success" | "error"; code: number }>({
 Guaranteed valid JSON matching a Zod schema. Supports Effect Schema and JSON Schema via adapters.
 
 ```typescript
-import { structured } from "@ai2070/l0";
+import { structured } from "reliable-ai-streams";
 import { z } from "zod";
 
 const schema = z.object({
@@ -735,7 +735,7 @@ console.log(result.raw);          // string - raw output
 Helper to create structured output with a simple object schema.
 
 ```typescript
-import { structuredObject } from "@ai2070/l0";
+import { structuredObject } from "reliable-ai-streams";
 import { z } from "zod";
 
 const result = await structuredObject(
@@ -754,7 +754,7 @@ const result = await structuredObject(
 Helper to create structured output with an array schema.
 
 ```typescript
-import { structuredArray } from "@ai2070/l0";
+import { structuredArray } from "reliable-ai-streams";
 import { z } from "zod";
 
 const result = await structuredArray(z.object({ name: z.string() }), {
@@ -767,7 +767,7 @@ const result = await structuredArray(z.object({ name: z.string() }), {
 Streaming structured output - yields tokens as they arrive, validates at end.
 
 ```typescript
-import { structuredStream } from "@ai2070/l0";
+import { structuredStream } from "reliable-ai-streams";
 import { z } from "zod";
 
 const { stream, result, abort } = await structuredStream({
@@ -794,7 +794,7 @@ import {
   minimalStructured, // { autoCorrect: false, retry: { attempts: 1 } }
   recommendedStructured, // { autoCorrect: true, retry: { attempts: 2 } }
   strictStructured, // { autoCorrect: true, strictMode: true, retry: { attempts: 3 } }
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 const result = await structured({
   schema,
@@ -806,7 +806,7 @@ const result = await structured({
 ### Effect Schema Support
 
 ```typescript
-import { registerEffectSchemaAdapter, wrapEffectSchema } from "@ai2070/l0";
+import { registerEffectSchemaAdapter, wrapEffectSchema } from "reliable-ai-streams";
 import * as S from "@effect/schema/Schema";
 
 // Register the adapter once
@@ -834,7 +834,7 @@ import {
   registerJSONSchemaAdapter,
   wrapJSONSchema,
   createSimpleJSONSchemaAdapter,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Register with your preferred validator (e.g., Ajv)
 registerJSONSchemaAdapter(createSimpleJSONSchemaAdapter(ajvValidate));
@@ -861,7 +861,7 @@ const result = await structured({ schema, stream });
 Create a window for processing long documents.
 
 ```typescript
-import { createWindow } from "@ai2070/l0";
+import { createWindow } from "reliable-ai-streams";
 
 const window = createWindow(longDocument, {
   size: 2000, // Tokens per chunk
@@ -897,7 +897,7 @@ console.log(window.stats());
 Multi-generation consensus for high-confidence results.
 
 ```typescript
-import { consensus } from "@ai2070/l0";
+import { consensus } from "reliable-ai-streams";
 
 const result = await consensus({
   streams: [
@@ -931,7 +931,7 @@ console.log(result.disagreements); // Disagreement details
 Quick check if outputs agree.
 
 ```typescript
-import { quickConsensus } from "@ai2070/l0";
+import { quickConsensus } from "reliable-ai-streams";
 
 const hasConsensus = quickConsensus(["A", "A", "B"], 0.6); // true
 ```
@@ -941,7 +941,7 @@ const hasConsensus = quickConsensus(["A", "A", "B"], 0.6); // true
 Get most common value from outputs.
 
 ```typescript
-import { getConsensusValue } from "@ai2070/l0";
+import { getConsensusValue } from "reliable-ai-streams";
 
 const value = getConsensusValue(["A", "A", "B"]); // "A"
 ```
@@ -961,7 +961,7 @@ import {
   zeroOutputRule, // Zero/empty output detection
   patternRule, // Known bad patterns
   customPatternRule, // Custom regex patterns
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 ```
 
 ### Presets
@@ -974,7 +974,7 @@ import {
   jsonOnlyGuardrails, // jsonRule, zeroOutputRule
   markdownOnlyGuardrails, // markdownRule, zeroOutputRule
   latexOnlyGuardrails, // latexRule, zeroOutputRule
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 ```
 
 | Preset                   | Rules Included                                                           |
@@ -1013,7 +1013,7 @@ const customRule: GuardrailRule = {
 ### GuardrailEngine
 
 ```typescript
-import { GuardrailEngine } from "@ai2070/l0";
+import { GuardrailEngine } from "reliable-ai-streams";
 
 const engine = new GuardrailEngine({
   rules: [jsonRule(), markdownRule()],
@@ -1040,7 +1040,7 @@ import {
   recommendedRetry, // { attempts: 3, maxRetries: 6, backoff: "fixed-jitter" }
   strictRetry, // { attempts: 3, maxRetries: 6, backoff: "full-jitter" }
   exponentialRetry, // { attempts: 4, maxRetries: 8, backoff: "exponential" }
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 ```
 
 | Preset             | attempts | maxRetries | backoff        | baseDelay | maxDelay |
@@ -1053,7 +1053,7 @@ import {
 ### Centralized Defaults
 
 ```typescript
-import { RETRY_DEFAULTS, ERROR_TYPE_DELAY_DEFAULTS } from "@ai2070/l0";
+import { RETRY_DEFAULTS, ERROR_TYPE_DELAY_DEFAULTS } from "reliable-ai-streams";
 
 // RETRY_DEFAULTS
 // { attempts: 3, maxRetries: 6, baseDelay: 1000, maxDelay: 10000, backoff: "fixed-jitter", ... }
@@ -1280,7 +1280,7 @@ errorTypeDelays: {
 ### RetryManager
 
 ```typescript
-import { RetryManager } from "@ai2070/l0";
+import { RetryManager } from "reliable-ai-streams";
 
 const manager = new RetryManager({
   attempts: 3,
@@ -1380,7 +1380,7 @@ const result = await l0({
 The overlap detection is also available as standalone utilities:
 
 ```typescript
-import { detectOverlap, deduplicateContinuation } from "@ai2070/l0";
+import { detectOverlap, deduplicateContinuation } from "reliable-ai-streams";
 
 // Full result with metadata
 const result = detectOverlap("Hello world", "world is great");
@@ -1409,7 +1409,7 @@ const result2 = detectOverlap("Hello World", "world test", {
 ### L0Error
 
 ```typescript
-import { isL0Error, L0Error } from "@ai2070/l0";
+import { isL0Error, L0Error } from "reliable-ai-streams";
 
 try {
   await l0({ stream, guardrails });
@@ -1446,7 +1446,7 @@ import {
   isNetworkError,
   analyzeNetworkError,
   NetworkErrorType,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 if (isNetworkError(error)) {
   const analysis = analyzeNetworkError(error);
@@ -1459,7 +1459,7 @@ if (isNetworkError(error)) {
 ### Error Categories
 
 ```typescript
-import { ErrorCategory, getErrorCategory } from "@ai2070/l0";
+import { ErrorCategory, getErrorCategory } from "reliable-ai-streams";
 
 const category = getErrorCategory(error);
 // ErrorCategory.NETWORK   - Transient, retry without limit
@@ -1478,7 +1478,7 @@ L0 includes a lightweight state machine for tracking runtime state. Useful for d
 ### RuntimeState
 
 ```typescript
-import { StateMachine, RuntimeStates, type RuntimeState } from "@ai2070/l0";
+import { StateMachine, RuntimeStates, type RuntimeState } from "reliable-ai-streams";
 
 // Use RuntimeStates constants instead of string literals
 const {
@@ -1510,7 +1510,7 @@ type RuntimeState =
 ### StateMachine
 
 ```typescript
-import { RuntimeStates } from "@ai2070/l0";
+import { RuntimeStates } from "reliable-ai-streams";
 
 const sm = new StateMachine();
 
@@ -1548,7 +1548,7 @@ Simple counters for runtime metrics. OpenTelemetry is opt-in via separate adapte
 ### Metrics Class
 
 ```typescript
-import { Metrics } from "@ai2070/l0";
+import { Metrics } from "reliable-ai-streams";
 
 const metrics = new Metrics();
 
@@ -1583,7 +1583,7 @@ Simple pipeline for event processing. Just an array of functions - no framework.
 ### Stage Function
 
 ```typescript
-import { type Stage, type PipelineContext, runStages } from "@ai2070/l0";
+import { type Stage, type PipelineContext, runStages } from "reliable-ai-streams";
 
 // A stage receives an event and returns it (modified or not), or null to filter
 type Stage = (event: L0Event, ctx: PipelineContext) => L0Event | null;
@@ -1606,7 +1606,7 @@ const filterEmptyTokens: Stage = (event, ctx) => {
 ### Running Stages
 
 ```typescript
-import { runStages, createPipelineContext } from "@ai2070/l0";
+import { runStages, createPipelineContext } from "reliable-ai-streams";
 
 const stages: Stage[] = [loggingStage, filterEmptyTokens];
 
@@ -1638,7 +1638,7 @@ Non-blocking wrappers for guardrails and drift detection. Uses fast/slow path pa
 ### Async Guardrails
 
 ```typescript
-import { runAsyncGuardrailCheck } from "@ai2070/l0";
+import { runAsyncGuardrailCheck } from "reliable-ai-streams";
 
 // Fast path: returns immediately if check is quick
 // Slow path: defers to setImmediate and calls onComplete
@@ -1661,7 +1661,7 @@ if (result) {
 ### Async Drift Detection
 
 ```typescript
-import { runAsyncDriftCheck } from "@ai2070/l0";
+import { runAsyncDriftCheck } from "reliable-ai-streams";
 
 const result = runAsyncDriftCheck(
   driftDetector,
@@ -1695,7 +1695,7 @@ This prevents guardrails/drift from causing token delays that could trigger fals
 ### Context
 
 ```typescript
-import { formatContext, formatDocument, formatInstructions } from "@ai2070/l0";
+import { formatContext, formatDocument, formatInstructions } from "reliable-ai-streams";
 
 formatContext(content, { role: "user" });
 formatDocument(content, { title: "Doc", author: "Me" });
@@ -1705,7 +1705,7 @@ formatInstructions("Generate JSON only");
 ### Memory
 
 ```typescript
-import { formatMemory, createMemoryEntry } from "@ai2070/l0";
+import { formatMemory, createMemoryEntry } from "reliable-ai-streams";
 
 const memory = [
   createMemoryEntry("user", "Hello"),
@@ -1722,7 +1722,7 @@ import {
   formatJsonOutput,
   formatStructuredOutput,
   cleanOutput,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 formatJsonOutput({ strict: true });
 formatStructuredOutput("json", { schema: "..." });
@@ -1737,7 +1737,7 @@ import {
   formatTools,
   createTool,
   createParameter,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 const tool = createTool("search", "Search the web", [
   createParameter("query", "string", "Search query", true),
@@ -1761,7 +1761,7 @@ import {
   dedent,
   indent,
   trimText,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 ```
 
 ### JSON Repair
@@ -1774,7 +1774,7 @@ import {
   extractJson,
   balanceBraces,
   balanceBrackets,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 ```
 
 ### Token Utilities
@@ -1788,7 +1788,7 @@ import {
   detectRepeatedTokens,
   detectOverlap,
   deduplicateContinuation,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Detect overlap between checkpoint suffix and continuation prefix
 const result = detectOverlap("Hello world", "world is great");
@@ -1811,7 +1811,7 @@ import {
   linearBackoff,
   fullJitterBackoff,
   calculateBackoff,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 ```
 
 ### Comparison
@@ -1822,7 +1822,7 @@ import {
   compareStrings,
   levenshteinSimilarity,
   cosineSimilarity,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 ```
 
 ---
@@ -1837,7 +1837,7 @@ Wrap an OpenAI SDK stream for use with L0.
 
 ```typescript
 import OpenAI from "openai";
-import { l0, wrapOpenAIStream } from "@ai2070/l0";
+import { l0, wrapOpenAIStream } from "reliable-ai-streams";
 
 const openai = new OpenAI();
 
@@ -1867,7 +1867,7 @@ Create a stream factory from OpenAI client and params.
 
 ```typescript
 import OpenAI from "openai";
-import { l0, openaiStream } from "@ai2070/l0";
+import { l0, openaiStream } from "reliable-ai-streams";
 
 const openai = new OpenAI();
 
@@ -1885,7 +1885,7 @@ Simple text generation helper.
 
 ```typescript
 import OpenAI from "openai";
-import { l0, openaiText } from "@ai2070/l0";
+import { l0, openaiText } from "reliable-ai-streams";
 
 const openai = new OpenAI();
 
@@ -1908,7 +1908,7 @@ JSON output with `response_format: { type: "json_object" }`.
 
 ```typescript
 import OpenAI from "openai";
-import { structured, openaiJSON } from "@ai2070/l0";
+import { structured, openaiJSON } from "reliable-ai-streams";
 import { z } from "zod";
 
 const openai = new OpenAI();
@@ -1925,7 +1925,7 @@ Tool/function calling support.
 
 ```typescript
 import OpenAI from "openai";
-import { l0, openaiWithTools } from "@ai2070/l0";
+import { l0, openaiWithTools } from "reliable-ai-streams";
 
 const openai = new OpenAI();
 
@@ -1966,7 +1966,7 @@ for await (const event of result.stream) {
 ### Utility Functions
 
 ```typescript
-import { isOpenAIChunk, extractOpenAIText } from "@ai2070/l0";
+import { isOpenAIChunk, extractOpenAIText } from "reliable-ai-streams";
 
 // Type guard for OpenAI chunks
 if (isOpenAIChunk(chunk)) {
@@ -1989,7 +1989,7 @@ Wrap a Mastra stream result for use with L0.
 
 ```typescript
 import { Agent } from "@mastra/core/agent";
-import { l0, wrapMastraStream } from "@ai2070/l0";
+import { l0, wrapMastraStream } from "reliable-ai-streams";
 
 const agent = new Agent({
   name: "my-agent",
@@ -2019,7 +2019,7 @@ Create a stream factory from a Mastra agent.
 
 ```typescript
 import { Agent } from "@mastra/core/agent";
-import { l0, mastraStream } from "@ai2070/l0";
+import { l0, mastraStream } from "reliable-ai-streams";
 
 const agent = new Agent({
   name: "my-agent",
@@ -2046,7 +2046,7 @@ Simple text generation helper.
 
 ```typescript
 import { Agent } from "@mastra/core/agent";
-import { l0, mastraText } from "@ai2070/l0";
+import { l0, mastraText } from "reliable-ai-streams";
 
 const agent = new Agent({
   name: "writer",
@@ -2065,7 +2065,7 @@ Structured output with schema validation.
 
 ```typescript
 import { Agent } from "@mastra/core/agent";
-import { structured, mastraStructured } from "@ai2070/l0";
+import { structured, mastraStructured } from "reliable-ai-streams";
 import { z } from "zod";
 
 const agent = new Agent({
@@ -2088,7 +2088,7 @@ Wrap Mastra's fullStream for complete control over all chunk types.
 
 ```typescript
 import { Agent } from "@mastra/core/agent";
-import { l0, wrapMastraFullStream } from "@ai2070/l0";
+import { l0, wrapMastraFullStream } from "reliable-ai-streams";
 
 const agent = new Agent({ ... });
 
@@ -2109,7 +2109,7 @@ import {
   isMastraStream,
   extractMastraText,
   extractMastraObject,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Type guard for Mastra streams
 if (isMastraStream(stream)) {
@@ -2833,7 +2833,7 @@ State machine states for tracking runtime execution. Defined in `src/runtime/sta
 
 ```typescript
 // Use RuntimeStates constants instead of string literals
-import { RuntimeStates } from "@ai2070/l0";
+import { RuntimeStates } from "reliable-ai-streams";
 
 type RuntimeState =
   | "init" // RuntimeStates.INIT
@@ -2924,37 +2924,37 @@ L0 provides subpath exports for reduced bundle sizes. Most applications should u
 
 | Import                  | Size  | Gzipped | Description                                      |
 | ----------------------- | ----- | ------- | ------------------------------------------------ |
-| `@ai2070/l0` (full)     | 191KB | 56KB    | Everything                                       |
-| `@ai2070/l0/core`       | 71KB  | 21KB    | Runtime + retry + errors                         |
-| `@ai2070/l0/structured` | 61KB  | 18KB    | Structured output                                |
-| `@ai2070/l0/consensus`  | 72KB  | 21KB    | Multi-model consensus                            |
-| `@ai2070/l0/parallel`   | 58KB  | 17KB    | Parallel/race operations                         |
-| `@ai2070/l0/window`     | 62KB  | 18KB    | Document chunking                                |
-| `@ai2070/l0/guardrails` | 18KB  | 6KB     | Validation rules                                 |
-| `@ai2070/l0/monitoring` | 27KB  | 7KB     | OTel/Sentry                                      |
-| `@ai2070/l0/drift`      | 4KB   | 2KB     | Drift detection                                  |
-| `@ai2070/l0/openai`     | —     | —       | OpenAI SDK adapter                               |
-| `@ai2070/l0/mastra`     | —     | —       | Mastra adapter                                   |
-| `@ai2070/l0/anthropic`  | —     | —       | Anthropic SDK adapter (reference implementation) |
+| `reliable-ai-streams` (full)     | 191KB | 56KB    | Everything                                       |
+| `reliable-ai-streams/core`       | 71KB  | 21KB    | Runtime + retry + errors                         |
+| `reliable-ai-streams/structured` | 61KB  | 18KB    | Structured output                                |
+| `reliable-ai-streams/consensus`  | 72KB  | 21KB    | Multi-model consensus                            |
+| `reliable-ai-streams/parallel`   | 58KB  | 17KB    | Parallel/race operations                         |
+| `reliable-ai-streams/window`     | 62KB  | 18KB    | Document chunking                                |
+| `reliable-ai-streams/guardrails` | 18KB  | 6KB     | Validation rules                                 |
+| `reliable-ai-streams/monitoring` | 27KB  | 7KB     | OTel/Sentry                                      |
+| `reliable-ai-streams/drift`      | 4KB   | 2KB     | Drift detection                                  |
+| `reliable-ai-streams/openai`     | —     | —       | OpenAI SDK adapter                               |
+| `reliable-ai-streams/mastra`     | —     | —       | Mastra adapter                                   |
+| `reliable-ai-streams/anthropic`  | —     | —       | Anthropic SDK adapter (reference implementation) |
 
 ### Usage
 
 ```typescript
 // Main import (recommended for most apps)
-import { l0, structured, consensus } from "@ai2070/l0";
+import { l0, structured, consensus } from "reliable-ai-streams";
 
 // Subpath imports (for edge runtimes / strict bundle constraints)
-import { l0 } from "@ai2070/l0/core";
-import { structured } from "@ai2070/l0/structured";
-import { consensus } from "@ai2070/l0/consensus";
-import { parallel, race } from "@ai2070/l0/parallel";
-import { createWindow } from "@ai2070/l0/window";
-import { recommendedGuardrails } from "@ai2070/l0/guardrails";
-import { createSentryHandler } from "@ai2070/l0/monitoring";
-import { DriftDetector } from "@ai2070/l0/drift";
-import { openaiAdapter } from "@ai2070/l0/openai";
-import { anthropicAdapter } from "@ai2070/l0/anthropic";
-import { mastraAdapter } from "@ai2070/l0/mastra";
+import { l0 } from "reliable-ai-streams/core";
+import { structured } from "reliable-ai-streams/structured";
+import { consensus } from "reliable-ai-streams/consensus";
+import { parallel, race } from "reliable-ai-streams/parallel";
+import { createWindow } from "reliable-ai-streams/window";
+import { recommendedGuardrails } from "reliable-ai-streams/guardrails";
+import { createSentryHandler } from "reliable-ai-streams/monitoring";
+import { DriftDetector } from "reliable-ai-streams/drift";
+import { openaiAdapter } from "reliable-ai-streams/openai";
+import { anthropicAdapter } from "reliable-ai-streams/anthropic";
+import { mastraAdapter } from "reliable-ai-streams/mastra";
 ```
 
 ### When to Use Subpath Imports

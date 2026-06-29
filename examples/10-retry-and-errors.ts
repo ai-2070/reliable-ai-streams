@@ -23,7 +23,7 @@ import {
   NetworkErrorType,
   type NetworkErrorAnalysis,
   type RetryOptions,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 

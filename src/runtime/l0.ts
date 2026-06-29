@@ -39,8 +39,7 @@ import type { InterceptorManager as InterceptorManagerType } from "./interceptor
 let _driftDetectorFactory: (() => DriftDetectorType) | null = null;
 let _monitorFactory: ((config: unknown) => L0MonitorType) | null = null;
 let _interceptorManagerFactory:
-  | ((interceptors: unknown[]) => InterceptorManagerType)
-  | null = null;
+  ((interceptors: unknown[]) => InterceptorManagerType) | null = null;
 let _adapterRegistry: {
   getAdapter: (name: string) => L0Adapter | undefined;
   hasMatchingAdapter: (stream: unknown) => boolean;
@@ -51,7 +50,7 @@ let _adapterRegistry: {
  * Enable drift detection feature. Call this once before using detectDrift option.
  * @example
  * ```typescript
- * import { enableDriftDetection } from "@ai2070/l0";
+ * import { enableDriftDetection } from "reliable-ai-streams";
  * enableDriftDetection();
  * ```
  */
@@ -63,7 +62,7 @@ export function enableDriftDetection(factory: () => DriftDetectorType): void {
  * Enable monitoring feature. Call this once before using monitoring option.
  * @example
  * ```typescript
- * import { enableMonitoring } from "@ai2070/l0";
+ * import { enableMonitoring } from "reliable-ai-streams";
  * enableMonitoring();
  * ```
  */
@@ -77,7 +76,7 @@ export function enableMonitoring(
  * Enable interceptors feature. Call this once before using interceptors option.
  * @example
  * ```typescript
- * import { enableInterceptors } from "@ai2070/l0";
+ * import { enableInterceptors } from "reliable-ai-streams";
  * enableInterceptors();
  * ```
  */
@@ -91,7 +90,7 @@ export function enableInterceptors(
  * Enable adapter registry for auto-detection of SDK streams.
  * @example
  * ```typescript
- * import { enableAdapterRegistry } from "@ai2070/l0";
+ * import { enableAdapterRegistry } from "reliable-ai-streams";
  * enableAdapterRegistry();
  * ```
  */
@@ -220,7 +219,7 @@ export async function l0<TOutput = unknown>(
     if (!_interceptorManagerFactory) {
       throw new L0Error(
         "Interceptors require enableInterceptors() to be called first. " +
-          'Import and call: import { enableInterceptors } from "@ai2070/l0"; enableInterceptors();',
+          'Import and call: import { enableInterceptors } from "reliable-ai-streams"; enableInterceptors();',
         { code: L0ErrorCodes.FEATURE_NOT_ENABLED, context: options.context },
       );
     }
@@ -309,7 +308,7 @@ export async function l0<TOutput = unknown>(
     if (!_monitorFactory) {
       throw new L0Error(
         "Monitoring requires enableMonitoring() to be called first. " +
-          'Import and call: import { enableMonitoring } from "@ai2070/l0"; enableMonitoring();',
+          'Import and call: import { enableMonitoring } from "reliable-ai-streams"; enableMonitoring();',
         {
           code: L0ErrorCodes.FEATURE_NOT_ENABLED,
           context: processedContext,
@@ -392,7 +391,7 @@ export async function l0<TOutput = unknown>(
     if (!_driftDetectorFactory) {
       throw new L0Error(
         "Drift detection requires enableDriftDetection() to be called first. " +
-          'Import and call: import { enableDriftDetection } from "@ai2070/l0"; enableDriftDetection();',
+          'Import and call: import { enableDriftDetection } from "reliable-ai-streams"; enableDriftDetection();',
         {
           code: L0ErrorCodes.FEATURE_NOT_ENABLED,
           context: processedContext,
@@ -594,7 +593,7 @@ export async function l0<TOutput = unknown>(
               if (!_adapterRegistry) {
                 throw new L0Error(
                   "String adapter names require enableAdapterRegistry() to be called first. " +
-                    'Import and call: import { enableAdapterRegistry } from "@ai2070/l0"; enableAdapterRegistry();',
+                    'Import and call: import { enableAdapterRegistry } from "reliable-ai-streams"; enableAdapterRegistry();',
                   {
                     code: L0ErrorCodes.FEATURE_NOT_ENABLED,
                     context: processedContext,
@@ -1194,7 +1193,6 @@ export async function l0<TOutput = unknown>(
                   }
 
                   // === TOOL RESULT FORMATS ===
-
                   // L0 standard flat format (recommended for custom adapters)
                   // { type: "tool_result", id, result, error? }
                   else if (parsed.type === "tool_result" && parsed.id) {

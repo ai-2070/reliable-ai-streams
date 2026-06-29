@@ -1,5 +1,5 @@
-// @ai2070/l0/zod - Zod schemas for all L0 types
-// Use with `import { ... } from "@ai2070/l0/zod"`
+// reliable-ai-streams/zod - Zod schemas for all L0 types
+// Use with `import { ... } from "reliable-ai-streams/zod"`
 
 // Re-export all schemas from each module
 

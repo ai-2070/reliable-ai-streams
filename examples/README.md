@@ -26,7 +26,7 @@ OPENAI_API_KEY=sk-... npx tsx examples/<filename>.ts
 ## Requirements
 
 ```bash
-npm install @ai2070/l0 ai @ai-sdk/openai zod
+npm install reliable-ai-streams ai @ai-sdk/openai zod
 ```
 
 Set your API key:
@@ -40,21 +40,21 @@ export OPENAI_API_KEY=sk-...
 Most applications should simply use:
 
 ```typescript
-import { l0 } from "@ai2070/l0";
+import { l0 } from "reliable-ai-streams";
 ```
 
 Only optimize imports if you're targeting edge runtimes or strict bundle constraints:
 
 ```typescript
-import { l0 } from "@ai2070/l0/core"; // 20KB gzipped
-import { structured } from "@ai2070/l0/structured";
-import { consensus } from "@ai2070/l0/consensus";
-import { parallel, race } from "@ai2070/l0/parallel";
-import { createWindow } from "@ai2070/l0/window";
-import { recommendedGuardrails } from "@ai2070/l0/guardrails";
-import { createSentryHandler } from "@ai2070/l0/monitoring";
-import { DriftDetector } from "@ai2070/l0/drift";
-import { openaiAdapter } from "@ai2070/l0/openai";
-import { anthropicAdapter } from "@ai2070/l0/anthropic";
-import { mastraAdapter } from "@ai2070/l0/mastra";
+import { l0 } from "reliable-ai-streams/core"; // 20KB gzipped
+import { structured } from "reliable-ai-streams/structured";
+import { consensus } from "reliable-ai-streams/consensus";
+import { parallel, race } from "reliable-ai-streams/parallel";
+import { createWindow } from "reliable-ai-streams/window";
+import { recommendedGuardrails } from "reliable-ai-streams/guardrails";
+import { createSentryHandler } from "reliable-ai-streams/monitoring";
+import { DriftDetector } from "reliable-ai-streams/drift";
+import { openaiAdapter } from "reliable-ai-streams/openai";
+import { anthropicAdapter } from "reliable-ai-streams/anthropic";
+import { mastraAdapter } from "reliable-ai-streams/mastra";
 ```

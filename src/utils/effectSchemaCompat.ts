@@ -146,7 +146,7 @@ let effectAdapter: EffectSchemaAdapter | null = null;
  * @example
  * ```typescript
  * import { Schema } from "effect";
- * import { registerEffectSchemaAdapter } from "@ai2070/l0";
+ * import { registerEffectSchemaAdapter } from "reliable-ai-streams";
  *
  * registerEffectSchemaAdapter({
  *   decodeUnknownSync: (schema, data) => Schema.decodeUnknownSync(schema)(data),

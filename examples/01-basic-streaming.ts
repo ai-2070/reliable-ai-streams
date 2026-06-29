@@ -1,7 +1,11 @@
 // Basic L0 Streaming Example
 // Run: OPENAI_API_KEY=sk-... npx tsx examples/01-basic-streaming.ts
 
-import { l0, recommendedGuardrails, recommendedRetry } from "@ai2070/l0";
+import {
+  l0,
+  recommendedGuardrails,
+  recommendedRetry,
+} from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 

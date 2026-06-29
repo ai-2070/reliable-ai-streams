@@ -19,7 +19,7 @@ export type EventHandler = (event: L0Event) => void;
  *
  * @example
  * ```typescript
- * import { l0, combineEvents, createOpenTelemetryHandler, createSentryHandler } from "@ai2070/l0";
+ * import { l0, combineEvents, createOpenTelemetryHandler, createSentryHandler } from "reliable-ai-streams";
  *
  * const result = await l0({
  *   stream: () => streamText({ model, prompt }),
@@ -71,7 +71,7 @@ export function combineEvents(...handlers: EventHandler[]): EventHandler {
  *
  * @example
  * ```typescript
- * import { filterEvents, EventType } from "@ai2070/l0";
+ * import { filterEvents, EventType } from "reliable-ai-streams";
  *
  * const errorHandler = filterEvents(
  *   [EventType.ERROR, EventType.NETWORK_ERROR],
@@ -105,7 +105,7 @@ export function filterEvents(
  *
  * @example
  * ```typescript
- * import { excludeEvents, EventType } from "@ai2070/l0";
+ * import { excludeEvents, EventType } from "reliable-ai-streams";
  *
  * const quietHandler = excludeEvents(
  *   [EventType.TOKEN], // Exclude token events
@@ -136,7 +136,7 @@ export function excludeEvents(
  *
  * @example
  * ```typescript
- * import { debounceEvents } from "@ai2070/l0";
+ * import { debounceEvents } from "reliable-ai-streams";
  *
  * const throttledLogger = debounceEvents(
  *   100, // 100ms debounce
@@ -175,7 +175,7 @@ export function debounceEvents(
  *
  * @example
  * ```typescript
- * import { batchEvents } from "@ai2070/l0";
+ * import { batchEvents } from "reliable-ai-streams";
  *
  * const batchedHandler = batchEvents(
  *   10, // Batch size

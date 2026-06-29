@@ -1,7 +1,7 @@
 /**
  * L0 Monitoring - OpenTelemetry and Sentry integrations
  *
- * Import from "@ai2070/l0/monitoring" to get monitoring features
+ * Import from "reliable-ai-streams/monitoring" to get monitoring features
  * without bundling them in your main application.
  *
  * @example
@@ -10,7 +10,7 @@
  *   createOpenTelemetryHandler,
  *   createSentryHandler,
  *   combineEvents,
- * } from "@ai2070/l0/monitoring";
+ * } from "reliable-ai-streams/monitoring";
  *
  * const result = await l0({
  *   stream: () => streamText({ model, prompt }),

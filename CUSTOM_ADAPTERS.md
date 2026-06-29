@@ -7,14 +7,14 @@ L0 supports custom adapters for integrating any LLM provider or streaming source
 L0 provides **official first-party adapters** for:
 
 - **Vercel AI SDK** - Native support for `streamText()`, plus `vercelAIObjectAdapter` for `streamObject()`
-- **OpenAI SDK** - `openaiAdapter` via `@ai2070/l0/openai`
-- **Mastra AI** - `mastraAdapter` via `@ai2070/l0/mastra`
-- **Anthropic SDK** - `anthropicAdapter` via `@ai2070/l0/anthropic` (reference implementation)
+- **OpenAI SDK** - `openaiAdapter` via `reliable-ai-streams/openai`
+- **Mastra AI** - `mastraAdapter` via `reliable-ai-streams/mastra`
+- **Anthropic SDK** - `anthropicAdapter` via `reliable-ai-streams/anthropic` (reference implementation)
 
 These are the only integrations maintained within the core project.
 Support for additional providers is out of scope.
 
-> **Bundle size tip:** Import adapters from their subpaths (`@ai2070/l0/openai`, etc.) to reduce bundle size. The main `@ai2070/l0` entry also exports all adapters for convenience.
+> **Bundle size tip:** Import adapters from their subpaths (`reliable-ai-streams/openai`, etc.) to reduce bundle size. The main `reliable-ai-streams` entry also exports all adapters for convenience.
 
 ---
 
@@ -115,8 +115,8 @@ interface L0Progress {
 Pass the adapter directly. No `detect()` needed.
 
 ```typescript
-import { l0 } from "@ai2070/l0/core";
-import { anthropicAdapter } from "@ai2070/l0/anthropic";
+import { l0 } from "reliable-ai-streams/core";
+import { anthropicAdapter } from "reliable-ai-streams/anthropic";
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic();
@@ -137,8 +137,8 @@ const result = await l0({
 Reference a registered adapter by name:
 
 ```typescript
-import { l0, registerAdapter } from "@ai2070/l0";
-import { anthropicAdapter } from "@ai2070/l0/anthropic";
+import { l0, registerAdapter } from "reliable-ai-streams";
+import { anthropicAdapter } from "reliable-ai-streams/anthropic";
 
 // Register once at startup
 registerAdapter(anthropicAdapter);
@@ -158,9 +158,9 @@ const result = await l0({
 Register adapters with `detect()` for automatic stream detection:
 
 ```typescript
-import { l0, registerAdapter } from "@ai2070/l0";
-import { anthropicAdapter } from "@ai2070/l0/anthropic";
-import { openaiAdapter } from "@ai2070/l0/openai";
+import { l0, registerAdapter } from "reliable-ai-streams";
+import { anthropicAdapter } from "reliable-ai-streams/anthropic";
+import { openaiAdapter } from "reliable-ai-streams/openai";
 
 // Register at startup
 registerAdapter(anthropicAdapter);
@@ -190,7 +190,7 @@ When L0 receives a stream, it resolves the adapter in this order:
 ### Minimal Adapter
 
 ```typescript
-import type { L0Adapter, L0Event } from "@ai2070/l0";
+import type { L0Adapter, L0Event } from "reliable-ai-streams";
 
 interface MyChunk {
   text?: string;
@@ -341,8 +341,8 @@ L0 provides helpers to make building correct adapters easier.
 The simplest way to build an adapter:
 
 ```typescript
-import { toL0Events } from "@ai2070/l0";
-import type { L0Adapter } from "@ai2070/l0";
+import { toL0Events } from "reliable-ai-streams";
+import type { L0Adapter } from "reliable-ai-streams";
 
 const myAdapter: L0Adapter<MyStream> = {
   name: "myai",
@@ -364,8 +364,8 @@ const myAdapter: L0Adapter<MyStream> = {
 For streams with both text and structured messages (tool calls, etc.):
 
 ```typescript
-import { toL0EventsWithMessages } from "@ai2070/l0";
-import type { L0Adapter } from "@ai2070/l0";
+import { toL0EventsWithMessages } from "reliable-ai-streams";
+import type { L0Adapter } from "reliable-ai-streams";
 
 const toolAdapter: L0Adapter<ToolStream> = {
   name: "tool-ai",
@@ -391,8 +391,8 @@ const toolAdapter: L0Adapter<ToolStream> = {
 For streams with multimodal content (images, audio, etc.):
 
 ```typescript
-import { toMultimodalL0Events } from "@ai2070/l0";
-import type { L0Adapter } from "@ai2070/l0";
+import { toMultimodalL0Events } from "reliable-ai-streams";
+import type { L0Adapter } from "reliable-ai-streams";
 
 const imageAdapter: L0Adapter<ImageStream> = {
   name: "image-ai",
@@ -436,7 +436,7 @@ import {
   createImageEvent,
   createAudioEvent,
   createJsonDataEvent,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 async function* manualAdapter(stream: MyStream): AsyncGenerator<L0Event> {
   try {
@@ -476,7 +476,7 @@ import {
   unregisterAdapter,
   unregisterAllExcept,
   clearAdapters,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Register for auto-detection
 registerAdapter(myAdapter);
@@ -532,11 +532,11 @@ Suppress with `{ silent: true }` or in production (`NODE_ENV=production`).
 L0 has native support for Vercel AI SDK's `streamText()`. For `streamObject()`, use the dedicated `vercelAIObjectAdapter`:
 
 ```typescript
-import { structured } from "@ai2070/l0";
+import { structured } from "reliable-ai-streams";
 import {
   vercelAIObjectAdapter,
   wrapVercelAIObjectStream,
-} from "@ai2070/l0/adapters";
+} from "reliable-ai-streams/adapters";
 import { streamObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
@@ -585,7 +585,7 @@ interface VercelAIObjectAdapterOptions {
 ### OpenAI Adapter
 
 ```typescript
-import { l0 } from "@ai2070/l0/core";
+import { l0 } from "reliable-ai-streams/core";
 import {
   openaiAdapter,
   wrapOpenAIStream,
@@ -593,7 +593,7 @@ import {
   openaiText,
   openaiJSON,
   openaiWithTools,
-} from "@ai2070/l0/openai";
+} from "reliable-ai-streams/openai";
 import OpenAI from "openai";
 
 const openai = new OpenAI();
@@ -659,13 +659,13 @@ interface OpenAIAdapterOptions {
 ### Anthropic Adapter Reference Implementation
 
 ```typescript
-import { l0 } from "@ai2070/l0/core";
+import { l0 } from "reliable-ai-streams/core";
 import {
   anthropicAdapter,
   wrapAnthropicStream,
   anthropicStream,
   anthropicText,
-} from "@ai2070/l0/anthropic";
+} from "reliable-ai-streams/anthropic";
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic();
@@ -720,7 +720,7 @@ interface AnthropicAdapterOptions {
 ### Mastra Adapter
 
 ```typescript
-import { l0 } from "@ai2070/l0/core";
+import { l0 } from "reliable-ai-streams/core";
 import {
   mastraAdapter,
   wrapMastraStream,
@@ -730,7 +730,7 @@ import {
   mastraStructured,
   extractMastraText,
   extractMastraObject,
-} from "@ai2070/l0/mastra";
+} from "reliable-ai-streams/mastra";
 import { Agent } from "@mastra/core";
 
 const agent = new Agent({
@@ -790,8 +790,8 @@ interface MastraAdapterOptions {
 ### Custom Provider Adapter
 
 ```typescript
-import type { L0Adapter, L0Event } from "@ai2070/l0";
-import { toL0Events } from "@ai2070/l0";
+import type { L0Adapter, L0Event } from "reliable-ai-streams";
+import { toL0Events } from "reliable-ai-streams";
 
 // Define the provider's stream types
 interface CustomProviderChunk {
@@ -877,7 +877,7 @@ These events enable:
 #### Complete Example
 
 ```typescript
-import type { L0Adapter, L0Event } from "@ai2070/l0";
+import type { L0Adapter, L0Event } from "reliable-ai-streams";
 
 interface ToolProviderChunk {
   type: "text" | "tool_call" | "tool_result" | "complete";
@@ -961,7 +961,7 @@ export const toolProviderAdapter: L0Adapter<ToolProviderStream> = {
 ### Wrapping a REST API
 
 ```typescript
-import type { L0Adapter, L0Event } from "@ai2070/l0";
+import type { L0Adapter, L0Event } from "reliable-ai-streams";
 
 interface SSEMessage {
   data: string;
@@ -1039,8 +1039,8 @@ const result = await l0({
 ### Multimodal Adapter (Image Generation)
 
 ```typescript
-import type { L0Adapter, L0Event } from "@ai2070/l0";
-import { toMultimodalL0Events } from "@ai2070/l0";
+import type { L0Adapter, L0Event } from "reliable-ai-streams";
+import { toMultimodalL0Events } from "reliable-ai-streams";
 
 interface ImageGenChunk {
   type: "progress" | "image" | "complete";
@@ -1092,7 +1092,7 @@ export const imageGenAdapter: L0Adapter<ImageGenStream> = {
 ```typescript
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { myAdapter } from "./my-adapter";
-import { registerAdapter, clearAdapters, detectAdapter } from "@ai2070/l0";
+import { registerAdapter, clearAdapters, detectAdapter } from "reliable-ai-streams";
 
 // Helper to collect events
 async function collectEvents(gen: AsyncGenerator<L0Event>): Promise<L0Event[]> {

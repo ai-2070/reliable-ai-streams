@@ -5,13 +5,13 @@ Guaranteed valid JSON matching your schema. Supports Zod, Effect Schema, and JSO
 > **Bundle size tip:** For smaller bundles, use subpath imports:
 >
 > ```typescript
-> import { structured, structuredStream } from "@ai2070/l0/structured";
+> import { structured, structuredStream } from "reliable-ai-streams/structured";
 > ```
 
 ## Quick Start
 
 ```typescript
-import { structured } from "@ai2070/l0";
+import { structured } from "reliable-ai-streams";
 import { z } from "zod";
 
 const schema = z.object({
@@ -202,7 +202,7 @@ if (result.corrected) {
 
 ```typescript
 import { z } from "zod";
-import { structured } from "@ai2070/l0";
+import { structured } from "reliable-ai-streams";
 
 const schema = z.object({
   name: z.string(),
@@ -222,7 +222,7 @@ import {
   structured,
   registerEffectSchemaAdapter,
   wrapEffectSchema,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Register the adapter once at app startup
 registerEffectSchemaAdapter({
@@ -255,7 +255,7 @@ import {
   structured,
   registerJSONSchemaAdapter,
   wrapJSONSchema,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Register the adapter once at app startup
 const ajv = new Ajv({ allErrors: true });
@@ -307,7 +307,7 @@ import {
   registerJSONSchemaAdapter,
   createSimpleJSONSchemaAdapter,
   wrapJSONSchema,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Use the built-in simple adapter
 registerJSONSchemaAdapter(createSimpleJSONSchemaAdapter());
@@ -464,7 +464,7 @@ import {
   minimalStructured,
   recommendedStructured,
   strictStructured,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Minimal - fast failure, no corrections
 const result = await structured({

@@ -3,17 +3,17 @@
 //
 // This is the "full" entry point that re-exports everything.
 // For reduced bundle size, use subpath imports:
-//   - "@ai2070/l0/core" - Minimal runtime (~15KB)
-//   - "@ai2070/l0/guardrails" - Guardrail rules and engine
-//   - "@ai2070/l0/drift" - Drift detection
-//   - "@ai2070/l0/monitoring" - OTel, Sentry
-//   - "@ai2070/l0/openai" - OpenAI adapter
-//   - "@ai2070/l0/anthropic" - Anthropic adapter
-//   - "@ai2070/l0/mastra" - Mastra adapter
+//   - "reliable-ai-streams/core" - Minimal runtime (~15KB)
+//   - "reliable-ai-streams/guardrails" - Guardrail rules and engine
+//   - "reliable-ai-streams/drift" - Drift detection
+//   - "reliable-ai-streams/monitoring" - OTel, Sentry
+//   - "reliable-ai-streams/openai" - OpenAI adapter
+//   - "reliable-ai-streams/anthropic" - Anthropic adapter
+//   - "reliable-ai-streams/mastra" - Mastra adapter
 //
 // Optional features must be explicitly enabled:
-//   import { enableDriftDetection } from "@ai2070/l0";
-//   import { DriftDetector } from "@ai2070/l0/drift";
+//   import { enableDriftDetection } from "reliable-ai-streams";
+//   import { DriftDetector } from "reliable-ai-streams/drift";
 //   enableDriftDetection(() => new DriftDetector());
 
 // Core runtime
@@ -645,9 +645,9 @@ export {
 
 // SDK Adapters - OpenAI, Anthropic, Mastra
 // Also available via subpath imports for reduced bundle size:
-//   import { openaiAdapter } from "@ai2070/l0/openai"
-//   import { anthropicAdapter } from "@ai2070/l0/anthropic"
-//   import { mastraAdapter } from "@ai2070/l0/mastra"
+//   import { openaiAdapter } from "reliable-ai-streams/openai"
+//   import { anthropicAdapter } from "reliable-ai-streams/anthropic"
+//   import { mastraAdapter } from "reliable-ai-streams/mastra"
 
 // OpenAI adapter
 export {

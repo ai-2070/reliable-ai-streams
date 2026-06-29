@@ -5,9 +5,9 @@ This guide covers performance optimization for L0 in production environments.
 > **Bundle size tip:** For smaller bundles, use subpath imports:
 >
 > ```typescript
-> import { l0 } from "@ai2070/l0/core"; // ~15KB minimal runtime
-> import { createWindow } from "@ai2070/l0/window";
-> import { consensus } from "@ai2070/l0/consensus";
+> import { l0 } from "reliable-ai-streams/core"; // ~15KB minimal runtime
+> import { createWindow } from "reliable-ai-streams/window";
+> import { consensus } from "reliable-ai-streams/consensus";
 > ```
 
 ## Table of Contents
@@ -84,7 +84,7 @@ const result = await l0({
 Choose based on your use case:
 
 ```typescript
-import { RETRY_DEFAULTS } from "@ai2070/l0";
+import { RETRY_DEFAULTS } from "reliable-ai-streams";
 
 // Fixed jitter (default) - AWS-style fixed base + random jitter
 // Good for: Most production workloads (prevents thundering herd)
@@ -459,7 +459,7 @@ Typical performance characteristics (measured on Node.js 20):
 L0 exports default retry configuration values:
 
 ```typescript
-import { RETRY_DEFAULTS } from "@ai2070/l0";
+import { RETRY_DEFAULTS } from "reliable-ai-streams";
 
 RETRY_DEFAULTS = {
   attempts: 3, // Maximum model failure retries

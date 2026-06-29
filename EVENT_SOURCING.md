@@ -24,7 +24,7 @@ Derived computations (guardrails, drift, retries) are stored **AS events**, not 
 ### Recording a Stream
 
 ```typescript
-import { createInMemoryEventStore, createEventRecorder } from "@ai2070/l0";
+import { createInMemoryEventStore, createEventRecorder } from "reliable-ai-streams";
 
 const store = createInMemoryEventStore();
 const recorder = createEventRecorder(store, "my-stream-id");
@@ -46,7 +46,7 @@ await recorder.recordComplete("Quantum computing is...", 5);
 ### Replaying a Stream
 
 ```typescript
-import { replay } from "@ai2070/l0";
+import { replay } from "reliable-ai-streams";
 
 const result = await replay({
   streamId: "my-stream-id",
@@ -73,7 +73,7 @@ console.log(result.state.completed); // true
 L0 uses a lean, composable event schema. Import `L0RecordedEventTypes` for type-safe event type constants:
 
 ```typescript
-import { L0RecordedEventTypes } from "@ai2070/l0";
+import { L0RecordedEventTypes } from "reliable-ai-streams";
 
 type L0RecordedEvent =
   | { type: "START"; ts: number; options: SerializedOptions }
@@ -185,7 +185,7 @@ interface L0EventStore {
 For testing and short-lived sessions:
 
 ```typescript
-import { createInMemoryEventStore } from "@ai2070/l0";
+import { createInMemoryEventStore } from "reliable-ai-streams";
 
 const store = createInMemoryEventStore();
 
@@ -212,7 +212,7 @@ store.clear();
 The recorder provides convenient methods for each event type:
 
 ```typescript
-import { createEventRecorder, createInMemoryEventStore } from "@ai2070/l0";
+import { createEventRecorder, createInMemoryEventStore } from "reliable-ai-streams";
 
 const store = createInMemoryEventStore();
 const recorder = createEventRecorder(store);
@@ -311,7 +311,7 @@ await recorder.recordComplete("The data shows... growth", 5);
 ### Basic Replay
 
 ```typescript
-import { replay } from "@ai2070/l0";
+import { replay } from "reliable-ai-streams";
 
 const result = await replay({
   streamId: "my-stream",
@@ -392,7 +392,7 @@ const result = await replay({
 Get final state without iterating:
 
 ```typescript
-import { createEventReplayer } from "@ai2070/l0";
+import { createEventReplayer } from "reliable-ai-streams";
 
 const replayer = createEventReplayer(store);
 const state = await replayer.replayToState("my-stream");
@@ -466,7 +466,7 @@ interface ReplayedState {
 Get metadata without full replay:
 
 ```typescript
-import { getStreamMetadata } from "@ai2070/l0";
+import { getStreamMetadata } from "reliable-ai-streams";
 
 const metadata = await getStreamMetadata(store, "my-stream");
 
@@ -488,7 +488,7 @@ console.log(metadata);
 Verify determinism by comparing two replay results:
 
 ```typescript
-import { compareReplays, createEventReplayer } from "@ai2070/l0";
+import { compareReplays, createEventReplayer } from "reliable-ai-streams";
 
 const replayer = createEventReplayer(store);
 
@@ -667,7 +667,7 @@ L0 provides a pluggable storage adapter system. Register custom adapters or use 
 ### Using Built-in Adapters
 
 ```typescript
-import { createEventStore } from "@ai2070/l0";
+import { createEventStore } from "reliable-ai-streams";
 
 // In-memory (default)
 const memStore = await createEventStore({ type: "memory" });
@@ -694,7 +694,7 @@ import {
   registerStorageAdapter,
   BaseEventStore,
   createEventStore,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Register a Redis adapter
 registerStorageAdapter("redis", async (config) => {
@@ -730,7 +730,7 @@ import {
   registerStorageAdapter,
   unregisterStorageAdapter,
   getRegisteredAdapters,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Register
 registerStorageAdapter("redis", factory);
@@ -747,12 +747,12 @@ const adapters = getRegisteredAdapters(); // ["memory", "file", "localStorage", 
 Use `BaseEventStore` for easier implementation:
 
 ```typescript
-import { BaseEventStore } from "@ai2070/l0";
+import { BaseEventStore } from "reliable-ai-streams";
 import type {
   L0RecordedEvent,
   L0EventEnvelope,
   StorageAdapterConfig,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 class RedisEventStore extends BaseEventStore {
   private client: RedisClient;
@@ -820,7 +820,7 @@ async getEventsAfter(streamId: string, afterSeq: number): Promise<L0EventEnvelop
 For stores with snapshot support:
 
 ```typescript
-import { BaseEventStoreWithSnapshots } from "@ai2070/l0";
+import { BaseEventStoreWithSnapshots } from "reliable-ai-streams";
 
 class MyEventStore extends BaseEventStoreWithSnapshots {
   // Inherits from BaseEventStore plus:
@@ -849,7 +849,7 @@ import {
   createCompositeStore,
   createInMemoryEventStore,
   FileEventStore,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Write-through: memory cache + file persistence
 const store = createCompositeStore([
@@ -875,7 +875,7 @@ const store2 = createCompositeStore(
 Add expiration to any store:
 
 ```typescript
-import { withTTL, createInMemoryEventStore } from "@ai2070/l0";
+import { withTTL, createInMemoryEventStore } from "reliable-ai-streams";
 
 // Events expire after 24 hours
 const store = withTTL(createInMemoryEventStore(), 24 * 60 * 60 * 1000);
@@ -890,13 +890,13 @@ const events = await store.getEvents("stream-1"); // Only non-expired events
 import {
   BaseEventStoreWithSnapshots,
   registerStorageAdapter,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 import type {
   L0RecordedEvent,
   L0EventEnvelope,
   L0Snapshot,
   StorageAdapterConfig,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 class PostgresEventStore extends BaseEventStoreWithSnapshots {
   private pool: Pool;

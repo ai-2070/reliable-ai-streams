@@ -33,7 +33,7 @@
 Complete example showing all available options:
 
 ```typescript
-import { l0, recommendedGuardrails, recommendedRetry } from "@ai2070/l0";
+import { l0, recommendedGuardrails, recommendedRetry } from "reliable-ai-streams";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
@@ -213,7 +213,7 @@ const result = await l0({
 Automatic detection and recovery from network failures:
 
 ```typescript
-import { isNetworkError, analyzeNetworkError } from "@ai2070/l0";
+import { isNetworkError, analyzeNetworkError } from "reliable-ai-streams";
 
 try {
   await l0({ stream, retry: recommendedRetry });
@@ -238,7 +238,7 @@ Guaranteed valid JSON matching your schema. Supports **Zod** (v3/v4), **Effect S
 ### With Zod
 
 ```typescript
-import { structured } from "@ai2070/l0";
+import { structured } from "reliable-ai-streams";
 import { z } from "zod";
 
 const schema = z.object({
@@ -266,7 +266,7 @@ import {
   structured,
   registerEffectSchemaAdapter,
   wrapEffectSchema,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 import { Schema } from "effect";
 
 // Register the adapter once at app startup
@@ -309,7 +309,7 @@ import {
   structured,
   registerJSONSchemaAdapter,
   wrapJSONSchema,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 import Ajv from "ajv"; // Or any JSON Schema validator
 
 // Register adapter once at app startup (example with Ajv)
@@ -361,7 +361,7 @@ import {
   structuredObject,
   structuredArray,
   structuredStream,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Quick object schema
 const result = await structuredObject(
@@ -396,7 +396,7 @@ import {
   minimalStructured,
   recommendedStructured,
   strictStructured,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // minimalStructured:     { autoCorrect: false, retry: { attempts: 1 } }
 // recommendedStructured: { autoCorrect: true, retry: { attempts: 2 } }
@@ -435,7 +435,7 @@ console.log(result.state.fallbackIndex); // 0 = primary, 1+ = fallback
 Process documents that exceed context limits:
 
 ```typescript
-import { createWindow } from "@ai2070/l0";
+import { createWindow } from "reliable-ai-streams";
 
 const window = createWindow(longDocument, {
   size: 2000, // Tokens per chunk
@@ -464,7 +464,7 @@ const next = window.next();
 Utilities for context, memory, output instructions, and tool definitions:
 
 ```typescript
-import { formatContext, formatMemory, formatTool, formatJsonOutput } from "@ai2070/l0";
+import { formatContext, formatMemory, formatTool, formatJsonOutput } from "reliable-ai-streams";
 
 // Wrap documents with XML/Markdown/bracket delimiters
 const context = formatContext(document, { label: "Documentation", delimiter: "xml" });
@@ -615,7 +615,7 @@ import {
   zeroOutputRule,
   patternRule,
   customPatternRule,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -639,7 +639,7 @@ import {
   jsonOnlyGuardrails, // jsonRule, zeroOutputRule
   markdownOnlyGuardrails, // markdownRule, zeroOutputRule
   latexOnlyGuardrails, // latexRule, zeroOutputRule
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 ```
 
 | Preset                  | Rules Included                                                           |
@@ -678,7 +678,7 @@ See [GUARDRAILS.md](./GUARDRAILS.md) for full documentation.
 Multi-generation consensus for high-confidence results:
 
 ```typescript
-import { consensus } from "@ai2070/l0";
+import { consensus } from "reliable-ai-streams";
 
 const result = await consensus({
   streams: [
@@ -705,7 +705,7 @@ Run multiple LLM calls concurrently with different patterns:
 ### Race - First Response Wins
 
 ```typescript
-import { race } from "@ai2070/l0";
+import { race } from "reliable-ai-streams";
 
 const result = await race([
   { stream: () => streamText({ model: openai("gpt-4o"), prompt }) },
@@ -720,7 +720,7 @@ console.log(result.state.content); // Content from winning stream
 ### Parallel with Concurrency Control
 
 ```typescript
-import { parallel } from "@ai2070/l0";
+import { parallel } from "reliable-ai-streams";
 
 const results = await parallel(
   [
@@ -767,7 +767,7 @@ const result = await race([
 For dynamic workloads, use `OperationPool` to process operations with a shared concurrency limit:
 
 ```typescript
-import { createPool } from "@ai2070/l0";
+import { createPool } from "reliable-ai-streams";
 
 const pool = createPool(3); // Max 3 concurrent operations
 
@@ -794,7 +794,7 @@ pool.getActiveWorkers(); // Currently executing
 Chain multiple streaming steps where each step receives the output of the previous:
 
 ```typescript
-import { pipe } from "@ai2070/l0";
+import { pipe } from "reliable-ai-streams";
 
 const result = await pipe(
   [
@@ -843,7 +843,7 @@ console.log(result.duration); // Total pipeline duration
 Create pipelines that can be reused with different inputs:
 
 ```typescript
-import { createPipeline, createStep } from "@ai2070/l0";
+import { createPipeline, createStep } from "reliable-ai-streams";
 
 // Create reusable steps
 const summarizeStep = createStep(
@@ -961,7 +961,7 @@ const result = await pipe(steps, input, {
 ### Pipeline Presets
 
 ```typescript
-import { fastPipeline, reliablePipeline, productionPipeline } from "@ai2070/l0";
+import { fastPipeline, reliablePipeline, productionPipeline } from "reliable-ai-streams";
 
 // Fast: fail fast, no monitoring
 await pipe(steps, input, { ...fastPipeline });
@@ -980,7 +980,7 @@ await pipe(steps, input, { ...productionPipeline });
 All L0 functions support generic type parameters to forward your output types:
 
 ```typescript
-import { l0, parallel, race, consensus } from "@ai2070/l0";
+import { l0, parallel, race, consensus } from "reliable-ai-streams";
 
 // Typed output (compile-time type annotation)
 interface UserProfile {
@@ -1019,7 +1019,7 @@ L0 supports custom adapters for integrating any LLM provider. Built-in adapters 
 ### Explicit Adapter Usage
 
 ```typescript
-import { l0, openaiAdapter } from "@ai2070/l0";
+import { l0, openaiAdapter } from "reliable-ai-streams";
 import OpenAI from "openai";
 
 const openai = new OpenAI();
@@ -1038,7 +1038,7 @@ const result = await l0({
 ### Building Custom Adapters
 
 ```typescript
-import { toL0Events, type L0Adapter } from "@ai2070/l0";
+import { toL0Events, type L0Adapter } from "reliable-ai-streams";
 
 interface MyChunk {
   text?: string;
@@ -1077,7 +1077,7 @@ See [CUSTOM_ADAPTERS.md](./CUSTOM_ADAPTERS.md) for complete guide including help
 L0 supports image, audio, and video generation with progress tracking and data events:
 
 ```typescript
-import { l0, toMultimodalL0Events, type L0Adapter } from "@ai2070/l0";
+import { l0, toMultimodalL0Events, type L0Adapter } from "reliable-ai-streams";
 
 const fluxAdapter: L0Adapter<FluxStream> = {
   name: "flux",
@@ -1659,7 +1659,7 @@ import {
   createInMemoryEventStore,
   createEventRecorder,
   replay,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Record a stream
 const store = createInMemoryEventStore();
@@ -1701,7 +1701,7 @@ See [EVENT_SOURCING.md](./EVENT_SOURCING.md) for complete guide.
 L0 provides detailed error context for debugging and recovery:
 
 ```typescript
-import { isL0Error, L0Error } from "@ai2070/l0";
+import { isL0Error, L0Error } from "reliable-ai-streams";
 
 try {
   await l0({ stream, guardrails });
@@ -1722,7 +1722,7 @@ Error codes: `STREAM_ABORTED`, `INITIAL_TOKEN_TIMEOUT`, `INTER_TOKEN_TIMEOUT`, `
 Error events include structured failure and recovery information:
 
 ```typescript
-import { EventType, type ErrorEvent } from "@ai2070/l0";
+import { EventType, type ErrorEvent } from "reliable-ai-streams";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -1755,7 +1755,7 @@ import {
   combineEvents,
   createOpenTelemetryHandler,
   createSentryHandler,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -1774,7 +1774,7 @@ const result = await l0({
 
 ```typescript
 import * as Sentry from "@sentry/node";
-import { l0, createSentryHandler } from "@ai2070/l0";
+import { l0, createSentryHandler } from "reliable-ai-streams";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -1788,7 +1788,7 @@ const result = await l0({
 
 ```typescript
 import { trace, metrics } from "@opentelemetry/api";
-import { l0, createOpenTelemetryHandler } from "@ai2070/l0";
+import { l0, createOpenTelemetryHandler } from "reliable-ai-streams";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -1811,7 +1811,7 @@ import {
   combineEvents,
   filterEvents,
   excludeEvents,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Combine multiple handlers
 onEvent: combineEvents(handler1, handler2, handler3);

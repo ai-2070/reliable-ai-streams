@@ -3,7 +3,7 @@
 > **Bundle size tip:** For smaller bundles, use subpath imports:
 >
 > ```typescript
-> import { parallel, race } from "@ai2070/l0/parallel";
+> import { parallel, race } from "reliable-ai-streams/parallel";
 > ```
 
 ## Interceptors
@@ -53,7 +53,7 @@ import {
   cachingInterceptor, // Cache results based on prompt hash
   transformInterceptor, // Post-process content
   analyticsInterceptor, // Send to analytics services
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 const result = await l0({
   stream: () => streamText({ model, prompt }),
@@ -214,7 +214,7 @@ const result = await l0({
 For advanced use cases, you can use the `InterceptorManager` class directly:
 
 ```typescript
-import { InterceptorManager, createInterceptorManager } from "@ai2070/l0";
+import { InterceptorManager, createInterceptorManager } from "reliable-ai-streams";
 
 const manager = createInterceptorManager([
   loggingInterceptor(),
@@ -241,7 +241,7 @@ manager.reset();
 ### Basic Usage
 
 ```typescript
-import { parallel } from "@ai2070/l0";
+import { parallel } from "reliable-ai-streams";
 
 const results = await parallel(
   [
@@ -369,7 +369,7 @@ import {
   race,
   createPool,
   OperationPool,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Limited concurrency (default: 5)
 await parallel(operations, { concurrency: 3 });
@@ -390,7 +390,7 @@ await race(operations);
 ### Race - Multi-Provider
 
 ```typescript
-import { race } from "@ai2070/l0";
+import { race } from "reliable-ai-streams";
 
 const result = await race([
   { stream: () => streamText({ model: openai("gpt-4"), prompt }) },
@@ -417,7 +417,7 @@ interface RaceResult<TOutput = unknown> extends L0Result<TOutput> {
 ### Pool - Reusable Workers
 
 ```typescript
-import { createPool, OperationPool } from "@ai2070/l0";
+import { createPool, OperationPool } from "reliable-ai-streams";
 
 const pool = createPool(3, {
   sharedRetry: recommendedRetry,
@@ -521,7 +521,7 @@ const result = await l0({
 Process operations in batches with control over batch size:
 
 ```typescript
-import { batched } from "@ai2070/l0";
+import { batched } from "reliable-ai-streams";
 
 const result = await batched(
   operations,

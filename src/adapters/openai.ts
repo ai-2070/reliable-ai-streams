@@ -508,8 +508,7 @@ export async function extractOpenAIText(
  * OpenAI stream type - can be Stream or raw async iterable of chunks
  */
 export type OpenAIStream =
-  | Stream<ChatCompletionChunk>
-  | AsyncIterable<ChatCompletionChunk>;
+  Stream<ChatCompletionChunk> | AsyncIterable<ChatCompletionChunk>;
 
 /**
  * Type guard to detect an OpenAI stream
@@ -543,7 +542,7 @@ export function isOpenAIStream(input: unknown): input is OpenAIStream {
  *
  * @example
  * ```typescript
- * import { l0, openaiAdapter } from '@ai2070/l0';
+ * import { l0, openaiAdapter } from 'reliable-ai-streams';
  * import OpenAI from 'openai';
  *
  * const openai = new OpenAI();

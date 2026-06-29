@@ -95,7 +95,7 @@ let jsonSchemaAdapter: JSONSchemaAdapter | null = null;
  * @example
  * ```typescript
  * import Ajv from "ajv";
- * import { registerJSONSchemaAdapter } from "@ai2070/l0";
+ * import { registerJSONSchemaAdapter } from "reliable-ai-streams";
  *
  * const ajv = new Ajv({ allErrors: true });
  *

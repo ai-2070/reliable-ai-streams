@@ -1,11 +1,11 @@
 ---
 name: use-l0
-description: "Build, debug, and review apps that use the L0 reliability layer (`@ai2070/l0`). TRIGGER when: a file imports `@ai2070/l0` or any subpath (`@ai2070/l0/core`, `/structured`, `/consensus`, `/parallel`, `/pipeline`, `/window`, `/guardrails`, `/drift`, `/monitoring`, `/openai`, `/anthropic`, `/mastra`, `/zod`, `/adapters/helpers`, `/utils/chunking`); the user asks for L0 retry/guardrail/drift/structured/consensus/pipeline/parallel/race wiring; the user references L0 events, lifecycle callbacks (`onRetry`, `onFallback`, `onDrift`, `onCheckpoint`, `onViolation`, etc.), or `L0Event`/`L0State`/`L0Result` types. SKIP for unrelated AI SDK code that doesn't touch L0."
+description: "Build, debug, and review apps that use the L0 reliability layer (`reliable-ai-streams`). TRIGGER when: a file imports `reliable-ai-streams` or any subpath (`reliable-ai-streams/core`, `/structured`, `/consensus`, `/parallel`, `/pipeline`, `/window`, `/guardrails`, `/drift`, `/monitoring`, `/openai`, `/anthropic`, `/mastra`, `/zod`, `/adapters/helpers`, `/utils/chunking`); the user asks for L0 retry/guardrail/drift/structured/consensus/pipeline/parallel/race wiring; the user references L0 events, lifecycle callbacks (`onRetry`, `onFallback`, `onDrift`, `onCheckpoint`, `onViolation`, etc.), or `L0Event`/`L0State`/`L0Result` types. SKIP for unrelated AI SDK code that doesn't touch L0."
 ---
 
 # Use L0 effectively
 
-L0 (`@ai2070/l0`) is a thin, deterministic wrapper around any LLM stream that adds retry, fallback, guardrails, drift detection, structured output, consensus, pipelines, parallel/race, and full event sourcing. It is **streaming-first** and **adapter-based** — it never owns model calls, it wraps them.
+L0 (`reliable-ai-streams`) is a thin, deterministic wrapper around any LLM stream that adds retry, fallback, guardrails, drift detection, structured output, consensus, pipelines, parallel/race, and full event sourcing. It is **streaming-first** and **adapter-based** — it never owns model calls, it wraps them.
 
 ## Mental model
 
@@ -34,13 +34,13 @@ The same rule applies to `fallbackStreams`, `consensus({ streams })`, `parallel`
 
 | You want to…                            | Use                                  | Import                        |
 | --------------------------------------- | ------------------------------------ | ----------------------------- |
-| Wrap a single stream with reliability   | `l0(opts)`                           | `@ai2070/l0` or `/core`       |
-| Get guaranteed-valid JSON from a stream | `structured({ schema, stream })`     | `@ai2070/l0` or `/structured` |
-| Combine N streams into one answer       | `consensus({ streams })`             | `@ai2070/l0` or `/consensus`  |
-| Fan out N independent calls             | `parallel(items, opts)`              | `@ai2070/l0` or `/parallel`   |
-| First valid stream wins                 | `race(items, opts)`                  | `@ai2070/l0` or `/parallel`   |
-| Chain steps (summarize → translate)     | `pipe(steps, input)`                 | `@ai2070/l0` or `/pipeline`   |
-| Process a long doc in chunks            | `processWithWindow` / `l0WithWindow` | `@ai2070/l0` or `/window`     |
+| Wrap a single stream with reliability   | `l0(opts)`                           | `reliable-ai-streams` or `/core`       |
+| Get guaranteed-valid JSON from a stream | `structured({ schema, stream })`     | `reliable-ai-streams` or `/structured` |
+| Combine N streams into one answer       | `consensus({ streams })`             | `reliable-ai-streams` or `/consensus`  |
+| Fan out N independent calls             | `parallel(items, opts)`              | `reliable-ai-streams` or `/parallel`   |
+| First valid stream wins                 | `race(items, opts)`                  | `reliable-ai-streams` or `/parallel`   |
+| Chain steps (summarize → translate)     | `pipe(steps, input)`                 | `reliable-ai-streams` or `/pipeline`   |
+| Process a long doc in chunks            | `processWithWindow` / `l0WithWindow` | `reliable-ai-streams` or `/window`     |
 
 `structured`, `consensus`, `parallel`, `pipe`, and the window helpers all build on `l0` — they accept the same `retry`, `guardrails`, `timeout`, `signal`, `monitoring` shape and re-emit the same lifecycle.
 
@@ -74,7 +74,7 @@ import {
   fastPipeline,
   reliablePipeline,
   productionPipeline,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 ```
 
 Don't invent your own retry counts, backoff strategies, or guardrail lists if a preset name describes the intent.
@@ -89,7 +89,7 @@ Don't invent your own retry counts, backoff strategies, or guardrail lists if a 
 | Mastra agent         | `mastraStream(agent, prompt)` / `mastraStructured(agent, schema)` |
 | Anything else        | Build an adapter; see `CUSTOM_ADAPTERS.md` and `adapters/helpers` |
 
-For custom adapters, use the helpers in `@ai2070/l0`: `toL0Events`, `createAdapterTokenEvent`, `createAdapterDoneEvent`, `createAdapterErrorEvent`. Register with `registerAdapter` (requires `enableAdapterRegistry()` first — see below).
+For custom adapters, use the helpers in `reliable-ai-streams`: `toL0Events`, `createAdapterTokenEvent`, `createAdapterDoneEvent`, `createAdapterErrorEvent`. Register with `registerAdapter` (requires `enableAdapterRegistry()` first — see below).
 
 ## Optional features must be explicitly enabled
 
@@ -101,8 +101,8 @@ import {
   enableMonitoring,
   enableInterceptors,
   enableAdapterRegistry,
-} from "@ai2070/l0";
-import { DriftDetector } from "@ai2070/l0/drift";
+} from "reliable-ai-streams";
+import { DriftDetector } from "reliable-ai-streams/drift";
 
 enableDriftDetection(() => new DriftDetector());
 ```
@@ -132,7 +132,7 @@ The runtime emits a richer observability event stream too (`L0ObservabilityEvent
 ## Structured output
 
 ```ts
-import { structured } from "@ai2070/l0";
+import { structured } from "reliable-ai-streams";
 import { z } from "zod";
 
 const schema = z.object({ name: z.string(), age: z.number() });
@@ -160,7 +160,7 @@ import {
   registerEffectSchemaAdapter,
   registerJSONSchemaAdapter,
   createSimpleJSONSchemaAdapter,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 registerJSONSchemaAdapter(createSimpleJSONSchemaAdapter());
 // For Effect Schema, supply your own adapter wrapping @effect/schema's decoder.
@@ -186,7 +186,7 @@ r.analysis       // per-output diagnostics
 
 ## Subpath imports for bundle size
 
-Default to the full barrel `import { ... } from "@ai2070/l0"` for app code — it tree-shakes well. Only switch to `@ai2070/l0/core`, `/structured`, `/consensus`, `/parallel`, `/window`, `/guardrails`, `/monitoring`, `/drift`, `/zod`, `/openai`, `/anthropic`, `/mastra` when targeting edge runtimes or strict bundle budgets.
+Default to the full barrel `import { ... } from "reliable-ai-streams"` for app code — it tree-shakes well. Only switch to `reliable-ai-streams/core`, `/structured`, `/consensus`, `/parallel`, `/window`, `/guardrails`, `/monitoring`, `/drift`, `/zod`, `/openai`, `/anthropic`, `/mastra` when targeting edge runtimes or strict bundle budgets.
 
 ## Lifecycle callbacks
 
@@ -205,7 +205,7 @@ import {
   L0ErrorCodes,
   isNetworkError,
   analyzeNetworkError,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 try {
   await l0({ stream: () => streamText({ model, prompt }) });
@@ -265,7 +265,7 @@ Each `GuardrailRule` has a `streaming` field:
 For truly heavy checks (LLM-as-judge, embedding similarity, network calls), **don't block the stream** — use the async helpers:
 
 ```ts
-import { runAsyncGuardrailCheck, createGuardrailEngine } from "@ai2070/l0";
+import { runAsyncGuardrailCheck, createGuardrailEngine } from "reliable-ai-streams";
 
 const engine = createGuardrailEngine([heavyRule]);
 runAsyncGuardrailCheck(engine, context, (result) => {
@@ -290,7 +290,7 @@ import {
   createEventRecorder,
   createInMemoryEventStore,
   replay,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 const store = createInMemoryEventStore();
 const recorder = createEventRecorder(store);
@@ -312,7 +312,7 @@ For image / audio / video / data output adapters, use the event-builder helpers:
 
 ## Format helpers
 
-`@ai2070/l0` ships prompt- and output-shaping utilities so apps don't reinvent them:
+`reliable-ai-streams` ships prompt- and output-shaping utilities so apps don't reinvent them:
 
 - `formatContext(context, opts)`, `formatMultipleContexts`, `formatDocument`, `formatInstructions` — build system prompts with escaped delimiters.
 - `formatMemory`, `createMemoryEntry`, `mergeMemory`, `truncateMemory` — chat-style memory assembly.
@@ -328,12 +328,12 @@ Unit tests should mock `l0` / `structured` / `consensus` rather than hit real mo
 ```ts
 import { vi } from "vitest";
 
-vi.mock("@ai2070/l0", async (orig) => {
-  const actual = await orig<typeof import("@ai2070/l0")>();
+vi.mock("reliable-ai-streams", async (orig) => {
+  const actual = await orig<typeof import("reliable-ai-streams")>();
   return { ...actual, l0: vi.fn() };
 });
 
-import { l0 } from "@ai2070/l0";
+import { l0 } from "reliable-ai-streams";
 
 const mockL0 = vi.mocked(l0);
 mockL0.mockResolvedValue({
@@ -364,7 +364,7 @@ For integration tests against real providers, use `vitest.integration.config.ts`
 - **Mutating `recommendedGuardrails` / preset arrays in place** — they're shared. Spread first: `guardrails: [...recommendedGuardrails, customRule]`.
 - **`AbortController` not propagated** — pass `signal:` to `l0`/`structured`/`consensus`/`pipe`/`parallel` so the user's cancel actually cancels.
 - **String-matching error messages** — branch on `err.code` (`L0ErrorCodes.*`) or `isNetworkError(err)`. Messages change, codes are stable.
-- **Using `any` for events/state** — import `L0Event`, `L0State`, `L0Result` from `@ai2070/l0`.
+- **Using `any` for events/state** — import `L0Event`, `L0State`, `L0Result` from `reliable-ai-streams`.
 
 ## Where to read more (in this repo)
 

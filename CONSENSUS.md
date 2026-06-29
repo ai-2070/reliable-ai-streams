@@ -5,13 +5,13 @@ Multi-generation consensus for high-confidence results. Run multiple generations
 > **Bundle size tip:** For smaller bundles, use subpath imports:
 >
 > ```typescript
-> import { consensus } from "@ai2070/l0/consensus";
+> import { consensus } from "reliable-ai-streams/consensus";
 > ```
 
 ## Quick Start
 
 ```typescript
-import { consensus } from "@ai2070/l0";
+import { consensus } from "reliable-ai-streams";
 
 const result = await consensus({
   streams: [
@@ -66,7 +66,7 @@ await consensus({
 With Zod schema, consensus compares field-by-field:
 
 ```typescript
-import { consensus } from "@ai2070/l0";
+import { consensus } from "reliable-ai-streams";
 import { z } from "zod";
 
 const schema = z.object({
@@ -243,7 +243,7 @@ import {
   standardConsensus,
   lenientConsensus,
   bestConsensus,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Strict: all must agree
 await consensus({ streams, ...strictConsensus });
@@ -269,7 +269,7 @@ await consensus({ streams, ...bestConsensus });
 ### Quick Consensus Check
 
 ```typescript
-import { quickConsensus } from "@ai2070/l0";
+import { quickConsensus } from "reliable-ai-streams";
 
 const outputs = ["answer A", "answer A", "answer B"];
 quickConsensus(outputs); // false (not 80% agreement)
@@ -279,7 +279,7 @@ quickConsensus(outputs, 0.6); // true (66% >= 60%)
 ### Get Consensus Value
 
 ```typescript
-import { getConsensusValue } from "@ai2070/l0";
+import { getConsensusValue } from "reliable-ai-streams";
 
 getConsensusValue(["A", "A", "B"]); // "A"
 getConsensusValue([1, 2, 1, 1]); // 1
@@ -288,7 +288,7 @@ getConsensusValue([1, 2, 1, 1]); // 1
 ### Validate Consensus
 
 ```typescript
-import { validateConsensus } from "@ai2070/l0";
+import { validateConsensus } from "reliable-ai-streams";
 
 validateConsensus(result, 0.8, 0); // minConfidence, maxDisagreements
 // Returns true if confidence >= 0.8 and no major/critical disagreements
@@ -393,7 +393,7 @@ import {
   resolveBest,
   resolveMerge,
   meetsMinimumAgreement,
-} from "@ai2070/l0";
+} from "reliable-ai-streams";
 
 // Calculate pairwise similarity between outputs
 const matrix = calculateSimilarityMatrix(outputs);

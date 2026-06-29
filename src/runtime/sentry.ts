@@ -428,7 +428,7 @@ export function createSentryIntegration(config: SentryConfig): L0Sentry {
  * @example
  * ```typescript
  * import * as Sentry from '@sentry/node';
- * import { l0, createSentryHandler, combineEvents } from '@ai2070/l0';
+ * import { l0, createSentryHandler, combineEvents } from 'reliable-ai-streams';
  *
  * const result = await l0({
  *   stream: () => streamText({ model, prompt }),

@@ -35,8 +35,7 @@ export interface MastraAdapterOptions {
  * Mastra message input types
  */
 export type MastraMessageInput =
-  | string
-  | Array<{ role: "user" | "assistant" | "system"; content: string }>;
+  string | Array<{ role: "user" | "assistant" | "system"; content: string }>;
 
 /**
  * Wrap a Mastra stream result for use with L0
@@ -512,7 +511,7 @@ export async function extractMastraObject<T>(
  *
  * @example
  * ```typescript
- * import { l0, mastraAdapter } from '@ai2070/l0';
+ * import { l0, mastraAdapter } from 'reliable-ai-streams';
  * import { Agent } from '@mastra/core';
  *
  * const agent = new Agent({
