@@ -1,6 +1,4 @@
-> **Rename note:** This project was previously called L0. The package/repository is being renamed to reliable-ai-streams. Existing imports remain supported. Install: `npm install reliable-ai-streams`
-
-# L0 - Deterministic Streaming Execution Substrate (DSES) for AI
+# L0 - Reliable AI Streams
 
 ### The missing reliability and observability layer for all AI streams.
 
