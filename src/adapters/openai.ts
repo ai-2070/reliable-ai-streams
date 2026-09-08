@@ -33,7 +33,9 @@ export interface OpenAIClient {
  */
 export interface OpenAIAdapterOptions {
   /**
-   * Include usage information in done event
+   * Include usage information in the complete event when the stream reports it.
+   * OpenAI only sends usage when the request sets
+   * `stream_options: { include_usage: true }`.
    * @default true
    */
   includeUsage?: boolean;
@@ -125,15 +127,17 @@ export async function* wrapOpenAIStream(
 
   try {
     for await (const chunk of stream) {
+      // Store usage if available. This MUST happen before the empty-choices
+      // skip: with stream_options.include_usage OpenAI delivers usage in a
+      // final chunk whose `choices` array is empty.
+      if (chunk.usage) {
+        usage = chunk.usage;
+      }
+
       // Handle OpenAI ChatCompletionChunk format
       const choices = chunk.choices;
       if (!choices || choices.length === 0) {
         continue;
-      }
-
-      // Store usage if available
-      if (chunk.usage) {
-        usage = chunk.usage;
       }
 
       // Process each choice
