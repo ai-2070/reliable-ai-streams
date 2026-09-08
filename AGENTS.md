@@ -89,7 +89,7 @@ Ranges: `ai ^6||^7`, `openai ^6||^7`, `@anthropic-ai/sdk >=0.50 <1`, `@mastra/co
 
 Supported runtimes: `engines.node >=22.0.0` is the floor for **consumers** of the published package. Local development needs Node >= 22.12.0 because `vitest@5` declares `^22.12.0 || ^24.0.0 || >=26.0.0`; the CI matrix is 22/24/26 and node 25 sits outside that range.
 
-**Widening a peer range requires a lower-bound CI job.** Two exist today: `compat-ai-v6` and `compat-openai-v6` in `.github/workflows/ci.yml`, each pinning the exact floor (`npm install <pkg>@6.0.0 --no-save`) then test + build — pinning `@6` would only prove the newest 6.x. devDependencies pin the upper bound of each range, so without such a job the new lower bound is unverified. `zod` v4 is exercised only through the `zod4: npm:zod@^4` devDependency alias.
+**Widening a peer range requires a lower-bound CI job.** Two exist today: `compat-ai-v6` and `compat-openai-v6` in `.github/workflows/ci.yml`, each a 2-cell matrix over `["6.0.0", "6"]` that installs the peer with `--no-save` then runs test + build. Both cells matter: the exact floor catches use of an API added mid-major, `@6` catches whatever the newest 6.x changed. devDependencies pin the upper bound of each range, so without such a job the new lower bound is unverified. `zod` v4 is exercised only through the `zod4: npm:zod@^4` devDependency alias.
 
 ## Docs to update
 
