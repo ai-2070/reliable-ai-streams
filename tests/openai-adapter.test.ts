@@ -11,6 +11,7 @@ import {
   type OpenAIClient,
 } from "../src/adapters/openai";
 import type { L0Event } from "../src/types/l0";
+import OpenAI from "openai";
 
 // Mock OpenAI stream chunk format
 function createMockOpenAIChunk(
@@ -620,6 +621,59 @@ describe("OpenAI SDK Adapter", () => {
       }
 
       expect(events.filter((e) => e.type === "token")).toHaveLength(1);
+    });
+  });
+
+  // Guards the `openai` peer range (^6.0.0 || ^7.0.0) at runtime: the real SDK
+  // owns SSE parsing and the `Stream` wrapper, so a major bump can break the
+  // adapter even while the mock-client tests above keep passing.
+  describe("Real openai SDK stream", () => {
+    it("consumes a Stream produced by the installed openai SDK", async () => {
+      const body =
+        [
+          createMockOpenAIChunk("Hello"),
+          createMockOpenAIChunk(" world", {
+            finishReason: "stop",
+            usage: { prompt_tokens: 3, completion_tokens: 2, total_tokens: 5 },
+          }),
+        ]
+          .map((chunk) => `data: ${JSON.stringify(chunk)}\n\n`)
+          .join("") + "data: [DONE]\n\n";
+
+      const client = new OpenAI({
+        apiKey: "test",
+        fetch: async () =>
+          new Response(body, {
+            status: 200,
+            headers: { "content-type": "text/event-stream" },
+          }),
+      });
+
+      const stream = await openaiStream(client, {
+        model: "gpt-4o",
+        messages: [{ role: "user", content: "Hello" }],
+      })();
+
+      const events: L0Event[] = [];
+      for await (const event of stream) {
+        events.push(event);
+      }
+
+      expect(
+        events
+          .filter((e) => e.type === "token")
+          .map((e) => e.value)
+          .join(""),
+      ).toBe("Hello world");
+
+      const complete = events.find((e) => e.type === "complete");
+      const usage =
+        complete && "usage" in complete ? complete.usage : undefined;
+      expect(usage).toEqual({
+        prompt_tokens: 3,
+        completion_tokens: 2,
+        total_tokens: 5,
+      });
     });
   });
 });

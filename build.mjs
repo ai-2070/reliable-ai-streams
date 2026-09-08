@@ -10,7 +10,7 @@ await esbuild.build({
   outdir: "dist",
   format: "esm",
   platform: "node",
-  target: "node20",
+  target: "node22",
   sourcemap: true,
   bundle: false,
   // Preserve directory structure

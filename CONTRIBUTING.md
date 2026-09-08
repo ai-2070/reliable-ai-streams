@@ -61,7 +61,7 @@ All adapters must be maintained out-of-tree. The L0 core will remain small, depe
 
 ### Prerequisites
 
-- Node.js 18.0.0 or higher
+- Node.js 22.0.0 or higher
 - npm, yarn, or pnpm
 - TypeScript 5.3+
 

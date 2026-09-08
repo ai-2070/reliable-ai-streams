@@ -11,7 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20, 22, 24, 25]
+        # Runtimes covered by the vitest 5 engine range (^22.12.0 || ^24 || >=26);
+        # node 25 is excluded there, so it is not part of the support matrix.
+        node-version: [22, 24, 26]
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -50,6 +52,33 @@ jobs:
 
       - name: Pin ai to v6
         run: npm install ai@6 --no-save
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  # Guard the lower bound of the `openai` peer range (^6.0.0 || ^7.0.0).
+  # The main job above exercises openai v7 (the saved devDependency); this job
+  # pins openai to v6 so the adapter's cross-version typing keeps compiling.
+  compat-openai-v6:
+    name: Build against openai v6
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Pin openai to v6
+        run: npm install openai@6 --no-save
 
       - name: Run tests
         run: npm test
