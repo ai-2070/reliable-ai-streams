@@ -1,0 +1,16 @@
+.github/workflows/ci.yml
+  h_64425bc75e3f3d 35-38,40,42-45,58-59,67-68,70,72-75,88-89
+AGENTS.md
+  h_64425bc75e3f3d 92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "9515087c20b6681d85bfb0aa5f122c767f5973db",
+  "prompts": {},
+  "humans": {
+    "h_64425bc75e3f3d": {
+      "author": "LZL0 <12474488+LZL0@users.noreply.github.com>"
+    }
+  }
+}
