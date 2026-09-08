@@ -61,7 +61,9 @@ All adapters must be maintained out-of-tree. The L0 core will remain small, depe
 
 ### Prerequisites
 
-- Node.js 22.0.0 or higher
+- Node.js 22.12.0 or higher — the test toolchain (vitest 5) declares
+  `^22.12.0 || ^24.0.0 || >=26.0.0`. The published package itself only needs
+  Node 22.0.0 (`engines.node`).
 - npm, yarn, or pnpm
 - TypeScript 5.3+
 

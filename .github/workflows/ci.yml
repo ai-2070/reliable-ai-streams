@@ -34,9 +34,10 @@ jobs:
 
   # Guard the lower bound of the `ai` peer range (^6.0.0 || ^7.0.0).
   # The main job above exercises ai v7 (the saved devDependency); this job
-  # pins ai to v6 so the adapter's cross-version typing keeps compiling.
+  # pins the exact floor so the adapter's cross-version typing keeps compiling
+  # for a consumer sitting on ai@6.0.0, not just on the newest 6.x.
   compat-ai-v6:
-    name: Build against ai v6
+    name: Build against ai 6.0.0
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -50,8 +51,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Pin ai to v6
-        run: npm install ai@6 --no-save
+      - name: Pin ai to the 6.x floor
+        run: npm install ai@6.0.0 --no-save
 
       - name: Run tests
         run: npm test
@@ -61,9 +62,10 @@ jobs:
 
   # Guard the lower bound of the `openai` peer range (^6.0.0 || ^7.0.0).
   # The main job above exercises openai v7 (the saved devDependency); this job
-  # pins openai to v6 so the adapter's cross-version typing keeps compiling.
+  # pins the exact floor so the adapter's cross-version typing keeps compiling
+  # for a consumer sitting on openai@6.0.0, not just on the newest 6.x.
   compat-openai-v6:
-    name: Build against openai v6
+    name: Build against openai 6.0.0
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -77,8 +79,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Pin openai to v6
-        run: npm install openai@6 --no-save
+      - name: Pin openai to the 6.x floor
+        run: npm install openai@6.0.0 --no-save
 
       - name: Run tests
         run: npm test

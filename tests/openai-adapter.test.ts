@@ -629,13 +629,20 @@ describe("OpenAI SDK Adapter", () => {
   // adapter even while the mock-client tests above keep passing.
   describe("Real openai SDK stream", () => {
     it("consumes a Stream produced by the installed openai SDK", async () => {
+      // Shape matches a real `stream_options: { include_usage: true }` stream:
+      // usage arrives in a trailing chunk that carries no choices.
       const body =
         [
           createMockOpenAIChunk("Hello"),
-          createMockOpenAIChunk(" world", {
-            finishReason: "stop",
+          createMockOpenAIChunk(" world", { finishReason: "stop" }),
+          {
+            id: "chatcmpl-123",
+            object: "chat.completion.chunk",
+            created: Date.now(),
+            model: "gpt-4o",
+            choices: [],
             usage: { prompt_tokens: 3, completion_tokens: 2, total_tokens: 5 },
-          }),
+          },
         ]
           .map((chunk) => `data: ${JSON.stringify(chunk)}\n\n`)
           .join("") + "data: [DONE]\n\n";
