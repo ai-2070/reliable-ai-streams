@@ -1,0 +1,24 @@
+.github/workflows/ci.yml
+  h_64425bc75e3f3d 37-38,40,54-55,65-66,68,82-83
+AGENTS.md
+  h_64425bc75e3f3d 90,92
+CONTRIBUTING.md
+  h_64425bc75e3f3d 64-66
+package.json
+  h_64425bc75e3f3d 3
+src/adapters/openai.ts
+  h_64425bc75e3f3d 36-38,130-136
+tests/openai-adapter.test.ts
+  h_64425bc75e3f3d 632-633,637-643,645
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "200fcdfdac8593ba1062827d3dfe0d27139b940a",
+  "prompts": {},
+  "humans": {
+    "h_64425bc75e3f3d": {
+      "author": "LZL0 <12474488+LZL0@users.noreply.github.com>"
+    }
+  }
+}
